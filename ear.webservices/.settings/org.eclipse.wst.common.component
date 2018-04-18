@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="ear.webservices">
+        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
+        <dependent-module archiveName="spring-aop-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-aop-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-config-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-config-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-webmvc-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-webmvc-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-web-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-web-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-web-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-web-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-beans-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-beans-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="xml-apis-1.3.04.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/xml-apis-1.3.04.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-expression-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-expression-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-context-support-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-support-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-core-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-core-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-core-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-core-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-tx-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-tx-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="standard-1.1.2.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/standard-1.1.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="slf4j-simple-1.7.5.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/slf4j-simple-1.7.5.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="slf4j-api-1.7.5.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/slf4j-api-1.7.5.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="aopalliance-1.0.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/aopalliance-1.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-logging-1.1.1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/commons-logging-1.1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-context-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-core-2.4.3.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-core-2.4.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-orm-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-orm-4.1.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-databind-2.4.3.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-databind-2.4.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-annotations-2.8.6.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-annotations-2.8.6.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="hibernate-commons-annotations-5.0.1.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/hibernate-commons-annotations-5.0.1.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jandex-2.0.3.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/jandex-2.0.3.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="antlr-2.7.7.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/antlr-2.7.7.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-transaction-api_1.2_spec-1.0.1.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/jboss-transaction-api_1.2_spec-1.0.1.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="hibernate-core-5.2.10.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/hibernate-core-5.2.10.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="hibernate-jpa-2.1-api-1.0.0.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/hibernate-jpa-2.1-api-1.0.0.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-logging-3.3.0.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/jboss-logging-3.3.0.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="classmate-1.3.0.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/classmate-1.3.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="javassist-3.20.0-GA.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/javassist-3.20.0-GA.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.configuration.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.configuration/it.ltc.database.configuration">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.centrale.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.centrale/it.ltc.database.model.centrale">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="hibernate-c3p0-5.2.10.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/optional/c3p0/hibernate-c3p0-5.2.10.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="c3p0-0.9.5.2.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/optional/c3p0/c3p0-0.9.5.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="mchange-commons-java-0.2.11.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/optional/c3p0/mchange-commons-java-0.2.11.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.legacy.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.legacy/it.ltc.database.model.legacy">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.commessa.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.commessa/it.ltc.database.model.commessa">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-el-api_2.2_spec-1.0.4.Final-redhat-1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jboss-el-api_2.2_spec-1.0.4.Final-redhat-1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-servlet-api_3.0_spec-1.0.2.Final-redhat-1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jboss-servlet-api_3.0_spec-1.0.2.Final-redhat-1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-jstl-api_1.2_spec-1.0.6.Final-redhat-1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jboss-jstl-api_1.2_spec-1.0.6.Final-redhat-1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-jsp-api_2.2_spec-1.0.1.Final-redhat-2.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jboss-jsp-api_2.2_spec-1.0.1.Final-redhat-2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ws.clienti.war" deploy-path="/" handle="module:/resource/ws.clienti/ws.clienti">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.dao.common.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.dao.common/it.ltc.database.dao.common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="sqljdbc42.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/sqljdbc42.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="dom4j-1.6.1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/dom4j-1.6.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ws.logica.war" deploy-path="/" handle="module:/resource/ws.logica/ws.logica">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="mysql-connector-java-5.1.45-bin.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/mysql-connector-java-5.1.45-bin.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.services.custom.jar" deploy-path="/lib" handle="module:/resource/it.ltc.services.custom/it.ltc.services.custom">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ws.sede.war" deploy-path="/" handle="module:/resource/ws.sede/ws.sede">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.utente.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.utente/it.ltc.database.model.utente">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.sede.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.sede/it.ltc.database.model.sede">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.utility.miscellanea.jar" deploy-path="/lib" handle="module:/resource/it.ltc.utility.miscellanea/it.ltc.utility.miscellanea">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+    </wb-module>
+</project-modules>

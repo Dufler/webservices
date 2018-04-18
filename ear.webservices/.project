@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ear.webservices</name>
+	<comment></comment>
+	<projects>
+		<project>it.ltc.database.configuration</project>
+		<project>it.ltc.database.model.centrale</project>
+		<project>it.ltc.database.model.legacy</project>
+		<project>it.ltc.database.model.commessa</project>
+		<project>ws.clienti</project>
+		<project>it.ltc.database.dao.common</project>
+		<project>ws.logica</project>
+		<project>it.ltc.services.custom</project>
+		<project>ws.sede</project>
+		<project>it.ltc.database.model.utente</project>
+		<project>it.ltc.database.model.sede</project>
+		<project>it.ltc.utility.miscellanea</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.wst.common.project.facet.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.wst.validation.validationbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
+		<nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
+	</natures>
+</projectDescription>
