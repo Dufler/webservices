@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Logica - Web Services - Ordini</title>
+<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+<!-- Fogli di stile -->
+<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+<link rel="stylesheet" href="resources/css/style.css" />
+<link rel="stylesheet" href="resources/css/pretty-json.css" />
+<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+<!-- JS -->
+<script src="resources/js/jquery.min.js"></script>
+<script src="resources/js/bootstrap.min.js"></script>
+<script src="resources/js/underscore-min.js"></script>
+<script src="resources/js/backbone-min.js"></script>
+<script src="resources/js/pretty-json-min.js"></script>
+<script src="resources/js/esempiOrdine.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h1>Ordini</h1>
+		<p>Qui sono ospitati i Web Services per la gestione degli ordini.</p>
+		<h2>Lista degli end point</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#inserisci">Inserisci (Tutto)</a></li>
+			<li class="list-group-item"><a href="#inseriscidettaglio">Inserisci (Riga)</a></li>
+			<li class="list-group-item"><a href="#modifica">Modifica (Testata)</a></li>
+			<li class="list-group-item"><a href="#modificadettaglio">Modifica (Riga)</a></li>
+			<li class="list-group-item"><a href="#lista">Lista</a></li>
+			<li class="list-group-item"><a href="#dettaglioid">Dettaglio (ID)</a></li>
+			<li class="list-group-item"><a href="#dettaglioriferimento">Dettaglio (Riferimento)</a></li>
+			<li class="list-group-item"><a href="#elimina">Elimina (Tutto)</a></li>
+			<li class="list-group-item"><a href="#eliminadettaglio">Elimina (Riga)</a></li>
+			<li class="list-group-item"><a href="#assegnaid">Assegna (ID)</a></li>
+			<li class="list-group-item"><a href="#assegnariferimento">Assegna (Riferimento)</a></li>
+			<li class="list-group-item"><a href="#imballoid">Imballo (ID)</a></li>
+			<li class="list-group-item"><a href="#imballoriferimento">Imballo (Riferimento)</a></li>
+			<li class="list-group-item"><a href="#spedisci">Spedisci</a></li>
+		</ul>
+		<h2>Lista dei campi complessi</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#ordine">Ordine</a></li>
+			<li class="list-group-item"><a href="#testata">Testata</a></li>
+			<li class="list-group-item"><a href="#indirizzo">Indirizzo</a></li>
+			<li class="list-group-item"><a href="#prodotto">Prodotto</a></li>
+			<li class="list-group-item"><a href="#imballo">Imballo</a></li>
+			<li class="list-group-item"><a href="#prodottoimballato">Prodotto Imballato</a></li>
+			<li class="list-group-item"><a href="#spedizione">Spedizione</a></li>
+			<li class="list-group-item"><a href="#contrassegno">Contrassegno</a></li>
+			<li class="list-group-item"><a href="#documento">Documento</a></li>
+		</ul>
+		
+		<div class="well well-sm">
+			<h2 id="inserisci">Inserisci (Tutto)</h2>
+			<p>
+				<b>Endpoint test:</b>test.services.ltc-logistics.it/clienti/rest/ordine<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve ad inserire un nuovo ordine.<br>Affinch&egrave; LTC possa lavorare l'ordine va confermato l'inserimento con una chiamata successiva all'end point <a href="#finalizza">finalizza</a><br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+			</p>
+			<p><b>Campi previsti</b></p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#ordine">Ordine</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta l'ordine. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="inseriscidettaglio">Inserisci (Riga)</h2>
+			<p>
+				<b>Endpoint test:</b>test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/dettaglio<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve ad inserire una nuova riga in un'ordine gi&agrave; presente a sistema.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#prodotto">Prodotto</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta un prodotto da ordinare. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="modifica">Modifica (Testata)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/modifica<br>
+				<b>Tipo:</b> PUT<br>
+				<b>Descrizione:</b>Questo end point serve a modificare le informazioni di testata di un'ordine gi&agrave; presente a sistema.<br>E' possibile modificare le informazioni solo fintanto che non si procede con l'assegnazione.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#testata">Testata</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta la testata d'ordine.<br>Non tutti i campi possono essere modificati, vedi sotto.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="modificadettaglio">Modifica (Riga)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/modifica/dettaglio<br>
+				<b>Tipo:</b> PUT<br>
+				<b>Descrizione:</b>Questo end point serve a modificare una riga di un'ordine gi&agrave; presente a sistema.<br>E' possibile modificare le informazioni solo fintanto che non si procede con l'assegnazione.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#prodotto">Prodotto</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta un prodotto dell'ordine.<br>Non tutti i campi possono essere modificati, vedi sotto.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="lista">Lista</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/lista<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/lista<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b>Questo end point serve a ottenere una lista di tutti gli ordini gi&agrave; presenti a sistema. Per ogni ordine vengono restituite solo informazioni sommarie.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br>
+			</p>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="dettaglioid">Dettaglio (ID)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio/{id}<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/dettaglio/{id}<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b>Questo end point serve a ottenere informazioni dettagliate su uno specifico ordine identificato dall'ID. E' disponibile, in alternativa, un endpoint che effettua la ricerca tramite riferimento, vedi sotto.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>necessario</td>
+						<td>URL</td>
+						<td>Va inserito l'ID dell'ordine come fornito dai nostri sistemi nella URL.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="dettaglioriferimento">Dettaglio (Riferimento)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio/cerca<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/dettaglio/cerca<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve a ottenere informazioni dettagliate su uno specifico ordine identificato tramite il riferimento passato durante l'inserimento.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#testata">Testata</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sull'ordine, &egrave; sufficiente valorizzare solo il campo <i>riferimentoOrdine</i>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="elimina">Elimina (Tutto)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine<br>
+				<b>Tipo:</b> DELETE<br>
+				<b>Descrizione:</b>Questo end point serve ad eliminare un'ordine presente a sistema.<br>E' possibile eliminare un ordine solo fintanto che non si procede con l'assegnazione.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#testata">Testata</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sull'ordine, &egrave; sufficiente valorizzare solo il campo <i>riferimentoOrdine</i>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="eliminadettaglio">Elimina (Riga)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/dettaglio<br>
+				<b>Tipo:</b> DELETE<br>
+				<b>Descrizione:</b>Questo end point serve ad eliminare un'ordine presente a sistema.<br>E' possibile eliminare una riga solo fintanto che non si procede con l'assegnazione.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#prodotto">Prodotto</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni su una riga dell'ordine, &egrave; sufficiente valorizzare solo il campo <i>riferimento</i> e <i>riga</i>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="assegnaid">Assegna (ID)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/assegna/{id}<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/assegna/{id}<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b>Questo end point serve a confermare le informazioni inserite su un ordine gi&agrave; inserito a sistema e procede con la verifica della disponibilit&agrave; dei prodotti, una volta completata con successo decrementa l'effettiva disponibilit&agrave; degli stessi.<br>Questo passaggio &egrave; propedeutico all'inizio della lavorazione.<br>Esiste un end point analogo da utilizzare tramite riferimento.<br> 
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>necessario</td>
+						<td>URL</td>
+						<td>Va inserito l'ID dell'ordine come fornito dai nostri sistemi nella URL.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="assegnariferimento">Assegna (Riferimento)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/assegna<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/assegna<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve a confermare le informazioni inserite su un ordine gi&agrave; inserito a sistema e procede con la verifica della disponibilit&agrave; dei prodotti, una volta completata con successo decrementa l'effettiva disponibilit&agrave; degli stessi.<br>Questo passaggio &egrave; propedeutico all'inizio della lavorazione.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#testata">Testata</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sull'ordine, &egrave; sufficiente valorizzare solo il campo <i>riferimentoOrdine</i>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="imballoid">Imballo (ID)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/imballo/{id}<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/imballo/{id}<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b>Questo end point serve a ottenere le informazioni sugli imballi di un ordine gi&agrave; inserito a sistema.<br>Viene restituito un oggetto JSON <a href="#testata">Testata</a> e un array di oggetti JSON <a href="#imballo">Imballo</a>.<br>Esiste un end point analogo da utilizzare tramite riferimento.<br> 
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>necessario</td>
+						<td>URL</td>
+						<td>Va inserito l'ID dell'ordine come fornito dai nostri sistemi nella URL.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="imballoriferimento">Imballo (Riferimento)</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/imballo<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/imballo<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve a ottenere le informazioni sugli imballi di un ordine gi&agrave; inserito a sistema.<br>Viene restituito un oggetto JSON <a href="#testata">Testata</a> e un array di oggetti JSON <a href="#imballo">Imballo</a>.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#testata">Testata</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sull'ordine, &egrave; sufficiente valorizzare solo il campo <i>riferimentoOrdine</i>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="spedisci">Spedisci</h2>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ordine/spedisci<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ordine/spedisci<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b>Questo end point serve a fornire le informazioni necessarie alla spedizione di uno o più ordini. <br>Questo passaggio &egrave; propedeutico alla spedizione della merce.<br>
+				<b>Esempio Postman</b> <a href="resources/postman/Cliente_Ordini.postman_collection.json">download</a><br>
+				<br><b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#spedizione">Spedizione</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sulla spedizione.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="ordine">Ordine</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>ordine</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>L'oggetto JSON che rappresenta le informazioni relative all'ordine. Vedi sotto</td>
+					</tr>
+					<tr>
+						<td>dettagli</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Un array di oggetti JSON che rappresenta i dettagli dei prodotti presenti nell'ordine da evadere, vedi sotto.</td>
+					</tr>
+					<tr>
+						<td>documento</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>L'oggetto JSON che rappresenta le informazioni relative al documento di ordine.<br>Questo documento &egrave; diverso dal documento fiscale accompagnatorio della merce &egrave; rappresenta l'ordine che state facendo ad LTC.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapseordine">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapseordine" class="panel-collapse collapse">
+						<div id="jsonOrdineCompleto" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="testata">Ordine (Testata)</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>Tale campo non va valorizzato, viene attribuito in automatico all'inserimento dell'ordine e restituito nelle chiamate lista e dettaglio.<br>Pu&ograve; essere utilizzato nella chiamata dettaglio (ID)</td>
+					</tr>
+					<tr>
+						<td>dataOrdine</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>La data di riferimento per l'ordine.</td>
+					</tr>
+					<tr>
+						<td>dataConsegna</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>La data di consegna richiesta per l'ordine.</td>
+					</tr>
+					<tr>
+						<td>tipo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il tipo di ordine che si sta immettendo.<br>I possibili valori sono: PRO (Produzione) WEB (E-commerce) e CAM (Campionario).<br>Altri possibili valori sono da concordare con il reparto IT.</td>
+					</tr>
+					<tr>
+						<td>priorita</td>
+						<td>facoltativo</td>
+						<td>numerico</td>
+						<td>La priorit&agrave; per l'ordine. Il valore deve essere compreso tra 1 e 10.<br>Pi&ugrave; alto &egrave; il valore maggiore &egrave; la priorit&agrave;.<br>Utilizzare questo campo solo se previsto dal contratto di servizio.
+						</td>
+					</tr>
+					<tr>
+						<td>note</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Note per la lavorazione o la consegna dell'ordine.</td>
+					</tr>
+					<tr>
+						<td>riferimentoOrdine</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Va inserito un valore che faccia da chiave di comunicazione tra voi e LTC.<br>Es. Purchase order number, ID chiave nei vostri sistemi.<br>Tale valore sarà utilizzato per parametrizzare le chiamate.</td>
+					</tr>
+					<tr>
+						<td>stato</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Contiene lo stato di lavorazione dell'ordine.<br>Tale valorizzazione avviene in automatico, questo campo non va valorizzato in fase di inserimento o modifica ma viene restituito dal sistema quando si chiede il dettaglio dell'ordine.<br>
+						I possibili stati sono:
+						<ul>
+							<li>INSERITO: Appena inserito, va ancora assegnato.</li>
+							<li>ERRORE: E' stata tentata l'assegnazione ma è fallita.</li>
+							<li>ANNULLATO: Annullato!</li>
+							<li>ASSEGNATO: Ordine correttamente importato e assegnato per la lavorazione.</li>
+							<li>PICKING: In fase di imballo.</li>
+							<li>IMBALLATO: Imballo completato.</li>
+							<li>IMBALLATO_CON_DIFFERENZE: Differenze di imballo.</li>
+							<li>PRONTO_PER_SPEDIZIONE: Pronto per essere spedito.</li>
+							<li>IN_SPEDIZIONE: In spedizione.</li>
+							<li>SPEDITO: Spedito!</li>
+						</ul>
+						</td>
+					</tr>
+					<tr>
+						<td>destinatario</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Contiene le informazioni sulla destinazione della spedizione. Vedi sotto il campo complesso Indirizzo.</td>
+					</tr>
+					<tr>
+						<td>mittente</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Contiene le informazioni sul mittente della spedizione. Vedi sotto il campo complesso Indirizzo.</td>
+					</tr>
+					<tr>
+						<td>codiceTracking</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il codice di tracciamento della spedizione.<br>Tale valorizzazione avviene in automatico, questo campo non va valorizzato in fase di inserimento o modifica ma viene restituito dal sistema quando si chiede il dettaglio dell'ordine.
+						</td>
+					</tr>
+					<tr>
+						<td>pezziOrdinati</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>Il totale dei pezzi presenti nell'ordine.</td>
+					</tr>
+					<tr>
+						<td>pezziImballati</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>Il totale dei pezzi efffettivamenti presenti e imballati nell'ordine.<br>Tale valorizzazione avviene in automatico, questo campo non va valorizzato in fase di inserimento o modifica ma viene restituito dal sistema quando si chiede il dettaglio dell'ordine.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsetestata">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsetestata" class="panel-collapse collapse">
+						<div id="jsonTestata" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="indirizzo">Indirizzo</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>ragioneSociale</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>La ragione sociale.</td>
+					</tr>
+					<tr>
+						<td>indirizzo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>L'indirizzo. Mettere qui il numero civico, se presente.</td>
+					</tr>
+					<tr>
+						<td>cap</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il CAP.</td>
+					</tr>
+					<tr>
+						<td>localita</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il nome della localit&agrave;.</td>
+					</tr>
+					<tr>
+						<td>provincia</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il codice della provincia. 2 caratteri. Indicare XX se la spedizione &egrave; diretta all'estero.</td>
+					</tr>
+					<tr>
+						<td>nazione</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il codice della nazione. 3 caratteri come secondo lo standard ISO 3166-1 Alpha-3.</td>
+					</tr>
+					<tr>
+						<td>telefono</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Il numero di telefono.</td>
+					</tr>
+					<tr>
+						<td>email</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>L'indirizzo email.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapseindirizzo">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapseindirizzo" class="panel-collapse collapse">
+						<div id="jsonIndirizzo" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="prodotto">Prodotto</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>riferimento</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il riferimento all'ordine così come passato in fase di inserimento. E' necessario valorizzare tale campo solo nelle chiamate di inserisci (dettaglio), modifica (dettaglio) e elimina(dettaglio).</td>
+					</tr>
+					<tr>
+						<td>riga</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>Il numero di riga identificativo.</td>
+					</tr>
+					<tr>
+						<td>quantitaOrdinata</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; di prodotto da lavorare.</td>
+					</tr>
+					<tr>
+						<td>quantitaImballata</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; di prodotto effettivamente imballata. Questo campo viene valorizzato in automatico dal sistema nelle chiamate di dettaglio.</td>
+					</tr>
+					<tr>
+						<td>magazzino</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il codice del magazzino dal quale prelevare la merce. Es. PG1. Contattare il reparto IT per i possibili valori.</td>
+					</tr>
+					<tr>
+						<td>prodotto</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>La chiave identificativa del prodotto passata in fase d'inserimento dell'anagrafica.</td>
+					</tr>
+					<tr>
+						<td>note</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Qui &egrave; possibile inserire note relative alla riga d'ordine.</td>
+					</tr>
+					<tr>
+						<td>seriali</td>
+						<td>N/A</td>
+						<td>array di stringhe</td>
+						<td>La lista dei seriali imballati appartenenti a questa riga di documento.<br>Tale campo compare solo se il prodotto viene gestito tramite seriale e viene valorizzato da noi dopo l'imballo della merce.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedprodotto">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedprodotto" class="panel-collapse collapse">
+						<div id="jsonProdotto" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="imballo">Imballo</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>riferimento</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il riferimento dell'imballo.</td>
+					</tr>
+					<tr>
+						<td>barcode</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il barcode stampato sull'imballo.</td>
+					</tr>
+					<tr>
+						<td>peso</td>
+						<td>N/A</td>
+						<td>numerico</td>
+						<td>Il peso dell'imballo in Kg.</td>
+					</tr>
+					<tr>
+						<td>volume</td>
+						<td>N/A</td>
+						<td>numerico</td>
+						<td>Il volume dell'imballo in metri cubi.</td>
+					</tr>
+					<tr>
+						<td>h</td>
+						<td>N/A</td>
+						<td>numerico</td>
+						<td>L'altezza dell'imballo in centimetri.<br>Questo campo &egrave; presente solo se vengono concordati i formati di imballo.</td>
+					</tr>
+					<tr>
+						<td>l</td>
+						<td>N/A</td>
+						<td>numerico</td>
+						<td>La larghezza dell'imballo in centimetri.<br>Questo campo &egrave; presente solo se vengono concordati i formati di imballo.</td>
+					</tr>
+					<tr>
+						<td>z</td>
+						<td>N/A</td>
+						<td>numerico</td>
+						<td>La profondit&agrave; dell'imballo in centimetri.<br>Questo campo &egrave; presente solo se vengono concordati i formati di imballo.</td>
+					</tr>
+					<tr>
+						<td>prodotti</td>
+						<td>N/A</td>
+						<td>array di oggetti JSON</td>
+						<td>La lista dei prodotti contenuti nell'imballo.<br>Ogni oggetto JSON ha 2 campi: "prodotto" di tipo testo e "quantitaImballata" di tipo numerico intero.</td>
+					</tr>
+					<tr>
+						<td>seriali</td>
+						<td>N/A</td>
+						<td>array di stringhe</td>
+						<td>La lista dei seriali contenuti nell'imballo.<br>Questo campo &egrave; presente solo se vengono gestiti i seriali.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedimballo">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedimballo" class="panel-collapse collapse">
+						<div id="jsonImballo" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="prodottoimballato">Prodotto Imballato</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>prodotto</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>La chiave identificativa del prodotto passata in fase d'inserimento dell'anagrafica.</td>
+					</tr>
+					<tr>
+						<td>quantitaImballata</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; di prodotto effettivamente contenuta nell'imballo.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedprodottoimballato">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedprodottoimballato" class="panel-collapse collapse">
+						<div id="jsonProdottoImballato" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="spedizione">Spedizione</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>riferimenti</td>
+						<td>necessario</td>
+						<td>Array di stringhe</td>
+						<td>&egrave; la lista dei riferimenti degli ordini che vanno preparati nella stessa spedizione. La lista deve contenere almeno un riferimento.<br>Nel caso standard in cui ci sia un solo elemento va comunque inserito in un array.</td>
+					</tr>
+					<tr>
+						<td>corriere</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il corriere con cui dovr&agrave; essere effettuata la spedizione.<br>I possibili valori sono: BRT, TNT, GLS, DHL, FED.<br>Contattare il reparto IT per maggiori informazioni o altre possibili soluzioni.
+						</td>
+					</tr>
+					<tr>
+						<td>servizioCorriere</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il livello di servizio con cui dovr&agrave; essere effettuata la spedizione.<br>I possibili valori sono: DEF (Default) PRI(Priority) O10(Ore 10:00) 012(Ore 12:00) AER(Aerea)<br>Contattare il reparto IT per altre possibili soluzioni o maggiori informazioni.
+						</td>
+					</tr>
+					<tr>
+						<td>codiceCorriere</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Il codice di fatturazione del corriere con cui dovr&agrave; essere effettuata la spedizione.<br>I possibili valori sono determinati dai contratti stipulati con i vettori.<br>Contattare il reparto IT per maggiori informazioni.
+						</td>
+					</tr>
+					<tr>
+						<td>dataConsegna</td>
+						<td>facoltativo</td>
+						<td>data</td>
+						<td>La data di consegna preferita, se esiste.</td>
+					</tr>
+					<tr>
+						<td>note</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Delle indicazioni da fornire al corriere, se necessarie.</td>
+					</tr>
+					<tr>
+						<td>valoreDoganale</td>
+						<td>facoltativo</td>
+						<td>numerico</td>
+						<td>Il valore della merce da dichiarare alla dogana. Sono consentiti solo 2 decimali.<br>Tale campo diventa necessario se la spedizione è diretta all'estero.
+						</td>
+					</tr>
+					<tr>
+						<td>contrassegno</td>
+						<td>facoltativo</td>
+						<td>complesso</td>
+						<td>Contiene le informazioni sul contrassegno della spedizione. Usare solo se la spedizione &egrave; in contrassegno.<br>Vedi sotto il campo complesso Contrassegno.
+						</td>
+					</tr>
+					<tr>
+						<td>documentoFiscale</td>
+						<td>facoltativo</td>
+						<td>Complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il documento fiscale accompagnatorio della merce.<br>Es. , DDT/123, Fattura N°1.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsespedizione">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsespedizione" class="panel-collapse collapse">
+						<div id="jsonSpedizione" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="contrassegno">Contrassegno</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>tipo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il tipo di contrassegno per la spedizione.<br>I possibili valori sono: BB, BM, CB, CM, NA, OM, SC, TM.<br>Contattare il reparto IT per maggiori informazioni o altre possibilit&agrave;.
+						</td>
+					</tr>
+					<tr>
+						<td>valore</td>
+						<td>necessario</td>
+						<td>numerico</td>
+						<td>Il valore del contrassegno in euro. Sono consentiti solo 2 decimali.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsecontrassegno">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsecontrassegno" class="panel-collapse collapse">
+						<div id="jsonContrassegno" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="documento">Documento</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>tipo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il tipo di documento. Concordare con il reparto IT i possibili valori.</td>
+					</tr>
+					<tr>
+						<td>riferimento</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il riferimento identificativo e univoco del documento.</td>
+					</tr>
+					<tr>
+						<td>data</td>
+						<td>necessario</td>
+						<td>data</td>
+						<td>La data di emissione del documento.</td>
+					</tr>
+					<tr>
+						<td>documentoBase64</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>I dati codificati in base 64 del documento.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedettaglio">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedettaglio" class="panel-collapse collapse">
+						<div id="jsonDocumento" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+</html>

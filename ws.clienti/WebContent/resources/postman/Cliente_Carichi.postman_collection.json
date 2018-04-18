@@ -1,0 +1,402 @@
+{
+	"info": {
+		"name": "Cliente - carichi",
+		"_postman_id": "71ed5bb6-7e2a-dda9-09ba-98c40b03b7d3",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET - Trova tutti",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Inserisci (tutto)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"ingresso\" : {\n\t\t\"dataArrivo\": \"2018-04-23T18:25:43.511Z\",\n\t\t\"fornitore\" : \"PIPPO\",\n\t\t\"pezziStimati\": 2,\n\t\t\"riferimentoCliente\" : \"2\",\n\t\t\"tipo\" : \"CARICO\"\n\t},\n\t\"documento\" : {\n\t\t\"riferimento\" : \"1\",\n\t\t\"tipo\" : \"CARICO\",\n\t\t\"data\" : \"2018-04-23T18:25:43.511Z\"\n\t},\n\t\"dettagli\" : [\n\t\t{\n\t\t\t\"riga\": 1,\n\t\t\t\"magazzino\": \"TEST\",\n\t\t\t\"collo\" : \"A\",\n\t\t\t\"prodotto\": \"ABC\",\n\t\t\t\"quantitaPrevista\": 1\n\t\t},\n\t\t{\n\t\t\t\"riga\": 2,\n\t\t\t\"magazzino\": \"TEST\",\n\t\t\t\"collo\" : \"A\",\n\t\t\t\"prodotto\": \"DEF\",\n\t\t\t\"quantitaPrevista\": 1\n\t\t}\n\t]\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Inserisci (dettaglio)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riga\": 3,\n\t\"magazzino\": \"TEST\",\n\t\"collo\" : \"A\",\n\t\"prodotto\": \"123\",\n\t\"quantitaPrevista\": 2,\n\t\"riferimento\": \"1234567\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"dettaglio"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Trova da ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/8",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Trova da ID (Semplice)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/semplice/8",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"semplice",
+						"8"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Trova da riferimento",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimentoCliente\" : \"1234567\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/cerca",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"cerca"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Trova da riferimento (Semplice)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimentoCliente\" : \"1234567\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/semplice/cerca",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"semplice",
+						"cerca"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Modifica (testata)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\t\"dataArrivo\": \"2019-04-23T18:25:43.511Z\",\n\t\t\"fornitore\" : \"PIPPO\",\n\t\t\"pezziStimati\": 2,\n\t\t\"riferimentoCliente\" : \"1234567\",\n\t\t\"tipo\" : \"RESO\"\n\t}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Modifica (dettaglio)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riga\": 1,\n\t\"magazzino\": \"TEST\",\n\t\"collo\" : \"A\",\n\t\"prodotto\": \"123\",\n\t\"quantitaPrevista\": 20,\n\t\"riferimento\": \"1234567\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"dettaglio"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina (dettaglio)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riga\": 3,\n\t\"magazzino\": \"TEST\",\n\t\"collo\" : \"A\",\n\t\"prodotto\": \"123\",\n\t\"quantitaPrevista\": 2,\n\t\"riferimento\": \"1234567\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso",
+						"dettaglio"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina (tutto)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\t\"dataArrivo\": \"2018-04-23T18:25:43.511Z\",\n\t\t\"fornitore\" : \"PIPPO\",\n\t\t\"pezziStimati\": 2,\n\t\t\"riferimentoCliente\" : \"1234567\",\n\t\t\"tipo\" : \"CARICO\"\n\t}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ingresso",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ingresso"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

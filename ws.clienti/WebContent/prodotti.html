@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+	<title>Logica - Web Services - Prodotti</title>
+	<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+	<!-- Fogli di stile -->
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="resources/css/style.css" />
+	<link rel="stylesheet" href="resources/css/pretty-json.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+	<!-- JS -->
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/underscore-min.js"></script>
+	<script src="resources/js/backbone-min.js"></script>
+	<script src="resources/js/pretty-json-min.js"></script>
+	<script src="resources/js/esempiProdotto.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<h1>Prodotti</h1>
+	<p><a href="index.html">torna all'indice</a></p>
+	<p>Qui sono riportati tutti gli endpoint per la gestione dei prodotti.</p>
+	<h2>Lista degli end point</h2>
+	<ul class="list-group">
+		<li class="list-group-item"><a href="#inserisci">Inserimento</a></li>
+		<li class="list-group-item"><a href="#modifica">Modifica</a></li>
+		<li class="list-group-item"><a href="#dismetti">Dismetti</a></li>
+		<li class="list-group-item"><a href="#lista">Lista</a></li>
+		<li class="list-group-item"><a href="#cerca">Cerca</a></li>
+	</ul>
+	
+	<h2>Lista dei campi complessi</h2>
+	<ul class="list-group">
+		<li class="list-group-item"><a href="#prodotto">Prodotto</a></li>
+	</ul>
+	
+	<div class="well well-sm">
+		<h2 id="inserisci">Inserisci</h2>
+		<p>
+			<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Tipo:</b> POST<br>
+			<b>Descrizione:</b> Questo end point serve ad inserire le informazioni su un articolo.<br>
+			Il campo <i>chiavecliente</i> diventer&agrave; il valore di riferimento tra il vostro sistema e LTC.<br>
+			<b>Esempio Postman</b> <a href="resources/postman/Cliente_Prodotti.postman_collection.json">download</a><br>
+			<br>
+			<b>Campi previsti</b>
+		</p>
+		<table class="table table-bordered">
+			<thead>
+				<tr class="info">
+					<th>Nome</th>
+					<th>Richiesto</th>
+					<th>Tipo</th>
+					<th>Descrizione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a href="#prodotto">Prodotto</a></td>
+					<td>necessario</td>
+					<td>complesso</td>
+					<td>Va inserito  l'oggetto JSON che rappresenta il prodotto. Vedi sotto.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="well well-sm">
+		<h2 id="modifica">Modifica</h2>
+		<p>
+			<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Tipo:</b> PUT<br>
+			<b>Descrizione:</b> Questo end point serve ad aggiornare le informazioni su un articolo.<br>
+			Il campo <i>chiavecliente</i> verr&agrave; usato come riferimento e non potr&agrave; mai essere aggiornato.<br>
+			I campi <i>barcode</i>, <i>taglia</i>, <i>brand</i> e <i>categoria</i> possono essere aggiornati solo se il prodotto non &egrave; stato ancora mai gestito in magazzino.<br>
+			<b>Esempio Postman</b> <a href="#">download</a><br>
+			<br>
+			<b>Campi previsti</b>
+		</p>
+		<table class="table table-bordered">
+			<thead>
+				<tr class="info">
+					<th>Nome</th>
+					<th>Richiesto</th>
+					<th>Tipo</th>
+					<th>Descrizione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a href="#prodotto">Prodotto</a></td>
+					<td>necessario</td>
+					<td>complesso</td>
+					<td>Va inserito  l'oggetto JSON che rappresenta il prodotto. Vedi sotto.<br>Il campo chiaveCliente viene usato per trovare il prodotto da modificare, tale campo non potrà mai essere modificato.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="well well-sm">
+		<h2 id="dismetti">Dismetti</h2>
+		<p>
+			<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Tipo:</b> DELETE<br>
+			<b>Descrizione:</b> Questo end point serve a dismettere un articolo, &egrave; possibile dismettere un prodotto solo se non &egrave; presente in magazzino.<br>
+			<b>Esempio Postman</b> <a href="#">download</a><br>
+			<br>
+			<b>Campi previsti</b>
+		</p>
+		<table class="table table-bordered">
+			<thead>
+				<tr class="info">
+					<th>Nome</th>
+					<th>Richiesto</th>
+					<th>Tipo</th>
+					<th>Descrizione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a href="#prodotto">Prodotto</a></td>
+					<td>necessario</td>
+					<td>complesso</td>
+					<td>Va inserito  l'oggetto JSON che rappresenta il prodotto. Vedi sotto.<br>Il campo chiaveCliente viene usato per trovare il prodotto da dismettere.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="well well-sm">
+		<h2 id="lista">Lista</h2>
+		<p>
+			<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/prodotto<br>
+			<b>Tipo:</b> GET<br>
+			<b>Descrizione:</b> Questo end point serve ad ottenere una lista dettagliata su tutti gli articoli presenti a sistema.<br>
+			<b>Esempio Postman</b> <a href="#">download</a><br>
+			<br>
+		</p>
+	</div>
+	
+	<div class="well well-sm">
+		<h2 id="cerca">Cerca</h2>
+		<p>
+			<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/prodotto/cerca<br>
+			<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/prodotto/cerca<br>
+			<b>Tipo:</b> POST<br>
+			<b>Descrizione:</b> Questo end point serve a recuperare le informazioni su un articolo.<br>
+			Il campo <i>chiavecliente</i> viene usato per effettuare la ricerca.<br>
+			<b>Esempio Postman</b> <a href="resources/postman/Cliente_Prodotti.postman_collection.json">download</a><br>
+			<br>
+			<b>Campi previsti</b>
+		</p>
+		<table class="table table-bordered">
+			<thead>
+				<tr class="info">
+					<th>Nome</th>
+					<th>Richiesto</th>
+					<th>Tipo</th>
+					<th>Descrizione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a href="#prodotto">Prodotto</a></td>
+					<td>necessario</td>
+					<td>complesso</td>
+					<td>Va inserito  l'oggetto JSON che rappresenta il prodotto. Vedi sotto.<br>E' necessario valorizzare solo il campo chiaveCliente</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="well well-sm">
+		<h2 id="prodotto">Prodotto</h2>
+		<p>
+			<b>Campi previsti</b>
+		</p>
+		<table class="table table-bordered">
+			<thead>
+				<tr class="info">
+					<th>Nome</th>
+					<th>Richiesto</th>
+					<th>Tipo</th>
+					<th>Descrizione</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>chiaveCliente</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la vostra chiave di riferimento del prodotto. Deve essere <b>univoca</b> per ogni prodotto (modelli con più taglie o colori sono prodotti diversi)</td>
+				</tr>
+				<tr>
+					<td>codiceModello</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la vostra codifica con cui si identificano prodotti simili. (prodotti con taglie diverse ma simili hanno lo stesso codicemodello)</td>
+				</tr>
+				<tr>
+					<td>barcode</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta il barcode di riferimento del prodotto. Deve essere <b>univoco</b> per ogni prodotto.</td>
+				</tr>
+				<tr>
+					<td>taglia</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la taglia del prodotto. Se il prodotto non ha taglia indicare UNI</td>
+				</tr>
+				<tr>
+					<td>cassa</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta il modo in cui dovr&agrave; essere gestito il prodotto.<br>I possibili valori sono: NO, CASSA, BUNDLE. Il valore di default quando non indicato &egrave; NO. Contattare il reparto IT per ulteriori possibilit&agrave; o maggiori informazioni.</td>
+				</tr>
+				<tr>
+					<td>colore</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta il colore del prodotto.</td>
+				</tr>
+				<tr>
+					<td>descrizione</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la descrizione del prodotto.</td>
+				</tr>
+				<tr>
+					<td>descrizioneAggiuntiva</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta un'ulteriore descrizione del prodotto.</td>
+				</tr>
+				<tr>
+					<td>composizione</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la composizione dei materiali del prodotto.</td>
+				</tr>
+				<tr>
+					<td>brand</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta il marchio del prodotto.</td>
+				</tr>
+				<tr>
+					<td>categoria</td>
+					<td>necessario</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la categoria merceologica del prodotto.<br>I possibili valori sono usualmente: CALZATURE, BORSE, ACCESSORI, STESI, APPESI.<br>I valori da utilizzare verrano concordati insieme. Contattare il reparto IT in caso di dubbi o richieste.</td>
+				</tr>
+				<tr>
+					<td>sottoCategoria</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la sottocategoria del prodotto. (Es. jeans)</td>
+				</tr>
+				<tr>
+					<td>madeIn</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la nazione dove &egrave; stato realizzato il prodotto.<br>La nazione deve essere codificata con 3 caratteri secondo lo standard ISO 3166-1 Alpha-3.</td>
+				</tr>
+				<tr>
+					<td>stagione</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Questa stringa rappresenta la stagione di lancio del prodotto.<br>Va codificata con 4 caratteri: i primi 2 indicano la stagione, gli ultimi 2 l'anno. (Es. AI17)<br>I possibili valori per la stagione sono: AU (Autunno), IN (Inverno), PR (Primavera), ES (Estate), AI (Autunno-Inverno), PE (Primavera-Estate), CO (Continuativo)</td>
+				</tr>
+				<tr>
+					<td>peso</td>
+					<td>facoltativo</td>
+					<td>numerico</td>
+					<td>Il peso del prodotto in grammi. Se il prodotto è contenuto in scatole indicare il peso totale.</td>
+				</tr>
+				<tr>
+					<td>h</td>
+					<td>facoltativo</td>
+					<td>numerico</td>
+					<td>L'altezza del prodotto (o della scatola che lo contiene) in millimetri.</td>
+				</tr>
+				<tr>
+					<td>l</td>
+					<td>facoltativo</td>
+					<td>numerico</td>
+					<td>La lunghezza del prodotto (o della scatola che lo contiene) in millimetri.</td>
+				</tr>
+				<tr>
+					<td>z</td>
+					<td>facoltativo</td>
+					<td>numerico</td>
+					<td>La profondit&agrave; del prodotto (o della scatola che lo contiene) in millimetri.</td>
+				</tr>
+				<tr>
+					<td>valore</td>
+					<td>facoltativo</td>
+					<td>numerico</td>
+					<td>Il valore del prodotto in euro. Sono consentiti solo 2 decimali.</td>
+				</tr>
+				<tr>
+					<td>barcodeFornitore</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Il barcode del fornitore fisicamente stampato sul cartellino del prodotto.</td>
+				</tr>
+				<tr>
+					<td>skuFornitore</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Lo SKU del prodotto come viene passato dal produttore.</td>
+				</tr>
+				<tr>
+					<td>note</td>
+					<td>facoltativo</td>
+					<td>testo</td>
+					<td>Note sul prodotto. Tale campo può essere usato come "jolly" in caso di necessit&agrave; previo accordo.</td>
+				</tr>
+			</tbody>
+		</table>
+		
+					<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedettaglio">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedettaglio" class="panel-collapse collapse">
+						<div id="jsonProdotto" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+		
+	</div>
+	
+</div>
+</body>
+</html>

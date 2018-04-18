@@ -1,0 +1,187 @@
+{
+	"info": {
+		"name": "Cliente - Prodotti",
+		"_postman_id": "df07d7cf-f57a-4363-b5b3-a7d7a91317fb",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET - Trova tutti",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/prodotto",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"prodotto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Inserisci",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cassa\": \"NO\",\n    \"chiaveCliente\": \"ABC-XL\",\n    \"codiceModello\": \"ABC\",\n    \"barcode\": \"ABCXL\",\n    \"taglia\": \"XL\",\n    \"colore\": \"Verde\",\n    \"descrizione\": \"Descrizione del prodotto.\",\n    \"composizione\": \"LANA\",\n    \"brand\": \"Armani\",\n    \"categoria\": \"APPESO\",\n    \"madeIn\": \"ITA\",\n    \"sottoCategoria\": \"Maglione\",\n    \"stagione\": \"AI17\",\n    \"valore\": 100,\n    \"h\": 400,\n    \"l\": 400,\n    \"z\": 100,\n    \"peso\": 650,\n    \"skuFornitore\": \"123XL\",\n    \"barcodeFornitore\": \"123XL\",\n    \"note\": \"Le note!\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/prodotto/",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"prodotto",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Modifica",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"id\": 1,\n        \"cassa\": \"NO\",\n        \"chiaveCliente\": \"ABC\",\n        \"codiceModello\": \"Modello\",\n        \"barcode\": \"123\",\n        \"taglia\": \"UNI\",\n        \"colore\": \"Rosso\",\n        \"descrizione\": \"Test\",\n        \"composizione\": \"NONVALORIZZATO\",\n        \"brand\": \"Gucci\",\n        \"categoria\": \"STESO\",\n        \"madeIn\": \"NONVALORIZZATO\",\n        \"sottoCategoria\": \"\",\n        \"stagione\": \"AI17\",\n        \"valore\": 0,\n        \"h\": 0,\n        \"l\": 0,\n        \"z\": 0,\n        \"peso\": 0,\n        \"skuFornitore\": \"\",\n        \"barcodeFornitore\": \"123\",\n        \"note\": \"\"\n    }"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/prodotto/",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"prodotto",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Dismetti",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"chiaveCliente\": \"ABC\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/prodotto",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"prodotto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Cerca",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"chiaveCliente\": \"ABC\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/prodotto/cerca",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"prodotto",
+						"cerca"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,103 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Cliente - Fornitori",
+		"_postman_id": "f81f7fed-654d-21b4-a12c-8ec37aae0d1f",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET - Trova tutti",
+			"request": {
+				"url": "http://test.services.ltc-logistics.it/clienti/rest/fornitore",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Inserisci",
+			"request": {
+				"url": "http://test.services.ltc-logistics.it/clienti/rest/fornitore",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"nome\": \"pippo\",\n\t\"riferimentoCliente\": \"PIPPO\",\n\t\"note\" : \"Il miglior fornitore\",\n\t\"indirizzo\": {\n\t\t\"ragioneSociale\": \"pippo snc\",\n\t\t\"indirizzo\": \"via pippo, 1\",\n\t\t\"cap\": \"12345\",\n\t\t\"localita\" : \"Pippus\",\n\t\t\"provincia\": \"PG\",\n\t\t\"nazione\": \"ITA\",\n\t\t\"telefono\" : \"123\",\n\t\t\"email\": \"pippo@pippo.it\"\n\t}\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Aggiorna",
+			"request": {
+				"url": "http://test.services.ltc-logistics.it/clienti/rest/fornitore",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"id\": 1,\n        \"nome\": \"pippo\",\n        \"riferimentoCliente\": \"PIPPO\",\n        \"note\": null,\n        \"indirizzo\": {\n            \"ragioneSociale\": \"pippo\",\n            \"indirizzo\": \"via pippo, 1\",\n            \"cap\": \"99999\",\n            \"localita\": \"Pippus\",\n            \"provincia\": \"PG\",\n            \"nazione\": \"ITA\",\n            \"telefono\": \"123\",\n            \"email\": \"pippo@pippo.it\"\n        }\n    }"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina",
+			"request": {
+				"url": "http://test.services.ltc-logistics.it/clienti/rest/fornitore",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimentoCliente\": \"PAPERINO2\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

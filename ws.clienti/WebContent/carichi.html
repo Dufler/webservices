@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Logica - Web Services - Carichi</title>
+	<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+	<!-- Fogli di stile -->
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="resources/css/style.css" />
+	<link rel="stylesheet" href="resources/css/pretty-json.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+	<!-- JS -->
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/underscore-min.js"></script>
+	<script src="resources/js/backbone-min.js"></script>
+	<script src="resources/js/pretty-json-min.js"></script>
+	<script src="resources/js/esempiCarico.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h1>Carichi</h1>
+		<p>
+			<a href="index.html">torna all'indice</a>
+		</p>
+		<p>Qui sono riportati tutti gli endpoint per la gestione dei carichi di magazzino.</p>
+		<h2>endpoint</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#inserisci">Inserisci (tutto)</a></li>
+			<li class="list-group-item"><a href="#inseriscidettaglio">Inserisci (dettaglio)</a></li>
+			<li class="list-group-item"><a href="#lista">Lista</a></li>
+			<li class="list-group-item"><a href="#dettaglio">Dettaglio (ID)</a></li>
+			<li class="list-group-item"><a href="#dettaglioriferimento">Dettaglio (riferimento)</a></li>
+			<li class="list-group-item"><a href="#dettagliosemplice">Dettaglio semplice (ID)</a></li>
+			<li class="list-group-item"><a href="#dettagliosempliceriferimento">Dettaglio semplice (riferimento)</a></li>
+			<li class="list-group-item"><a href="#modifica">Modifica (informazioni)</a></li>
+			<li class="list-group-item"><a href="#modificadettaglio">Modifica (dettaglio)</a></li>
+			<li class="list-group-item"><a href="#elimina">Elimina (tutto)</a></li>
+			<li class="list-group-item"><a href="#eliminadettaglio">Elimina (dettaglio)</a></li>
+		</ul>
+		<h2>Campi complessi</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#carico">Carico</a></li>
+			<li class="list-group-item"><a href="#ingresso">Ingresso</a></li>
+			<li class="list-group-item"><a href="#ingressodettaglio">Dettaglio</a></li>
+			<li class="list-group-item"><a href="#documento">Documento</a></li>
+		</ul>
+		<div class="well well-sm">
+			<h3 id="inserisci">Inserisci (tutto)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b> Questo end point serve ad inserire le informazioni su un carico di merce in arrivo presso i nostri magazzini LTC.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#carico">Carico</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il carico. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="well well-sm">
+			<h3 id="modificadettaglio">Inserisci (dettaglio)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio<br> <b>Tipo:</b> POST<br> <b>Descrizione:</b> Questo end point serve ad inserire una nuova riga di carico.<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#dettaglio">Dettaglio</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il dettaglio dell'ingresso. Vedi sotto.<br>Sar&agrave; necessario indicare il carico di riferimento precedentemente inserito.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="lista">Lista</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/<br> <b>Tipo:</b> GET<br> <b>Descrizione:</b> Questo end point serve ad ottere la lista dei carichi presenti a sistema.<br>Le informazioni restituite per ogni carico
+				sono sommarie, &egrave; possibile ottenere pi&ugrave; informazioni con le chiamate di dettaglio. Verranno restituiti solo gli ultimi 100 carichi inseriti, per aggirare tale limitazione chiedete maggiori informazioni al reparto IT.<br> <b>Esempio Postman:</b> <a href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="dettaglio">Dettaglio (ID)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/{id}<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/{id}<br> <b>Tipo:</b> GET<br> <b>Descrizione:</b> Questo end point serve ad ottenere le informazioni dettagliate su un carico identificato dall'ID. Esiste un end point
+				analogo che effettua la ricerca tramite riferimento e un end point da cui ottenere solo le informazioni di base.<br> <b>Esempio Postman:</b> <a href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>Va inserito l'ID del carico nella URL.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="dettaglioriferimento">Dettaglio (riferimento)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/cerca<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/cerca<br> <b>Tipo:</b> POST<br> <b>Descrizione:</b> Questo end point serve ad ottenere informazioni dettagliate su un carico.<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#ingresso">Ingresso</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON del carico, &egrave; sufficiente specificare il riferimento cliente al suo interno, gli altri campi non sono necessari.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="dettagliosemplice">Dettaglio Semplice (ID)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/semplice/{id}<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/semplice/{id}<br> <b>Tipo:</b> GET<br> <b>Descrizione:</b> Questo end point serve ad ottenere le informazioni di base su un carico identificato dall'ID. Esiste un end point
+				analogo che effettua la ricerca tramite riferimento.<br> <b>Esempio Postman:</b> <a href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>Va inserito l'ID del carico nella URL.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="dettagliosempliceriferimento">Dettaglio Semplice (riferimento)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/semplice/cerca<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/semplice/cerca<br> <b>Tipo:</b> POST<br> <b>Descrizione:</b> Questo end point serve ad ottenere informazioni di base su un carico.<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#ingresso">Ingresso</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON del carico, &egrave; sufficiente specificare il riferimento cliente al suo interno, gli altri campi non sono necessari.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="modifica">Modifica (ingresso)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso<br> <b>Tipo:</b> PUT<br> <b>Descrizione:</b> Questo end point serve a modificare le informazioni di testata del carico.<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#ingresso">Ingresso</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni di testata sull'ingresso. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="modificadettaglio">Modifica (dettaglio)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/dettaglio<br> <b>Tipo:</b> PUT<br> <b>Descrizione:</b> Questo end point serve a modificare una riga sul dichiarato del carico.<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#dettaglio">Dettaglio</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il dettaglio dell'ingresso. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="well well-sm">
+			<h3 id="elimina">Elimina (tutto)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso<br> <b>Tipo:</b> DELETE<br> <b>Descrizione:</b> Questo end point serve ad eliminare completamente un carico<br> <b>Esempio Postman:</b> <a
+					href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#ingresso">Ingresso</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che identifica le informazioni di testata sull'ingresso, l'unico campo necessario &egrave; il riferimento.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="well well-sm">
+			<h3 id="eliminadettaglio">Elimina (dettaglio)</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/ingresso/elimina/dettaglio<br> <b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/ingresso/elimina/dettaglio<br> <b>Tipo:</b> DELETE<br> <b>Descrizione:</b> Questo end point serve ad eliminare una riga del dichiarato del carico.<br> <b>Esempio
+					Postman:</b> <a href="resources/postman/Cliente_Carichi.postman_collection.json">download</a><br>
+			</p>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#dettaglio">Dettaglio</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il dettaglio dell'ingresso. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="well well-sm">
+			<h3 id="carico">Carico</h3>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>ingresso</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>L'oggetto JSON che rappresenta le informazioni sul carico, vedi sotto.</td>
+					</tr>
+					<tr>
+						<td>dettagli</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Un array di oggetti JSON che rappresenta i dettagli dei prodotti presenti nel carico, vedi sotto.</td>
+					</tr>
+					<tr>
+						<td>documento</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>L'oggetto JSON che rappresenta le informazioni relative al documento di ordine.<br>Questo documento &egrave; rappresenta il documento accompagnatorio della merce in arrivo presso LTC.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsecarico">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsecarico" class="panel-collapse collapse">
+						<div id="jsonCarico" class="panel-body"></div>
+      				</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="ingresso">Ingresso</h3>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>L'ID dell'ingresso dentro i nostri sistemi. Tale valore viene attribuito in automatico al momento dell'inserimento e viene usato successivamente per parametrizzare la chiamata di <i>dettaglio (ID)</i>.
+						</td>
+					</tr>
+					<tr>
+						<td>dataArrivo</td>
+						<td>facoltativo</td>
+						<td>data</td>
+						<td>La data di arrivo prevista.</td>
+					</tr>
+					<tr>
+						<td>fornitore</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il riferimento del fornitore della merce così come è stato indicato nell'inserimento sul <a href="fornitori.html">web service per i fornitori</a>.
+						</td>
+					</tr>
+					<tr>
+						<td>pezziLetti</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; totale dei pezzi letti nel riscontro del carico. Questo campo viene valorizzato dai nostri sistemi. Qualsiasi valore in ingresso viene ignorato.</td>
+					</tr>
+					<tr>
+						<td>pezziStimati</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; totale dei pezzi stimati nel carico in arrivo.</td>
+					</tr>
+					<tr>
+						<td>riferimentoCliente</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Chiave di comunicazione fra i sistemi per far riferimento al carico. E' consigliabile inserire qui il valore identificativo del documento di trasporto della merce.<br>Tale valore verr&agrave; usato per parametrizzare le chiamate.<br>Il numero massimo di caratteri consentiti &egrave; 45.
+						</td>
+					</tr>
+					<tr>
+						<td>tipo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Indica il tipo di carico.<br> I possibili valori sono: <b>CARICO, RESO, CAMPIONARIO</b>. E' possibile concordare altri possibili valori se necessario.
+						</td>
+					</tr>
+					<tr>
+						<td>stato</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Indica lo stato d'avanzamento del carico.<br> I possibili valori sono: <b>INSERITO, ARRIVATO, IN_LAVORAZIONE, LAVORATO, CHIUSO</b><br>Non è possibile valorizzare questo campo
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapseingresso">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapseingresso" class="panel-collapse collapse">
+						<div id="jsonIngresso" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="ingressodettaglio">Dettaglio</h3>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>riferimento</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>L'identificativo del carico. Tale valore è facoltivo durante l'inserimento ma viene usato successivamente per parametrizzare le chiamate di dettaglio <i>inserisci</i>, <i>modifica</i> e <i>elimina</i>.
+						</td>
+					</tr>
+					<tr>
+						<td>riga</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>L'identificativo della riga, deve essere univoco all'interno del carico. Tale valore viene usato successivamente per parametrizzare le chiamate di dettaglio <i>modifica</i> e <i>elimina</i>.
+						</td>
+					</tr>
+					<tr>
+						<td>collo</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>L'ID del collo dentro i vostri sistemi. (es. barcode) Se non presente tale valore viene attribuito in automatico al momento dell'inserimento usando un progressivo.</td>
+					</tr>
+					<tr>
+						<td>prodotto</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>rappresenta l'identificativo del prodotto dentro i nostri sistemi così come ci è stato passato in fase di inserimento dell'anagrafica.</td>
+					</tr>
+					<tr>
+						<td>magazzino</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>rappresenta l'identificativo del magazzino dentro i nostri sistemi. I possibili valori vi verranno comunicati.</td>
+					</tr>
+					<tr>
+						<td>quantitaPrevista</td>
+						<td>necessario</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; di prodotto prevista nel collo in arrivo.</td>
+					</tr>
+					<tr>
+						<td>quantitaVerificata</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>La quantit&agrave; di prodotto riscontrata in ingresso nel collo in arrivo. Questo campo viene valorizzato dai nostri sistemi, qualsiasi valore inserito viene ignorato.</td>
+					</tr>
+					<tr>
+						<td>note</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Campo di testo libero.</td>
+					</tr>
+					<tr>
+						<td>madeIn</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Qui è possibile specificare il made in dei prodotti di questa singola riga di carico.<br>Questo campo va compilato esclusivamente se non &egrave; recuperare questo dato dall'anagrafica prodotti o se è diverso da quello attualmente presente.<br>Va indicato usando la codifica ISO-3 per le nazioni.</td>
+					</tr>
+					<tr>
+						<td>seriali</td>
+						<td>N/A</td>
+						<td>array di stringhe</td>
+						<td>La lista dei seriali riscontrati appartenenti a questa riga di documento.<br>Tale campo compare solo se il prodotto viene gestito tramite seriale e viene valorizzato da noi dopo il riscontro della merce.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedettaglio">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedettaglio" class="panel-collapse collapse">
+						<div id="jsonDettaglio" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="documento">Documento</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>tipo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il tipo di documento. I possibili valori sono: CARICO, RESO, ORDINE, CAMPIONARIO, LAVORAZIONE, ALTRO.<br>E' possibile concordare con il reparto IT altri possibili valori.</td>
+					</tr>
+					<tr>
+						<td>riferimento</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il riferimento identificativo e univoco del documento.</td>
+					</tr>
+					<tr>
+						<td>data</td>
+						<td>necessario</td>
+						<td>data</td>
+						<td>La data di emissione del documento.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+						<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedocumento">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedocumento" class="panel-collapse collapse">
+						<div id="jsonDocumento" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+</html>

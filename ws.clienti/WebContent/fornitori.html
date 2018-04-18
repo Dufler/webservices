@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Logica - Web Services - Fornitori</title>
+	<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+	<!-- Fogli di stile -->
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="resources/css/style.css" />
+	<link rel="stylesheet" href="resources/css/pretty-json.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+	<!-- JS -->
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/underscore-min.js"></script>
+	<script src="resources/js/backbone-min.js"></script>
+	<script src="resources/js/pretty-json-min.js"></script>
+	<script src="resources/js/esempiFornitore.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h1>Fornitori</h1>
+		<p>
+			<a href="index.html">torna all'indice</a>
+		</p>
+		<p>Qui sono riportati tutti gli endpoint per la gestione dei propri fornitori di merce.</p>
+		<h2>endpoint</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#inserisci">Inserisci</a></li>
+			<li class="list-group-item"><a href="#lista">Lista</a></li>
+			<li class="list-group-item"><a href="#modifica">Modifica</a></li>
+			<li class="list-group-item"><a href="#elimina">Elimina</a></li>
+		</ul>
+		<h2>Campi complessi</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#fornitore">Fornitore</a></li>
+			<li class="list-group-item"><a href="#indirizzo">Indirizzo</a></li>
+		</ul>
+		<div class="well well-sm">
+			<h3 id="inserisci">Inserisci</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b> Questo end point serve ad inserire le informazioni su un fornitore di merce dal quale arriveranno i carichi.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Cliente_Fornitori.postman_collection.json">download</a><br>
+			</p>
+			<p><b>Campi previsti</b></p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>fornitore</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il fornitore. Vedi sotto.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="lista">Lista</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>tipo:</b> GET<br>
+				<b>Descrizione:</b> Questo end point serve ad ottenere la lista di tutti i fornitori presenti a sistema.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Cliente_Fornitori.postman_collection.json">download</a><br>
+			</p>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="modifica">Modifica</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Tipo:</b> PUT<br>
+				<b>Descrizione:</b> Questo end point serve ad modificare le informazioni relative ad un fornitore precedentemente inserito. Verr&agrave; cercata una corrispondenza tramite il campo <i>riferimentoCliente</i><br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Cliente_Fornitori.postman_collection.json">download</a><br>
+			</p>
+			<p><b>Campi previsti</b></p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>fornitore</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il fornitore. Vedi sotto.<br>Viene cercata una corrispondenza tramite il campo riferimentoCliente.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="elimina">Elimina</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/clienti/rest/fornitore<br>
+				<b>Tipo:</b> DELETE<br>
+				<b>Descrizione:</b> Questo end point serve ad eliminare le informazioni relative ad un fornitore precedentemente inserito. Verr&agrave; cercata una corrispondenza tramite il campo <i>riferimentoCliente</i><br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Cliente_Fornitori.postman_collection.json">download</a><br>
+			</p>
+			<p><b>Campi previsti</b></p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>fornitore</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta il fornitore. Vedi sotto.<br>Viene cercata una corrispondenza tramite il campo riferimentoCliente.
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="fornitore">Fornitore</h3>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>id</td>
+						<td>N/A</td>
+						<td>numerico intero</td>
+						<td>L'ID del fornitore dentro i nostri sistemi. Tale valore viene attribuito in automatico al momento dell'inserimento e rimane confinato nei nostri sistemi.</td>
+					</tr>
+					<tr>
+						<td>Indirizzo</td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>L'oggetto JSON che rappresenta l'indirizzo. Vedi sotto.</td>
+					</tr>
+					<tr>
+						<td>nome</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>La ragione sociale del fornitore.</td>
+					</tr>
+					<tr>
+						<td>riferimentoCliente</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Campo testuale atto a contenere una codifica del fornitore dentro i vostri sistemi. Tale campo &egrave; necessario e funziona da chiave di comunicazione.</td>
+					</tr>
+					<tr>
+						<td>note</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Delle note relative al fornitore.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedfornitore">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedfornitore" class="panel-collapse collapse">
+						<div id="jsonFornitore" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="indirizzo">Indirizzo</h2>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>ragionesociale</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>La ragione sociale.</td>
+					</tr>
+					<tr>
+						<td>indirizzo</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>L'indirizzo. Mettere qui il numero civico, se presente.</td>
+					</tr>
+					<tr>
+						<td>cap</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il CAP.</td>
+					</tr>
+					<tr>
+						<td>localita</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il nome della localit&agrave;.</td>
+					</tr>
+					<tr>
+						<td>provincia</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il codice della provincia. 2 caratteri. Indicare XX se la spedizione &egrave; diretta all'estero.</td>
+					</tr>
+					<tr>
+						<td>nazione</td>
+						<td>necessario</td>
+						<td>testo</td>
+						<td>Il codice della nazione. 3 caratteri come secondo lo standard ISO 3166-1 Alpha-3.</td>
+					</tr>
+					<tr>
+						<td>telefono</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>Il numero di telefono.</td>
+					</tr>
+					<tr>
+						<td>email</td>
+						<td>facoltativo</td>
+						<td>testo</td>
+						<td>L'indirizzo email.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedindirizzo">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedindirizzo" class="panel-collapse collapse">
+						<div id="jsonIndirizzo" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</body>
+</html>
