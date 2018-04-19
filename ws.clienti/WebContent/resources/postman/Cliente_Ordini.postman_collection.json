@@ -8,6 +8,21 @@
 		{
 			"name": "GET - Trova tutti",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [
 					{
@@ -35,8 +50,109 @@
 			"response": []
 		},
 		{
+			"name": "GET - Cerca ordine tramite ID",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/2",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Dettaglio Imballo",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/imballo/1",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine",
+						"imballo",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "POST - Inserisci",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -73,6 +189,21 @@
 		{
 			"name": "POST - Cerca ordine tramite riferimento",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -108,38 +239,23 @@
 			"response": []
 		},
 		{
-			"name": "GET - Cerca ordine tramite ID",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic dGVzdC53czp0ZXN0"
-					}
-				],
-				"body": {},
-				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/2",
-					"protocol": "http",
-					"host": [
-						"test",
-						"services",
-						"ltc-logistics",
-						"it"
-					],
-					"path": [
-						"clienti",
-						"rest",
-						"ordine",
-						"2"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "POST - Inserisci dettaglio",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -175,154 +291,23 @@
 			"response": []
 		},
 		{
-			"name": "DELETE - Elimina",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic dGVzdC53czp0ZXN0"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"riferimentoOrdine\" : \"1\"\n}"
-				},
-				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine",
-					"protocol": "http",
-					"host": [
-						"test",
-						"services",
-						"ltc-logistics",
-						"it"
-					],
-					"path": [
-						"clienti",
-						"rest",
-						"ordine"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "PUT - Aggiorna info ordine",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic dGVzdC53czp0ZXN0"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"dataOrdine\": \"2018-04-23T18:25:43.511Z\",\n    \"dataConsegna\": \"2018-04-23T18:25:43.511Z\",\n    \"tipo\": \"PRODUZIONE\",\n    \"priorita\": 10,\n    \"riferimentoOrdine\": \"1\",\n    \"corriere\": \"TNT\",\n    \"servizioCorriere\": \"DEF\",\n    \"destinatario\" : {\n      \t\"ragioneSociale\" : \"pippo\",\n       \t\"indirizzo\" : \"via pippo, 1\",\n       \t\"cap\" : \"12345\",\n       \t\"localita\" : \"pipponia\",\n       \t\"provincia\" : \"PG\",\n       \t\"nazione\" : \"ITA\",\n       \t\"telefono\" : \"123456789\",\n       \t\"email\" : \"pippo@pippo.it\"\n    },\n    \"mittente\" : {\n       \t\"ragioneSociale\" : \"pippo\",\n       \t\"indirizzo\" : \"via pippo, 1\",\n       \t\"cap\" : \"12345\",\n       \t\"localita\" : \"pipponia\",\n       \t\"provincia\" : \"PG\",\n       \t\"nazione\" : \"ITA\",\n       \t\"telefono\" : \"123456789\",\n       \t\"email\" : \"pippo@pippo.it\"\n    },\n    \"documentoFiscale\" : {\n\t\t\"riferimento\" : \"PO 123\",\n\t\t\"data\" : \"2018-04-23T18:25:43.511Z\",\n\t\t\"tipo\" : \"FATTURA\"\n    }\n}"
-				},
-				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine",
-					"protocol": "http",
-					"host": [
-						"test",
-						"services",
-						"ltc-logistics",
-						"it"
-					],
-					"path": [
-						"clienti",
-						"rest",
-						"ordine"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "PUT - Aggiorna dettaglio",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic dGVzdC53czp0ZXN0"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"riferimento\" : \"1\",\n    \"riga\": 3,\n    \"quantitaOrdinata\": 15,\n    \"magazzino\": \"TEST\",\n    \"prodotto\": \"DEF\"\n}"
-				},
-				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio",
-					"protocol": "http",
-					"host": [
-						"test",
-						"services",
-						"ltc-logistics",
-						"it"
-					],
-					"path": [
-						"clienti",
-						"rest",
-						"ordine",
-						"dettaglio"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "DELETE - Dettaglio ordine",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic dGVzdC53czp0ZXN0"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"riferimento\" : \"1\",\n    \"riga\": 3\n}"
-				},
-				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio",
-					"protocol": "http",
-					"host": [
-						"test",
-						"services",
-						"ltc-logistics",
-						"it"
-					],
-					"path": [
-						"clienti",
-						"rest",
-						"ordine",
-						"dettaglio"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "POST - Invia ordine (finalizza)",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -406,28 +391,87 @@
 			"response": []
 		},
 		{
-			"name": "GET - Dettaglio Imballo",
+			"name": "POST - Spedisci",
 			"request": {
 				"auth": {
 					"type": "basic",
 					"basic": [
 						{
-							"key": "password",
-							"value": "test",
+							"key": "username",
+							"value": "test.ws",
 							"type": "string"
 						},
 						{
-							"key": "username",
-							"value": "test.ws",
+							"key": "password",
+							"value": "test",
 							"type": "string"
 						}
 					]
 				},
-				"method": "GET",
-				"header": [],
-				"body": {},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"riferimenti\" : [\"00000000000000000001\"],\r\n\t\"corriere\" : \"TNT\",\r\n    \"servizioCorriere\" : \"DEF\",\r\n    \"contrassegno\" : {\r\n\t\t\"tipo\" :  \"SC\",\r\n\t\t\"valore\" :  123.45\r\n\t}\r\n}"
+				},
 				"url": {
-					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/imballo/1",
+					"raw": "test.services.ltc-logistics.it/clienti/rest/ordine/spedisci",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine",
+						"spedisci"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Aggiorna dettaglio",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimento\" : \"1\",\n    \"riga\": 3,\n    \"quantitaOrdinata\": 15,\n    \"magazzino\": \"TEST\",\n    \"prodotto\": \"DEF\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio",
 					"protocol": "http",
 					"host": [
 						"test",
@@ -439,8 +483,161 @@
 						"clienti",
 						"rest",
 						"ordine",
-						"imballo",
-						"1"
+						"dettaglio"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Aggiorna info ordine",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"dataOrdine\": \"2018-04-23T18:25:43.511Z\",\n    \"dataConsegna\": \"2018-04-23T18:25:43.511Z\",\n    \"tipo\": \"PRODUZIONE\",\n    \"priorita\": 10,\n    \"riferimentoOrdine\": \"1\",\n    \"corriere\": \"TNT\",\n    \"servizioCorriere\": \"DEF\",\n    \"destinatario\" : {\n      \t\"ragioneSociale\" : \"pippo\",\n       \t\"indirizzo\" : \"via pippo, 1\",\n       \t\"cap\" : \"12345\",\n       \t\"localita\" : \"pipponia\",\n       \t\"provincia\" : \"PG\",\n       \t\"nazione\" : \"ITA\",\n       \t\"telefono\" : \"123456789\",\n       \t\"email\" : \"pippo@pippo.it\"\n    },\n    \"mittente\" : {\n       \t\"ragioneSociale\" : \"pippo\",\n       \t\"indirizzo\" : \"via pippo, 1\",\n       \t\"cap\" : \"12345\",\n       \t\"localita\" : \"pipponia\",\n       \t\"provincia\" : \"PG\",\n       \t\"nazione\" : \"ITA\",\n       \t\"telefono\" : \"123456789\",\n       \t\"email\" : \"pippo@pippo.it\"\n    },\n    \"documentoFiscale\" : {\n\t\t\"riferimento\" : \"PO 123\",\n\t\t\"data\" : \"2018-04-23T18:25:43.511Z\",\n\t\t\"tipo\" : \"FATTURA\"\n    }\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimentoOrdine\" : \"1\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Dettaglio ordine",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic dGVzdC53czp0ZXN0"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"riferimento\" : \"1\",\n    \"riga\": 3\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/clienti/rest/ordine/dettaglio",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"clienti",
+						"rest",
+						"ordine",
+						"dettaglio"
 					]
 				}
 			},

@@ -4,8 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>it.ltc.database.configuration</project>
-		<project>it.ltc.database.model.centrale</project>
-		<project>it.ltc.database.model.legacy</project>
 		<project>it.ltc.database.model.commessa</project>
 		<project>ws.clienti</project>
 		<project>it.ltc.database.dao.common</project>
@@ -15,6 +13,8 @@
 		<project>it.ltc.database.model.utente</project>
 		<project>it.ltc.database.model.sede</project>
 		<project>it.ltc.utility.miscellanea</project>
+		<project>it.ltc.database.model.centrale</project>
+		<project>it.ltc.database.model.legacy</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
