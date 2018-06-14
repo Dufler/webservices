@@ -6,10 +6,16 @@ import org.springframework.validation.Validator;
 
 import it.ltc.database.dao.common.NazioneDao;
 import it.ltc.database.model.centrale.Nazione;
-import it.ltc.services.clienti.model.prodotto.IngressoDettaglioJSON;
+import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
 
 @Component
 public class IngressoDettaglioValidator implements Validator {
+	
+	private final NazioneDao daoNazioni;
+	
+	public IngressoDettaglioValidator() {
+		daoNazioni = new NazioneDao();
+	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -37,7 +43,7 @@ public class IngressoDettaglioValidator implements Validator {
 			errors.reject("note.lunghezza", "Le note inserite sono troppo lunghe. (MAX 20 caratteri)");
 		String madeIn = dettaglio.getMadeIn();
 		if (madeIn != null && !madeIn.isEmpty()) {
-			Nazione n = NazioneDao.getInstance().findByCodiceISO3(madeIn);
+			Nazione n = daoNazioni.trovaDaCodiceISO3(madeIn);
 			if (n == null)
 				errors.reject("nazione.valida", "La nazione specificata per il madeIn non è valida. (" + madeIn + ")");
 		}

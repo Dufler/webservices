@@ -2,10 +2,10 @@ package it.ltc.services.clienti.data.carico;
 
 import java.util.List;
 
-import it.ltc.services.clienti.model.prodotto.CaricoJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoJSON;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON;
+import it.ltc.model.shared.json.cliente.CaricoJSON;
+import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
+import it.ltc.model.shared.json.cliente.IngressoJSON;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
 
 public interface CaricoDAO<T, U> {
 	
@@ -15,17 +15,17 @@ public interface CaricoDAO<T, U> {
 	
 	public List<IngressoJSON> trovaTutti();
 	
-	public boolean inserisci(CaricoJSON carico);
+	public CaricoJSON inserisci(CaricoJSON carico);
 	
-	public boolean inserisciDettaglio(IngressoDettaglioJSON carico);
+	public IngressoDettaglioJSON inserisciDettaglio(IngressoDettaglioJSON carico);
 	
-	public boolean aggiorna(IngressoJSON carico);
+	public IngressoJSON aggiorna(IngressoJSON carico);
 	
-	public boolean aggiornaDettaglio(IngressoDettaglioJSON carico);
+	public IngressoDettaglioJSON aggiornaDettaglio(IngressoDettaglioJSON carico);
 	
-	public boolean elimina(IngressoJSON carico);
+	public IngressoJSON elimina(IngressoJSON carico);
 	
-	public boolean eliminaDettaglio(IngressoDettaglioJSON carico);
+	public IngressoDettaglioJSON eliminaDettaglio(IngressoDettaglioJSON carico);
 	
 	public T deserializzaIngresso(CaricoJSON json);
 	

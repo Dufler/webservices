@@ -18,17 +18,17 @@ public class CategoriaMerceologicaController {
 	private final CategoriaMerceologicaDao dao;
     
     public CategoriaMerceologicaController() {
-    	dao = CategoriaMerceologicaDao.getInstance();
+    	dao = new CategoriaMerceologicaDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<CategoriaMerceologica> trovaTutte() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody CategoriaMerceologica trovaDaId(@PathVariable("id") String id) {
-        return dao.findByNome(id);
+        return dao.trovaDaNome(id);
     }
 
 }

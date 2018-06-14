@@ -2,7 +2,7 @@ package it.ltc.services.clienti.data.magazzino;
 
 import java.util.List;
 
-import it.ltc.services.clienti.model.prodotto.InfoProdotto;
+import it.ltc.model.shared.json.cliente.InfoProdotto;
 
 public interface SaldiMagazzinoDAO {
 

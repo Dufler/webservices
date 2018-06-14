@@ -2,11 +2,11 @@ package it.ltc.services.clienti.data.ordine;
 
 import java.util.List;
 
-import it.ltc.services.clienti.model.prodotto.UscitaJSON;
-import it.ltc.services.clienti.model.prodotto.OrdineImballatoJSON;
-import it.ltc.services.clienti.model.prodotto.OrdineJSON;
-import it.ltc.services.clienti.model.prodotto.SpedizioneJSON;
-import it.ltc.services.clienti.model.prodotto.UscitaDettaglioJSON;
+import it.ltc.model.shared.json.cliente.OrdineImballatoJSON;
+import it.ltc.model.shared.json.cliente.OrdineJSON;
+import it.ltc.model.shared.json.cliente.SpedizioneJSON;
+import it.ltc.model.shared.json.cliente.UscitaDettaglioJSON;
+import it.ltc.model.shared.json.cliente.UscitaJSON;
 
 public interface OrdineDAO<T, U> {
 	
@@ -16,17 +16,17 @@ public interface OrdineDAO<T, U> {
 	
 	public List<UscitaJSON> trovaTutti();
 	
-	public boolean inserisci(OrdineJSON json);
+	public OrdineJSON inserisci(OrdineJSON json);
 	
-	public boolean inserisciDettaglio(UscitaDettaglioJSON json);
+	public UscitaDettaglioJSON inserisciDettaglio(UscitaDettaglioJSON json);
 	
-	public boolean aggiorna(UscitaJSON json);
+	public UscitaJSON aggiorna(UscitaJSON json);
 	
-	public boolean aggiornaDettaglio(UscitaDettaglioJSON json);
+	public UscitaDettaglioJSON aggiornaDettaglio(UscitaDettaglioJSON json);
 	
-	public boolean elimina(UscitaJSON json);
+	public UscitaJSON elimina(UscitaJSON json);
 	
-	public boolean eliminaDettaglio(UscitaDettaglioJSON json);
+	public UscitaDettaglioJSON eliminaDettaglio(UscitaDettaglioJSON json);
 	
 	public boolean assegna(String riferimento);
 	

@@ -1,0 +1,49 @@
+{
+	"info": {
+		"_postman_id": "07b36986-89b7-4a8f-b1c5-99bc2b83e44a",
+		"name": "Sede_Operatore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://test.services.ltc-logistics.it/sede/rest/attivita/cerca",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/attivita/cerca",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"attivita",
+						"cerca"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

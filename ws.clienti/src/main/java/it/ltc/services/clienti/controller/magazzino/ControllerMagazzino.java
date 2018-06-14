@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import it.ltc.database.dao.common.LoginController;
 import it.ltc.database.model.centrale.Commessa;
 import it.ltc.database.model.utente.Utente;
+import it.ltc.model.shared.json.cliente.InfoProdotto;
 import it.ltc.services.clienti.data.magazzino.SaldiMagazzinoDAO;
 import it.ltc.services.clienti.data.magazzino.SaldiMagazzinoDAOImpl;
-import it.ltc.services.clienti.model.prodotto.InfoProdotto;
 
 @Controller
 @RequestMapping("/giacenza")

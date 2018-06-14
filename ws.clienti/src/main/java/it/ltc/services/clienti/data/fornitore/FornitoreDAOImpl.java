@@ -6,9 +6,10 @@ import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.Dao;
 import it.ltc.database.model.commessa.Fornitore;
-import it.ltc.services.clienti.model.prodotto.FornitoreJSON;
+import it.ltc.model.shared.dao.IFornitoreDao;
+import it.ltc.model.shared.json.cliente.FornitoreJSON;
 
-public class FornitoreDAOImpl extends Dao implements FornitoreDAO<Fornitore> {
+public class FornitoreDAOImpl extends Dao implements IFornitoreDao {
 	
 	private static final Logger logger = Logger.getLogger("FornitoreDAOImpl");
 
@@ -47,13 +48,11 @@ public class FornitoreDAOImpl extends Dao implements FornitoreDAO<Fornitore> {
 		return null;
 	}
 
-	@Override
 	public Fornitore deserializza(FornitoreJSON json) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public FornitoreJSON serializza(Fornitore prodotto) {
 		// TODO Auto-generated method stub
 		return null;

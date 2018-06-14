@@ -5,10 +5,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -19,61 +17,62 @@ import javax.persistence.criteria.Root;
 
 import org.jboss.logging.Logger;
 
-import it.ltc.database.dao.Dao;
+import it.ltc.database.dao.legacy.ArticoliDao;
+import it.ltc.database.dao.legacy.ColliPackSerialiDao;
+import it.ltc.database.dao.legacy.MagazzinoDao;
+import it.ltc.database.dao.legacy.PakiArticoloDao;
+import it.ltc.database.dao.legacy.PakiTestaDao;
+import it.ltc.database.dao.legacy.PakiTestaTipoDao;
 import it.ltc.database.model.legacy.Articoli;
-import it.ltc.database.model.legacy.ColliPack;
 import it.ltc.database.model.legacy.Fornitori;
 import it.ltc.database.model.legacy.Magazzini;
 import it.ltc.database.model.legacy.PakiArticolo;
 import it.ltc.database.model.legacy.PakiTesta;
+import it.ltc.database.model.legacy.seriale.ColliPackConSeriale;
+import it.ltc.model.shared.json.cliente.CaricoJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
+import it.ltc.model.shared.json.cliente.IngressoJSON;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.LavorazioneSeriali;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.Riscontro;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.StatoCarico;
 import it.ltc.services.clienti.data.fornitore.FornitoreLegacyDAOImpl;
-import it.ltc.services.clienti.data.magazzino.MagazzinoLegacyDAOImpl;
-import it.ltc.services.clienti.data.prodotto.ProdottoLegacyDAOImpl;
-import it.ltc.services.clienti.model.prodotto.CaricoJSON;
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoJSON;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON.LavorazioneSeriali;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON.Riscontro;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON.StatoCarico;
 import it.ltc.services.custom.exception.CustomException;
 
-public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, PakiArticolo> {
+public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiTesta, PakiArticolo> {
 
 	private static final Logger logger = Logger.getLogger("CaricoLegacyDAOImpl");
 
+	private final PakiTestaTipoDao daoTipo;
 	private final FornitoreLegacyDAOImpl daoFornitore;
-	private final ProdottoLegacyDAOImpl daoProdotti;
-	private final MagazzinoLegacyDAOImpl daoMagazzini;
-	private final Set<String> magazzini;
+	private final PakiArticoloDao daoPakiArticolo;
+	private final ArticoliDao daoProdotti;
+	private final ColliPackSerialiDao daoColliPack;
+	private final MagazzinoDao daoMagazzini;
 	private final HashMap<String, Magazzini> mappaMagazzini;
 
 	public CaricoLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
+		daoTipo = new PakiTestaTipoDao(persistenceUnit);
 		daoFornitore = new FornitoreLegacyDAOImpl(persistenceUnit);
-		daoProdotti = new ProdottoLegacyDAOImpl(persistenceUnit);
-		daoMagazzini = new MagazzinoLegacyDAOImpl(persistenceUnit);
-		magazzini = new HashSet<>();
+		daoPakiArticolo = new PakiArticoloDao(persistenceUnit);
+		daoProdotti = new ArticoliDao(persistenceUnit);
+		daoColliPack = new ColliPackSerialiDao(persistenceUnit);
+		daoMagazzini = new MagazzinoDao(persistenceUnit);
 		mappaMagazzini = new HashMap<>();
 	}
 
 	@Override
 	public CaricoJSON trovaDaID(int idCarico, boolean dettagliato) {
-		EntityManager em = getManager();
-		PakiTesta carico = em.find(PakiTesta.class, idCarico);
+		PakiTesta carico = trovaDaID(idCarico);
 		List<PakiArticolo> dettagli;
-		if (dettagliato) {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
-			Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-			criteria.select(member).where(cb.equal(member.get("idPakiTesta"), idCarico));
-			dettagli = em.createQuery(criteria).getResultList();
-			em.close();
+		if (carico != null && dettagliato) {
+			dettagli = daoPakiArticolo.trovaRigheDaCarico(idCarico);
 			//Recupero i seriali e ne faccio una mappa
-			List<ColliPack> seriali = trovaSeriali(carico.getIdTestaPaki());
+			List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
 			HashMap<Integer, List<String>> mappaSerialiPerRiga = new HashMap<>();
-			for (ColliPack seriale : seriali) {
+			for (ColliPackConSeriale seriale : seriali) {
 				//Controllo che il seriale sia stato effettivamente inserito a sistema, se non c'è lo salto.
 				String rfid = seriale.getSeriale();
 				if (rfid == null || rfid.isEmpty())
@@ -91,7 +90,6 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 				dettaglio.setSeriali(mappaSerialiPerRiga.get(dettaglio.getIdPakiArticolo()));
 			}
 		} else {
-			em.close();
 			dettagli = null;
 		}
 		CaricoJSON json = serializzaCarico(carico, dettagli);
@@ -105,11 +103,11 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			List<PakiArticolo> dettagli;
 			//Se hanno richiesto nel dettaglio allora aggiungo info
 			if (dettagliato) {
-				dettagli = trovaDettagli(carico.getIdTestaPaki());
+				dettagli = daoPakiArticolo.trovaRigheDaCarico(carico.getIdTestaPaki());
 				//Recupero i seriali e ne faccio una mappa
-				List<ColliPack> seriali = trovaSeriali(carico.getIdTestaPaki());
+				List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
 				HashMap<Integer, List<String>> mappaSerialiPerRiga = new HashMap<>();
-				for (ColliPack seriale : seriali) {
+				for (ColliPackConSeriale seriale : seriali) {
 					//Controllo che il seriale sia stato effettivamente inserito a sistema, se non c'è lo salto.
 					String rfid = seriale.getSeriale();
 					if (rfid == null || rfid.isEmpty())
@@ -134,41 +132,6 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			json = null;
 		}
 		return json;
-	}
-
-	public PakiTesta trovaDaRiferimento(String riferimento) {
-		EntityManager em = getManager();
-		// Cerco il carico tramite il riferimento
-		CriteriaBuilder cb1 = em.getCriteriaBuilder();
-		CriteriaQuery<PakiTesta> criteria1 = cb1.createQuery(PakiTesta.class);
-		Root<PakiTesta> member = criteria1.from(PakiTesta.class);
-		criteria1.select(member).where(cb1.equal(member.get("nrPaki"), riferimento));
-		List<PakiTesta> list = em.createQuery(criteria1).setMaxResults(1).getResultList();
-		em.close();
-		PakiTesta carico = list.isEmpty() ? null : list.get(0);
-		return carico;
-	}
-
-	public List<PakiArticolo> trovaDettagli(int idCarico) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
-		Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-		criteria.select(member).where(cb.equal(member.get("idPakiTesta"), idCarico));
-		List<PakiArticolo> dettagli = em.createQuery(criteria).getResultList();
-		em.close();
-		return dettagli;
-	}
-	
-	public List<ColliPack> trovaSeriali(int idCarico) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ColliPack> criteria = cb.createQuery(ColliPack.class);
-		Root<ColliPack> member = criteria.from(ColliPack.class);
-		criteria.select(member).where(cb.equal(member.get("idTestaPaki"), idCarico));
-		List<ColliPack> dettagli = em.createQuery(criteria).getResultList();
-		em.close();
-		return dettagli;
 	}
 	
 	/**
@@ -208,12 +171,7 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 	private int aggiornaQuantitaRiscontratePerCaricoDiTest(ModificaCaricoJSON modifiche) {
 		int update = 0;
 		//Trovo la lista dei paki articolo da aggiornare.
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
-		Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-		criteria.select(member).where(cb.equal(member.get("idPakiTesta"), modifiche.getId()));
-		List<PakiArticolo> dettagli = em.createQuery(criteria).getResultList();
+		List<PakiArticolo> dettagli = daoPakiArticolo.trovaRigheDaCarico(modifiche.getId());
 		//Calcolo le nuove quantita'
 		for (PakiArticolo dettaglio : dettagli) {
 			int quantita;
@@ -227,22 +185,8 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			dettaglio.setQtaVerificata(quantita);
 		}
 		//Aggiorno il DB
-		EntityTransaction t = em.getTransaction();
-		try {
-			t.begin();
-			for (PakiArticolo dettaglio : dettagli) {
-				em.merge(dettaglio);
-			}
-			t.commit();
-			logger.info("Quantita' lette aggiornate!");
-		} catch (Exception e) {
-			logger.error(e);
-			update = -1;
-			if (t != null && t.isActive())
-				t.rollback();
-		} finally {
-			em.close();
-		}
+		daoPakiArticolo.aggiorna(dettagli);
+		logger.info("Quantita' lette aggiornate!");
 		return update;
 	}
 	
@@ -253,7 +197,7 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 	 */
 	private boolean generaSerialiPerCaricoDiTest(int idCarico) {
 		boolean generazione;
-		List<ColliPack> seriali = trovaSeriali(idCarico);
+		List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
 		if (seriali.isEmpty()) {
 			//Preparo le informazioni necessarie alla generazione dei seriali
 			Date now = new Date();
@@ -261,14 +205,14 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			DecimalFormat df = new DecimalFormat("000000000000000");
 			double seriale = Double.parseDouble(sdf.format(now));
 			//Trovo i dettagli per cui generare i seriali
-			List<PakiArticolo> dettagli = trovaDettagli(idCarico);
+			List<PakiArticolo> dettagli = daoPakiArticolo.trovaRigheDaCarico(idCarico);
 			logger.info("Stanno per essere generati seriali per " + dettagli.size() + " righe.");
 			for (PakiArticolo dettaglio : dettagli) {
 				int quantita = dettaglio.getQtaVerificata();
 				for (int i=0; i < quantita; i++) {
 					String stringaSeriale = df.format(seriale);
 					seriale += 1;
-					ColliPack nuovoSeriale = new ColliPack();
+					ColliPackConSeriale nuovoSeriale = new ColliPackConSeriale();
 					nuovoSeriale.setCodArtStr(dettaglio.getCodArtStr());
 					nuovoSeriale.setCodiceArticolo(dettaglio.getCodUnicoArt());
 					nuovoSeriale.setNrIdColloPk(dettaglio.getBarcodeCollo());
@@ -283,24 +227,8 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			logger.info("Sono stati generati " + seriali.size() + " seriali.");
 			//Se ne ho generato almeno uno vado in insert.
 			if (!seriali.isEmpty()) {
-				EntityManager em = getManager();
-				EntityTransaction t = em.getTransaction();
-				try {
-					t.begin();
-					for (ColliPack nuovoSeriale : seriali) {
-						em.persist(nuovoSeriale);
-					}
-					t.commit();
-					generazione = true;
-					logger.info("Seriali randomici generati!");
-				} catch (Exception e) {
-					logger.error(e);
-					generazione = false;
-					if (t != null && t.isActive())
-						t.rollback();
-				} finally {
-					em.close();
-				}
+				seriali = daoColliPack.inserisci(seriali);
+				generazione = seriali != null;
 			} else {
 				generazione = false;
 			}
@@ -311,30 +239,10 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 	}
 	
 	private boolean eliminaSerialiPerCaricoDiTest(int idCarico) {
-		boolean delete;
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ColliPack> criteria = cb.createQuery(ColliPack.class);
-		Root<ColliPack> member = criteria.from(ColliPack.class);
-		criteria.select(member).where(cb.equal(member.get("idTestaPaki"), idCarico));
-		List<ColliPack> seriali = em.createQuery(criteria).getResultList();
-		EntityTransaction t = em.getTransaction();
-		try {
-			t.begin();
-			for (ColliPack nuovoSeriale : seriali) {
-				em.remove(nuovoSeriale);
-			}
-			t.commit();
-			delete = true;
-			logger.info("Seriali randomici generati!");
-		} catch (Exception e) {
-			logger.error(e);
-			delete = false;
-			if (t != null && t.isActive())
-				t.rollback();
-		} finally {
-			em.close();
-		}
+		logger.info("eliminazione seriali randomici");
+		List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
+		seriali = daoColliPack.elimina(seriali);
+		boolean delete = seriali != null; 
 		return delete;
 	}
 	
@@ -387,12 +295,18 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		}
 		return carichi;
 	}
+	
+	private void checkTipoCarico(String codice) {
+		if (daoTipo.trovaDaCodice(codice) == null)
+			throw new CustomException("Il tipo di carico specificato non esiste. (" + codice + ")");
+	}
 
 	@Override
-	public boolean inserisci(CaricoJSON json) {
-		boolean insert;
+	public CaricoJSON inserisci(CaricoJSON json) {
 		// Deserializzazione testata
 		PakiTesta carico = deserializzaIngresso(json);
+		//Controllo il tipo di carico
+		checkTipoCarico(carico.getTipodocumento());
 		// Controllo sull'unicità del riferimento al carico
 		PakiTesta esistente = trovaDaRiferimento(carico.getNrPaki());
 		if (esistente != null)
@@ -411,22 +325,21 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 				em.persist(dettaglio);
 			}
 			t.commit();
-			insert = true;
+			json = serializzaCarico(carico, dettagli);
 			logger.info("Carico inserito!");
 		} catch (Exception e) {
 			logger.error(e);
-			insert = false;
+			json = null;
 			if (t != null && t.isActive())
 				t.rollback();
 		} finally {
 			em.close();
 		}
-		return insert;
+		return json;
 	}
 	
 	@Override
-	public boolean inserisciDettaglio(IngressoDettaglioJSON json) {
-		boolean insert;
+	public IngressoDettaglioJSON inserisciDettaglio(IngressoDettaglioJSON json) {
 		//Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
 		PakiTesta carico = trovaDaRiferimento(json.getRiferimento());
 		if (carico == null)
@@ -459,29 +372,30 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 				nuoveInfo.setNrDispo(carico.getNrPaki());
 				em.persist(nuoveInfo);
 				t.commit();
-				insert = true;
+				json = serializzaDettaglio(nuoveInfo);
 			} catch (Exception e) {
 				logger.error(e);
-				insert = false;
+				json = null;
 				if (t != null && t.isActive())
 					t.rollback();
 			} finally {
 				em.close();
 			}
 		} else {
-			insert = false;
 			em.close();
 			throw new CustomException("La riga di carico indicata è già presente. (" + json.getRiga() + ")");
 		}
-		return insert;
+		return json;
 	}
 
 	@Override
-	public boolean aggiorna(IngressoJSON json) {
+	public IngressoJSON aggiorna(IngressoJSON json) {
 		// Deserializzazione testata
 		CaricoJSON c = new CaricoJSON();
 		c.setIngresso(json);
 		PakiTesta carico = deserializzaIngresso(c);
+		//Controllo il tipo di carico
+		checkTipoCarico(carico.getTipodocumento());
 		// Controllo l'esistenza del riferimento al carico
 		PakiTesta esistente = trovaDaRiferimento(carico.getNrPaki());
 		if (esistente == null)
@@ -489,9 +403,7 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		// Controllo lo stato, deve essere 'INSERITO'
 		if (!"INSERITO".equals(esistente.getStato()))
 			throw new CustomException("Il carico richiesto non è più modificabile.");
-
 		// Update
-		boolean update;
 		EntityManager em = getManager();
 		esistente = em.find(PakiTesta.class, esistente.getIdTestaPaki());
 		EntityTransaction t = em.getTransaction();
@@ -505,22 +417,21 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			esistente.setTipodocumento(carico.getTipodocumento());
 			em.merge(esistente);
 			t.commit();
-			update = true;
+			json = serializzaIngresso(esistente);
 			logger.info("Carico modificato!");
 		} catch (Exception e) {
 			logger.error(e);
-			update = false;
+			json = null;
 			if (t != null && t.isActive())
 				t.rollback();
 		} finally {
 			em.close();
 		}
-		return update;
+		return json;
 	}
 
 	@Override
-	public boolean aggiornaDettaglio(IngressoDettaglioJSON json) {
-		boolean update;
+	public IngressoDettaglioJSON aggiornaDettaglio(IngressoDettaglioJSON json) {
 		//Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
 		PakiTesta carico = trovaDaRiferimento(json.getRiferimento());
 		if (carico == null)
@@ -566,23 +477,22 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 				dettaglio.setQtaPaki(nuoveInfo.getQtaPaki());
 				em.merge(dettaglio);
 				t.commit();
-				update = true;
+				json = serializzaDettaglio(dettaglio);
 			} catch (Exception e) {
 				logger.error(e);
-				update = false;
+				json = null;
 				if (t != null && t.isActive())
 					t.rollback();
 			}
 		} else {
-			update = false;
 			em.close();
 			throw new CustomException("La riga di carico indicata non esiste o non è univoca.");
 		}
-		return update;
+		return json;
 	}
 
 	@Override
-	public boolean elimina(IngressoJSON json) {
+	public IngressoJSON elimina(IngressoJSON json) {
 		// Controllo l'esistenza del riferimento al carico
 		PakiTesta esistente = trovaDaRiferimento(json.getRiferimentoCliente());
 		if (esistente == null)
@@ -591,7 +501,6 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		if (!"INSERITO".equals(esistente.getStato()))
 			throw new CustomException("Il carico richiesto non è più eliminabile.");
 		// Delete
-		boolean delete;
 		EntityManager em = getManager();
 		esistente = em.find(PakiTesta.class, esistente.getIdTestaPaki());
 		EntityTransaction t = em.getTransaction();
@@ -599,22 +508,21 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			t.begin();
 			em.remove(esistente);
 			t.commit();
-			delete = true;
+			json = serializzaIngresso(esistente);
 			logger.info("Carico eliminato!");
 		} catch (Exception e) {
 			logger.error(e);
-			delete = false;
+			json = null;
 			if (t != null && t.isActive())
 				t.rollback();
 		} finally {
 			em.close();
 		}
-		return delete;
+		return json;
 	}
 
 	@Override
-	public boolean eliminaDettaglio(IngressoDettaglioJSON json) {
-		boolean delete;
+	public IngressoDettaglioJSON eliminaDettaglio(IngressoDettaglioJSON json) {
 		//Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
 		PakiTesta carico = trovaDaRiferimento(json.getRiferimento());
 		if (carico == null)
@@ -644,21 +552,20 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 				em.merge(carico);
 				em.remove(dettaglio);
 				t.commit();
-				delete = true;
+				json = serializzaDettaglio(dettaglio);
 			} catch (Exception e) {
 				logger.error(e);
-				delete = false;
+				json = null;
 				if (t != null && t.isActive())
 					t.rollback();
 			} finally {
 				em.close();
 			}
 		} else {
-			delete = false;
 			em.close();
 			throw new CustomException("La riga di carico indicata non esiste.");
 		}
-		return delete;
+		return json;
 	}
 
 	@Override
@@ -666,8 +573,8 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		PakiTesta carico = new PakiTesta();
 		if (json != null) {
 			IngressoJSON ingresso = json.getIngresso();
-			
-			Fornitori fornitore = getFornitore(ingresso.getFornitore());
+			//Controllo sul fornitore
+			Fornitori fornitore = daoFornitore.trovaDaCodice(ingresso.getFornitore());
 			if (fornitore != null) {
 				carico.setCodFornitore(fornitore.getCodiceFornitore());
 				carico.setIdFornitore(fornitore.getIdFornitore());
@@ -675,11 +582,13 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 			} else {
 				throw new CustomException("Il fornitore indicato non esiste. ( " + ingresso.getFornitore() + " )");
 			}
+			//Altre info sul carico
 			Date dataArrivo = ingresso.getDataArrivo() != null ? ingresso.getDataArrivo() : new Date();
 			carico.setDataArrivo(new Timestamp(dataArrivo.getTime()));
 			carico.setNrPaki(ingresso.getRiferimentoCliente());
 			carico.setTipodocumento(ingresso.getTipo());
 			carico.setQtaTotAto(ingresso.getPezziStimati());
+			carico.setNote(ingresso.getNote());
 			//Campi documento - Non vengono passati in update.
 			DocumentoJSON documento = json.getDocumento();
 			if (documento != null) {
@@ -690,36 +599,15 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		}
 		return carico;
 	}
-
-	private Fornitori getFornitore(String codiceFornitore) {
-		Fornitori fornitore = daoFornitore.findByCodice(codiceFornitore);
-		return fornitore;
-	}
-
-	private Articoli getProdotto(String chiave) {
-		Articoli prodotto = daoProdotti.findBySKU(chiave);
-		return prodotto;
-	}
-
-	private boolean isMagazzinoEsistente(String codificaMagazzino) {
-		// Controllo se l'ho già trovato prima, se non c'è lo cerco.
-		if (!magazzini.contains(codificaMagazzino)) {
-			Magazzini magazzino = daoMagazzini.findByCodificaCliente(codificaMagazzino);
-			if (magazzino != null)
-				magazzini.add(codificaMagazzino);
-		}
-		return magazzini.contains(codificaMagazzino);
-	}
 	
-	private String trovaCodificaMagazzino(String codificaLTCMagazzino) {
-		if (!mappaMagazzini.containsKey(codificaLTCMagazzino)) {
-			Magazzini magazzino = daoMagazzini.findByCodiceLTC(codificaLTCMagazzino);
-			if (magazzino != null)
-				mappaMagazzini.put(codificaLTCMagazzino, magazzino);
+	private Magazzini trovaMagazzinoDaCodifica(String codifica) {
+		// Controllo se l'ho già trovato prima, se non c'è lo cerco.
+		if (!mappaMagazzini.containsKey(codifica)) {
+			Magazzini magazzino = daoMagazzini.trovaDaCodificaCliente(codifica);
+			mappaMagazzini.put(codifica, magazzino);
 		}
-		Magazzini magazzino = mappaMagazzini.get(codificaLTCMagazzino);
-		String codificaMagazzino = magazzino != null ? magazzino.getMagaCliente() : null;
-		return codificaMagazzino;
+		Magazzini magazzino = mappaMagazzini.get(codifica);
+		return magazzino;
 	}
 
 	@Override
@@ -740,10 +628,11 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 	}
 
 	public PakiArticolo deserializzaDettaglio(IngressoDettaglioJSON item) {
-		Articoli prodotto = getProdotto(item.getProdotto());
+		Articoli prodotto = daoProdotti.trovaDaSKU(item.getProdotto());
 		if (prodotto == null)
 			throw new CustomException("L'articolo indicato non esiste. ( " + item.getProdotto() + " )");
-		if (!isMagazzinoEsistente(item.getMagazzino()))
+		Magazzini magazzino = trovaMagazzinoDaCodifica(item.getMagazzino());
+		if (magazzino == null)
 			throw new CustomException("Il magazzino indicato non esiste. ( " + item.getMagazzino() + " )");
 		PakiArticolo dettaglio = new PakiArticolo();
 		dettaglio.setRigaPacki(item.getRiga());
@@ -752,7 +641,8 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		dettaglio.setCodUnicoArt(prodotto.getIdUniArticolo());
 		dettaglio.setCodArtStr(prodotto.getCodArtStr());
 		dettaglio.setMagazzino(item.getMagazzino());
-		dettaglio.setMagazzinoltc(item.getMagazzino());
+		//dettaglio.setMagazzinoltc(item.getMagazzino());
+		dettaglio.setMagazzinoltc(magazzino.getCodiceMag());
 		dettaglio.setQtaPaki(item.getQuantitaPrevista());
 		dettaglio.setNrDispo(item.getNote());
 		dettaglio.setMadeIn(item.getMadeIn());
@@ -801,6 +691,7 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		ingresso.setRiferimentoCliente(carico.getNrPaki());
 		ingresso.setTipo(carico.getTipodocumento());
 		ingresso.setStato(carico.getStato());
+		ingresso.setNote(carico.getNote());
 		return ingresso;
 	}
 
@@ -810,7 +701,8 @@ public class CaricoLegacyDAOImpl extends Dao implements CaricoDAO<PakiTesta, Pak
 		item.setRiferimento(dettaglio.getNrOrdineFor());
 		item.setRiga(dettaglio.getRigaPacki());
 		item.setCollo(dettaglio.getBarcodeCollo());
-		item.setMagazzino(trovaCodificaMagazzino(dettaglio.getMagazzino()));
+		//item.setMagazzino(trovaCodificaMagazzino(dettaglio.getMagazzino()));
+		item.setMagazzino(dettaglio.getMagazzino());
 		item.setProdotto(dettaglio.getCodArtStr());
 		item.setQuantitaVerificata(dettaglio.getQtaVerificata());
 		item.setQuantitaPrevista(dettaglio.getQtaPaki());

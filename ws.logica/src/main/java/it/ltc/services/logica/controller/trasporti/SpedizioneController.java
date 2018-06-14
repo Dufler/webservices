@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import it.ltc.database.dao.common.SpedizioneServizioDao;
 import it.ltc.database.dao.common.VersioneTabellaDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.Spedizione;
 import it.ltc.database.model.centrale.SpedizioneServizio;
 import it.ltc.database.model.centrale.VersioneTabella;
 import it.ltc.services.logica.data.trasporti.SpedizioneDAO;
 import it.ltc.services.logica.model.trasporti.CriteriFatturazione;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 import it.ltc.services.logica.validation.trasporti.CriteriFatturazioneValidator;
 import it.ltc.services.logica.validation.trasporti.CriteriUltimaModificaValidator;
 import it.ltc.services.logica.validation.trasporti.SpedizioneValidator;
@@ -68,15 +68,15 @@ public class SpedizioneController {
 	}
 	
 	public SpedizioneController() {
-		daoServizi = SpedizioneServizioDao.getInstance();
-		daoVersione = VersioneTabellaDao.getInstance();
+		daoServizi = new SpedizioneServizioDao();
+		daoVersione = new VersioneTabellaDao();
 	}
 	
 	//TODO - Aggiungere i controlli sui permessi per tutti i metodi
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/servizio")
     public @ResponseBody List<SpedizioneServizio> getServizi() {
-        return daoServizi.findAll();
+        return daoServizi.trovaTutti();
     }
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
@@ -90,7 +90,7 @@ public class SpedizioneController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<Spedizione>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutte le spedizioni modificate recentemente.");
-		VersioneTabella versioneTabellaSpedizioni = daoVersione.findByCodice("spedizione");
+		VersioneTabella versioneTabellaSpedizioni = daoVersione.trovaDaCodice("spedizione");
 		Date dataVersione = versioneTabellaSpedizioni.getDataVersione();
 		boolean reset = dataVersione.after(criteri.getDataUltimaModifica());
 		List<Spedizione> spedizioni = reset ? daoSpedizioni.trovaTutte() : daoSpedizioni.trovaDaUltimaModifica(criteri);

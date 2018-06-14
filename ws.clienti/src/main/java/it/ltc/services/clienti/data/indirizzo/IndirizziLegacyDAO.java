@@ -2,7 +2,7 @@ package it.ltc.services.clienti.data.indirizzo;
 
 import it.ltc.database.model.legacy.Destinatari;
 import it.ltc.database.model.legacy.MittentiOrdine;
-import it.ltc.services.clienti.model.prodotto.IndirizzoJSON;
+import it.ltc.model.shared.json.cliente.IndirizzoJSON;
 
 public interface IndirizziLegacyDAO {
 	

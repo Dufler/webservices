@@ -16,24 +16,23 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.dao.common.LoginController;
-import it.ltc.database.model.centrale.Commessa;
 import it.ltc.database.model.utente.Utente;
+import it.ltc.model.shared.json.cliente.ProdottoJSON;
 import it.ltc.services.clienti.data.prodotto.ProdottoDAO;
-import it.ltc.services.clienti.data.prodotto.ProdottoDAOImpl;
-import it.ltc.services.clienti.data.prodotto.ProdottoLegacyDAOImpl;
-import it.ltc.services.clienti.model.prodotto.ProdottoJSON;
+import it.ltc.services.clienti.data.prodotto.ProdottoDAOFactory;
 import it.ltc.services.clienti.validation.ProdottoValidator;
+import it.ltc.services.custom.controller.RestController;
 
 @Controller
 @RequestMapping("/prodotto")
-public class ProdottoController {
+public class ProdottoController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("Prodotto");
+	private static final Logger logger = Logger.getLogger("ProdottoController");
 	
-	private final LoginController loginManager;
+	@Autowired
+	private ProdottoDAOFactory factory;
 	
 	@Autowired
 	private ProdottoValidator validator;
@@ -43,134 +42,67 @@ public class ProdottoController {
 	    binder.setValidator(validator);
 	}
 	
-	public ProdottoController () {
-		loginManager = LoginController.getInstance();
-	}
-	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<Void> inserisci(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di inserimento");
-		logger.info("Prodotto: " + prodotto);
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+	public ResponseEntity<ProdottoJSON> inserisci(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
+		logger.info("Nuova richiesta di inserimento prodotto: " + prodotto);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
-		HttpStatus status;
-		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			ProdottoDAO<?> dao = getDao(user, commessa);
-			boolean insert = dao.inserisci(prodotto);
-			status = insert ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
-			logger.info("Creato nuovo prodotto: " + prodotto.toString());
-		} else {
-			prodotto = null;
-			status = HttpStatus.UNAUTHORIZED;
-			String message = "Richiesta di inserimento prodotto fallita: ";
-			String reason = user != null ? "Autenticazione fallita" : "Permessi insufficienti";
-			logger.warn(message + reason);
-		}
-		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
+		ProdottoDAO dao = factory.getDao(user, risorsaCommessa);
+		ProdottoJSON entity = dao.inserisci(prodotto);
+		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+		logger.info("Creato nuovo prodotto: " + entity.toString());
+		ResponseEntity<ProdottoJSON> response = new ResponseEntity<ProdottoJSON>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
-	public ResponseEntity<ProdottoJSON> cerca(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+	public ResponseEntity<ProdottoJSON> cerca(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di ricerca");
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
-		HttpStatus status;
-		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			ProdottoDAO<?> dao = getDao(user, commessa);
-			String sku = prodotto != null ? prodotto.getChiaveCliente() : "";
-			prodotto = dao.trovaDaSKU(sku);
-			status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-		} else {
-			prodotto = null;
-			status = HttpStatus.UNAUTHORIZED;
-			String message = "Richiesta di inserimento prodotto fallita: ";
-			String reason = user != null ? "Autenticazione fallita" : "Permessi insufficienti";
-			logger.warn(message + reason);
-		}
-		ResponseEntity<ProdottoJSON> response = new ResponseEntity<ProdottoJSON>(prodotto, status);
+		ProdottoDAO dao = factory.getDao(user, risorsaCommessa);
+		String sku = prodotto != null ? prodotto.getChiaveCliente() : "";
+		ProdottoJSON entity = dao.trovaPerSKU(sku);
+		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		ResponseEntity<ProdottoJSON> response = new ResponseEntity<ProdottoJSON>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-	public ResponseEntity<Void> modifica(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica");
-		logger.info("Prodotto: " + prodotto);
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
-		logger.info("Utente: " + user.getUsername());
-		HttpStatus status;
-		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			ProdottoDAO<?> dao = getDao(user, commessa);
-			boolean successo = dao.aggiorna(prodotto);
-			status = successo ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-			logger.info("Modificato il prodotto: " + prodotto.toString());
-		} else {
-			prodotto = null;
-			status = HttpStatus.UNAUTHORIZED;
-			String message = "Richiesta di aggiornamento prodotto fallita: ";
-			String reason = user != null ? "Autenticazione fallita" : "Permessi insufficienti";
-			logger.warn(message + reason);
-		}
-		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
+	public ResponseEntity<ProdottoJSON> modifica(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
+		logger.info("Nuova richiesta di modifica prodotto: " + prodotto);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		ProdottoDAO dao = factory.getDao(user, risorsaCommessa);
+		ProdottoJSON entity = dao.aggiorna(prodotto);
+		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		logger.info("Modificato il prodotto: " + prodotto.toString());
+		ResponseEntity<ProdottoJSON> response = new ResponseEntity<ProdottoJSON>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<Void> dismetti(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di dismissione");
-		logger.info("Prodotto: " + prodotto);
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+	public ResponseEntity<ProdottoJSON> dismetti(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
+		logger.info("Nuova richiesta di dismissione prodotto: " + prodotto);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
-		HttpStatus status;
-		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			ProdottoDAO<?> dao = getDao(user, commessa);
-			boolean successo = dao.dismetti(prodotto);
-			status = successo ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-			logger.info("Dismesso prodotto: " + prodotto.toString());
-		} else {
-			prodotto = null;
-			status = HttpStatus.UNAUTHORIZED;
-			String message = "Richiesta di inserimento prodotto fallita: ";
-			String reason = user != null ? "Autenticazione fallita" : "Permessi insufficienti";
-			logger.warn(message + reason);
-		}
-		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
+		ProdottoDAO dao = factory.getDao(user, risorsaCommessa);
+		ProdottoJSON entity = dao.dismetti(prodotto);
+		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		logger.info("Dismesso prodotto: " + prodotto.toString());
+		ResponseEntity<ProdottoJSON> response = new ResponseEntity<ProdottoJSON>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<List<ProdottoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+	public ResponseEntity<List<ProdottoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di elenco prodotti");
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
-		logger.info("Utente: " + user.getUsername());
-		HttpStatus status;
-		List<ProdottoJSON> prodotti;
-		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			ProdottoDAO<?> dao = getDao(user, commessa);
-			prodotti = dao.trovaTutti();
-			status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-			logger.info("Prodotti trovati: " + prodotti.size());
-		} else {
-			prodotti = null;
-			status = HttpStatus.UNAUTHORIZED;
-			String message = "Richiesta di inserimento prodotto fallita: ";
-			String reason = user != null ? "Autenticazione fallita" : "Permessi insufficienti";
-			logger.warn(message + reason);
-		}
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		ProdottoDAO dao = factory.getDao(user, risorsaCommessa);
+		List<ProdottoJSON> prodotti = dao.trovaTutti();
+		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		logger.info("Prodotti trovati: " + prodotti.size());
 		ResponseEntity<List<ProdottoJSON>> response = new ResponseEntity<List<ProdottoJSON>>(prodotti, status);
 		return response;
 	}
-	
-	private ProdottoDAO<?> getDao(Utente user, String risorsaCommessa) {
-		ProdottoDAO<?> dao;
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
-		if (commessa != null) {
-			String persistenceUnitName = commessa.getNomeRisorsa();
-			dao = commessa.isLegacy() ? new ProdottoLegacyDAOImpl(persistenceUnitName) : new ProdottoDAOImpl(persistenceUnitName);
-		} else {
-			dao = null;
-		}
-		return dao;
- 	}
 
 }

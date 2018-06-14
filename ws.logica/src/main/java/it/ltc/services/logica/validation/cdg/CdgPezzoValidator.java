@@ -9,7 +9,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import it.ltc.database.model.centrale.CdgPezzo;
-import it.ltc.database.model.centrale.json.CdgPezzoEventoJSON;
+import it.ltc.database.model.centrale.CdgPezzoEvento;
 
 @Component
 public class CdgPezzoValidator implements Validator {
@@ -34,14 +34,14 @@ public class CdgPezzoValidator implements Validator {
 		
 		//Controllo che mi abbiano fornito gli spacchettamenti e che la loro somma sia 100 per costo e ricavo.
 		//Inoltre verifico che lo stesso evento non sia stato passato più di una volta.
-		List<CdgPezzoEventoJSON> spacchettamenti = pezzo.getSpacchettamenti();
+		List<CdgPezzoEvento> spacchettamenti = pezzo.getSpacchettamenti();
 		if (spacchettamenti == null || spacchettamenti.isEmpty()) {
 			errors.reject("pezzo.spacchettamenti", "E' necessario fornire gli spacchettamenti");
 		} else {
 			Set<Integer> eventi = new HashSet<>();
 			double ricavoPercentuale = 0;
 			double costoPercentuale = 0;
-			for (CdgPezzoEventoJSON spacchettamento : spacchettamenti) {
+			for (CdgPezzoEvento spacchettamento : spacchettamenti) {
 				ricavoPercentuale += spacchettamento.getRicavo();
 				costoPercentuale += spacchettamento.getCosto();
 				if (eventi.contains(spacchettamento.getEvento())) {

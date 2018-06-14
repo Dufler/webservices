@@ -39,7 +39,7 @@ public class CommessaController {
 	}
     
     public CommessaController() {
-    	dao = CommessaDao.getInstance();
+    	dao = new CommessaDao();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")

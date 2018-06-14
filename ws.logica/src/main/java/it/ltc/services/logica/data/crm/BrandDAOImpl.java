@@ -33,13 +33,6 @@ public class BrandDAOImpl extends CRUDDao<Brand> implements BrandDAO {
 
 	@Override
 	public List<Brand> trovaDaAzienda(int idAzienda) {
-//		EntityManager em = getManager();
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//        CriteriaQuery<AziendaBrand> criteria = cb.createQuery(AziendaBrand.class);
-//        Root<AziendaBrand> member = criteria.from(AziendaBrand.class);
-//        criteria.select(member).where(cb.equal(member.get("azienda"), idAzienda));
-//		List<AziendaBrand> lista = em.createQuery(criteria).getResultList();
-//		em.close();
 		List<AziendaBrand> lista = aziendaBrandDao.trovaDaAzienda(idAzienda);
 		List<Brand> brands = new LinkedList<Brand>();
 		for (AziendaBrand match : lista) {
@@ -88,7 +81,8 @@ public class BrandDAOImpl extends CRUDDao<Brand> implements BrandDAO {
 
 	@Override
 	protected void updateValues(Brand oldEntity, Brand entity) {
-		oldEntity.setNome(entity.getNome());		
+		oldEntity.setNome(entity.getNome());
+		oldEntity.setDescrizione(entity.getDescrizione());
 	}
 
 }

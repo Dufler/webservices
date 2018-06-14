@@ -4,14 +4,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.database.model.centrale.json.CdgCommessaEventoJSON;
+import it.ltc.database.model.centrale.CdgCommessaEvento;
 
 @Component
 public class CdgCommessaEventoValidator implements Validator {
 
 	@Override
 	public boolean supports(Class<?> clazz) {
-		boolean support = CdgCommessaEventoJSON.class.equals(clazz);
+		boolean support = CdgCommessaEvento.class.equals(clazz);
 		return support;
 	}
 

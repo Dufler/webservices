@@ -3,10 +3,11 @@ package it.ltc.services.clienti.data.ordine;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -18,6 +19,13 @@ import javax.persistence.criteria.Root;
 import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.Dao;
+import it.ltc.database.dao.legacy.ArticoliDao;
+import it.ltc.database.dao.legacy.ImballoDao;
+import it.ltc.database.dao.legacy.MagazzinoDao;
+import it.ltc.database.dao.legacy.RighiOrdineDao;
+import it.ltc.database.dao.legacy.TestaCorrDao;
+import it.ltc.database.dao.legacy.TestataOrdiniDao;
+import it.ltc.database.dao.legacy.TestataOrdiniTipoDao;
 import it.ltc.database.model.legacy.Articoli;
 import it.ltc.database.model.legacy.ColliImballo;
 import it.ltc.database.model.legacy.ColliPreleva;
@@ -32,21 +40,19 @@ import it.ltc.database.model.legacy.RighiImballoLight;
 import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.TestaCorr;
 import it.ltc.database.model.legacy.TestataOrdini;
+import it.ltc.database.model.legacy.TestataOrdiniTipo;
 import it.ltc.database.model.legacy.model.StatoOrdine;
+import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.ImballoJSON;
+import it.ltc.model.shared.json.cliente.IndirizzoJSON;
+import it.ltc.model.shared.json.cliente.OrdineImballatoJSON;
+import it.ltc.model.shared.json.cliente.OrdineJSON;
+import it.ltc.model.shared.json.cliente.ProdottoImballatoJSON;
+import it.ltc.model.shared.json.cliente.SpedizioneJSON;
+import it.ltc.model.shared.json.cliente.UscitaDettaglioJSON;
+import it.ltc.model.shared.json.cliente.UscitaJSON;
 import it.ltc.services.clienti.data.indirizzo.IndirizziLegacyDAOImpl;
-import it.ltc.services.clienti.data.magazzino.ImballoDAOImpl;
-import it.ltc.services.clienti.data.magazzino.MagazzinoLegacyDAOImpl;
-import it.ltc.services.clienti.data.prodotto.ProdottoLegacyDAOImpl;
-import it.ltc.services.clienti.model.prodotto.ContrassegnoJSON;
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
-import it.ltc.services.clienti.model.prodotto.ImballoJSON;
-import it.ltc.services.clienti.model.prodotto.IndirizzoJSON;
-import it.ltc.services.clienti.model.prodotto.OrdineImballatoJSON;
-import it.ltc.services.clienti.model.prodotto.OrdineJSON;
-import it.ltc.services.clienti.model.prodotto.ProdottoImballatoJSON;
-import it.ltc.services.clienti.model.prodotto.SpedizioneJSON;
-import it.ltc.services.clienti.model.prodotto.UscitaDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.UscitaJSON;
 import it.ltc.services.custom.exception.CustomErrorCause;
 import it.ltc.services.custom.exception.CustomException;
 
@@ -54,52 +60,56 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 
 	private static final Logger logger = Logger.getLogger("OrdineLegacyDAOImpl");
 
-	private final IndirizziLegacyDAOImpl daoIndirizzi;
-	private final ProdottoLegacyDAOImpl daoProdotti;
-	private final MagazzinoLegacyDAOImpl daoMagazzini;
-	private final ImballoDAOImpl daoImballi;
+	protected final IndirizziLegacyDAOImpl daoIndirizzi;
+	protected final TestaCorrDao daoTestaCorr;
+	private final ArticoliDao daoProdotti;
+	private final MagazzinoDao daoMagazzini;
+	private final ImballoDao daoImballi;
+	private final TestataOrdiniDao daoTestataOrdine;
+	private final RighiOrdineDao daoRigheOrdine;
+	private final TestataOrdiniTipoDao daoTipiOrdine;
 	
+	private final Set<String> tipiRiga;
 	private final HashMap<String, String> magazzini;
 	private final HashMap<String, Imballi> imballi;
 
 	public OrdineLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
 		daoIndirizzi = new IndirizziLegacyDAOImpl(persistenceUnit);
-		daoProdotti = new ProdottoLegacyDAOImpl(persistenceUnit);
-		daoMagazzini = new MagazzinoLegacyDAOImpl(persistenceUnit);
-		daoImballi = new ImballoDAOImpl(persistenceUnit);
+		daoTestaCorr = new TestaCorrDao(persistenceUnit);
+		daoProdotti = new ArticoliDao(persistenceUnit);
+		daoMagazzini = new MagazzinoDao(persistenceUnit);
+		daoImballi = new ImballoDao(persistenceUnit);
+		daoTestataOrdine = new TestataOrdiniDao(persistenceUnit);
+		daoRigheOrdine = new RighiOrdineDao(persistenceUnit);
+		daoTipiOrdine = new TestataOrdiniTipoDao(persistenceUnit);
+		tipiRiga = new HashSet<>();
 		magazzini = new HashMap<>();
 		imballi = new HashMap<>();
 	}
-
+	
 	@Override
 	public OrdineJSON trovaDaID(int idOrdine) {
 		OrdineJSON json;
-		EntityManager em = getManager();
-		TestataOrdini ordine = em.find(TestataOrdini.class, idOrdine);
+		TestataOrdini ordine = daoTestataOrdine.trovaDaID(idOrdine);
 		if (ordine != null) {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<RighiOrdine> criteria = cb.createQuery(RighiOrdine.class);
-			Root<RighiOrdine> member = criteria.from(RighiOrdine.class);
-			criteria.select(member).where(cb.equal(member.get("idTestataOrdine"), idOrdine));
-			List<RighiOrdine> dettagli = em.createQuery(criteria).getResultList();
+			List<RighiOrdine> dettagli = daoRigheOrdine.trovaRigheDaIDOrdine(idOrdine);
 			json = serializzaOrdine(ordine, dettagli);
 		} else {
 			json = null;
-		}
-		em.close();
+		}		
 		return json;
 	}
 
 	@Override
 	public OrdineJSON trovaDaRiferimento(String riferimento, boolean dettagliato) {
 		OrdineJSON json;
-		TestataOrdini ordine = trovaDaRiferimento(riferimento);
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimento);
 		if (ordine != null) {
 			List<RighiOrdine> dettagli;
 			// Se hanno richiesto nel dettaglio allora aggiungo info
 			if (dettagliato) {
-				dettagli = trovaDettagli(ordine.getIdTestaSped());
+				dettagli = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped());
 				// Recupero i seriali e ne faccio una mappa
 				List<RighiImballoLight> seriali = trovaSeriali(ordine.getNrLista());
 				HashMap<Integer, List<String>> mappaSerialiPerRiga = new HashMap<>();
@@ -132,29 +142,6 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return json;
 	}
 
-	public TestataOrdini trovaDaRiferimento(String riferimento) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb1 = em.getCriteriaBuilder();
-		CriteriaQuery<TestataOrdini> criteria1 = cb1.createQuery(TestataOrdini.class);
-		Root<TestataOrdini> member = criteria1.from(TestataOrdini.class);
-		criteria1.select(member).where(cb1.equal(member.get("rifOrdineCli"), riferimento));
-		List<TestataOrdini> list = em.createQuery(criteria1).setMaxResults(1).getResultList();
-		em.close();
-		TestataOrdini carico = list.isEmpty() ? null : list.get(0);
-		return carico;
-	}
-
-	public List<RighiOrdine> trovaDettagli(int idOrdine) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<RighiOrdine> criteria = cb.createQuery(RighiOrdine.class);
-		Root<RighiOrdine> member = criteria.from(RighiOrdine.class);
-		criteria.select(member).where(cb.equal(member.get("idTestataOrdine"), idOrdine));
-		List<RighiOrdine> dettagli = em.createQuery(criteria).getResultList();
-		em.close();
-		return dettagli;
-	}
-
 	public List<RighiImballoLight> trovaSeriali(String nrLista) {
 		EntityManager em = getManager();
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -182,14 +169,48 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		}
 		return ordini;
 	}
+	
+	private void checkTipi(OrdineJSON json) {
+		//Controllo il tipo dell'ordine
+		checkTipoOrdine(json.getOrdine());
+		//Controllo i tipi di riga, se presenti.
+		for (UscitaDettaglioJSON dettaglio : json.getDettagli()) {
+			checkTipoRiga(dettaglio);			
+		}
+	}
+	
+	private void checkTipoOrdine(UscitaJSON json) {
+		String tipoOrdine = json.getTipo();
+		TestataOrdiniTipo tipo = daoTipiOrdine.trovaTipoDaCodice(tipoOrdine);
+		if (tipo == null || !tipo.getTipo().equals("TESTATA")) {
+			throw new CustomException("Il tipo indicato per l'ordine non esiste. (" + tipoOrdine + ")");
+		}
+	}
+	
+	private void checkTipoRiga(UscitaDettaglioJSON dettaglio) {
+		//Controllo se è stata inserita una tipologia.
+		String tipoRiga = dettaglio.getTipo();
+		if (tipoRiga != null && !tipoRiga.isEmpty()) {
+			//Se è presente vado a verificare che esiste e sia valida.
+			if (!tipiRiga.contains(tipoRiga)) {
+				TestataOrdiniTipo tipoRigaOrdine = daoTipiOrdine.trovaTipoDaCodice(tipoRiga);
+				if (tipoRigaOrdine == null || !tipoRigaOrdine.getTipo().equals("RIGA")) {
+					throw new CustomException("Il tipo indicato per la riga non esiste. (" + tipoRiga + ")");
+				} else {
+					tipiRiga.add(tipoRiga);
+				}
+			}
+		}
+	}
 
 	@Override
-	public boolean inserisci(OrdineJSON json) {
-		boolean insert;
+	public OrdineJSON inserisci(OrdineJSON json) {
+		//Controllo il tipo d'ordine specificato
+		checkTipi(json);
 		// Deserializzazione testata
 		TestataOrdini ordine = deserializzaUscita(json);
 		// Controllo sull'unicità del riferimento al carico
-		TestataOrdini esistente = trovaDaRiferimento(ordine.getRifOrdineCli());
+		TestataOrdini esistente = daoTestataOrdine.trovaDaRiferimento(ordine.getRifOrdineCli());
 		if (esistente != null)
 			throw new CustomException("Esiste gia' un ordine con lo stesso riferimento. (" + ordine.getRifOrdineCli() + ")");
 		// Deserializza destinatario e inserisci le info nell'ordine
@@ -228,24 +249,25 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				em.persist(dettaglio);
 			}
 			t.commit();
-			insert = true;
+			json = serializzaOrdine(ordine, dettagli);
 			logger.info("Ordine inserito!");
 		} catch (Exception e) {
 			logger.error(e);
-			insert = false;
-			t.rollback();
+			json = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
-		return insert;
+		return json;
 	}
 
 	@Override
-	public boolean inserisciDettaglio(UscitaDettaglioJSON json) {
-		boolean insert;
-		// Recupero le info sull'ordine associato, se non lo trovo lancio
-		// l'eccezione e mi fermo qui.
-		TestataOrdini ordine = trovaDaRiferimento(json.getRiferimento());
+	public UscitaDettaglioJSON inserisciDettaglio(UscitaDettaglioJSON json) {
+		//Controllo il tipo, se presente
+		checkTipoRiga(json);
+		// Recupero le info sull'ordine associato, se non lo trovo lancio l'eccezione e mi fermo qui.
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(json.getRiferimento());
 		if (ordine == null)
 			throw new CustomException("Il riferimento indicato per l'ordine non e' valido. (" + json.getRiferimento() + ")");
 		// Controllo lo stato
@@ -279,26 +301,28 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				nuoveInfo.setRagstampe1(ordine.getNrLista());
 				em.persist(nuoveInfo);
 				t.commit();
-				insert = true;
+				json = serializzaDettaglio(nuoveInfo);
 			} catch (Exception e) {
 				logger.error(e);
-				insert = false;
-				t.rollback();
+				json = null;
+				if (t != null && t.isActive())
+					t.rollback();
 			} finally {
 				em.close();
 			}
 		} else {
-			insert = false;
 			em.close();
 			throw new CustomException("La riga d'ordine indicata è già presente. (" + json.getRiga() + ")");
 		}
-		return insert;
+		return json;
 	}
 
 	@Override
-	public boolean aggiorna(UscitaJSON json) {
+	public UscitaJSON aggiorna(UscitaJSON json) {
+		//Controllo il tipo d'ordine specificato
+		checkTipoOrdine(json);
 		// Controllo l'esistenza del riferimento al carico
-		TestataOrdini esistente = trovaDaRiferimento(json.getRiferimentoOrdine());
+		TestataOrdini esistente = daoTestataOrdine.trovaDaRiferimento(json.getRiferimentoOrdine()); //trovaDaRiferimento(json.getRiferimentoOrdine());
 		if (esistente == null)
 			throw new CustomException("Non esiste nessun ordine con questo riferimento. (" + json.getRiferimentoOrdine() + ")");
 		// Controllo lo stato
@@ -307,7 +331,6 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		Destinatari destinatario = daoIndirizzi.ottieniDestinatario(json.getDestinatario());
 		MittentiOrdine mittente = daoIndirizzi.ottieniMittente(json.getMittente());
 		// Update
-		boolean update;
 		EntityManager em = getManager();
 		esistente = em.find(TestataOrdini.class, esistente.getIdTestaSped());
 		EntityTransaction t = em.getTransaction();
@@ -326,24 +349,25 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			esistente.setIdMittente(mittente.getIdMittente());
 			em.merge(esistente);
 			t.commit();
-			update = true;
+			json = serializzaUscita(esistente, false);
 			logger.info("Ordine modificato!");
 		} catch (Exception e) {
 			logger.error(e);
-			update = false;
-			t.rollback();
+			json = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
-		return update;
+		return json;
 	}
 
 	@Override
-	public boolean aggiornaDettaglio(UscitaDettaglioJSON json) {
-		boolean update;
-		// Recupero le info sul carico associato, se non lo trovo lancio
-		// l'eccezione e mi fermo qui.
-		TestataOrdini ordine = trovaDaRiferimento(json.getRiferimento());
+	public UscitaDettaglioJSON aggiornaDettaglio(UscitaDettaglioJSON json) {
+		//Controllo il tipo, se presente
+		checkTipoRiga(json);
+		// Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(json.getRiferimento()); //trovaDaRiferimento(json.getRiferimento());
 		if (ordine == null)
 			throw new CustomException("Il riferimento indicato per l'ordine non è valido. (" + json.getRiferimento() + ")");
 		// Controllo lo stato
@@ -385,30 +409,29 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				dettaglio.setTaglia(nuoveInfo.getTaglia());
 				em.merge(dettaglio);
 				t.commit();
-				update = true;
+				json = serializzaDettaglio(dettaglio);
 			} catch (Exception e) {
 				logger.error(e);
-				update = false;
-				t.rollback();
+				json = null;
+				if (t != null && t.isActive())
+					t.rollback();
 			}
 		} else {
-			update = false;
 			em.close();
 			throw new CustomException("La riga d'ordine indicata non esiste oppure non è univoca.");
 		}
-		return update;
+		return json;
 	}
 
 	@Override
-	public boolean elimina(UscitaJSON json) {
+	public UscitaJSON elimina(UscitaJSON json) {
 		// Controllo l'esistenza del riferimento al carico
-		TestataOrdini esistente = trovaDaRiferimento(json.getRiferimentoOrdine());
+		TestataOrdini esistente = daoTestataOrdine.trovaDaRiferimento(json.getRiferimentoOrdine()); //trovaDaRiferimento(json.getRiferimentoOrdine());
 		if (esistente == null)
 			throw new CustomException("Non esiste nessun ordine con questo riferimento. (" + json.getRiferimentoOrdine() + ")");
 		// Controllo lo stato, deve essere 'INSERITO'
 		checkOrdineModificabileOAssegnabile(esistente.getStato());
 		// Delete
-		boolean delete;
 		EntityManager em = getManager();
 		esistente = em.find(TestataOrdini.class, esistente.getIdTestaSped());
 		EntityTransaction t = em.getTransaction();
@@ -416,24 +439,23 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			t.begin();
 			em.remove(esistente);
 			t.commit();
-			delete = true;
+			json = serializzaUscita(esistente, false);
 			logger.info("Ordine eliminato!");
 		} catch (Exception e) {
 			logger.error(e);
-			delete = false;
-			t.rollback();
+			json = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
-		return delete;
+		return json;
 	}
 
 	@Override
-	public boolean eliminaDettaglio(UscitaDettaglioJSON json) {
-		boolean delete;
-		// Recupero le info sul carico associato, se non lo trovo lancio
-		// l'eccezione e mi fermo qui.
-		TestataOrdini ordine = trovaDaRiferimento(json.getRiferimento());
+	public UscitaDettaglioJSON eliminaDettaglio(UscitaDettaglioJSON json) {
+		// Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(json.getRiferimento()); //trovaDaRiferimento(json.getRiferimento());
 		if (ordine == null)
 			throw new CustomException("Il riferimento indicato per l'ordine non è valido. (" + json.getRiferimento() + ")");
 		// Controllo lo stato
@@ -461,20 +483,20 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				em.merge(ordine);
 				em.remove(dettaglio);
 				t.commit();
-				delete = true;
+				json = serializzaDettaglio(dettaglio);
 			} catch (Exception e) {
 				logger.error(e);
-				delete = false;
-				t.rollback();
+				json = null;
+				if (t != null && t.isActive())
+					t.rollback();
 			} finally {
 				em.close();
 			}
 		} else {
-			delete = false;
 			em.close();
 			throw new CustomException("La riga d'ordine indicata non esiste.");
 		}
-		return delete;
+		return json;
 	}
 
 	/**
@@ -493,7 +515,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Controllo lo stato dell'ordine
 		checkOrdineModificabileOAssegnabile(ordine.getStato());
 		// Recupero la lista di prodotti richiesti e controllo la disponibilita'
-		List<RighiOrdine> prodotti = trovaDettagli(ordine.getIdTestaSped());
+		List<RighiOrdine> prodotti = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped()); //trovaDettagli(ordine.getIdTestaSped());
 		logger.info("Verranno ora verificate " + prodotti.size() + " righe.");
 		EntityManager em = getManager();
 		boolean finalizza;
@@ -642,20 +664,21 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		dettaglio.setQtadaubicare(json.getQuantitaOrdinata());
 		dettaglio.setTaglia(prodotto.getTaglia());
 		dettaglio.setNoteCliente(json.getNote());
+		dettaglio.setTipoord(json.getTipo());
 		if (json.getSeriali() != null && !json.getSeriali().isEmpty())
 			dettaglio.setSeriali(json.getSeriali());
 		return dettaglio;
 	}
 
 	private Articoli getProdotto(String chiave) {
-		Articoli prodotto = daoProdotti.findBySKU(chiave);
+		Articoli prodotto = daoProdotti.trovaDaSKU(chiave);
 		return prodotto;
 	}
 
 	private boolean isMagazzinoEsistente(String codificaMagazzino) {
 		// Controllo se l'ho già trovato prima, se non c'è lo cerco.
 		if (!magazzini.containsKey(codificaMagazzino)) {
-			Magazzini magazzino = daoMagazzini.findByCodificaCliente(codificaMagazzino);
+			Magazzini magazzino = daoMagazzini.trovaDaCodificaCliente(codificaMagazzino);
 			if (magazzino != null)
 				magazzini.put(codificaMagazzino, magazzino.getCodiceMag());
 		}
@@ -757,6 +780,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		json.setQuantitaImballata(dettaglio.getQtaImballata());
 		json.setRiga(dettaglio.getNrRigo());
 		json.setNote(dettaglio.getNoteCliente());
+		json.setTipo(dettaglio.getTipoord());
 		if (dettaglio.getSeriali() != null && !dettaglio.getSeriali().isEmpty())
 			json.setSeriali(dettaglio.getSeriali());
 		return json;
@@ -765,7 +789,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	@Override
 	public boolean assegna(String riferimentoOrdine) {
 		// Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
-		TestataOrdini ordine = trovaDaRiferimento(riferimentoOrdine);
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimentoOrdine); //trovaDaRiferimento(riferimentoOrdine);
 		if (ordine == null)
 			throw new CustomException("Il riferimento indicato per l'ordine non è valido. (" + riferimentoOrdine + ")");
 		boolean finalizza = finalizza(ordine);
@@ -787,7 +811,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	@Override
 	public OrdineImballatoJSON ottieniDettagliImballo(String riferimento) {
 		// Recupero le info sul carico associato, se non lo trovo lancio l'eccezione e mi fermo qui.
-		TestataOrdini ordine = trovaDaRiferimento(riferimento);
+		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimento); //trovaDaRiferimento(riferimento);
 		if (ordine == null)
 			throw new CustomException("Il riferimento indicato per l'ordine non è valido. (" + riferimento + ")");
 		OrdineImballatoJSON ordineImballato = ottieniDettagliImballo(ordine);
@@ -888,7 +912,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return spedisci;
 	}
 
-	private boolean aggiornaInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
+	protected boolean aggiornaInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
 		boolean aggiornamento;
 		// Utility
 		SimpleDateFormat meseGiorno = new SimpleDateFormat("MMdd");
@@ -908,17 +932,15 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		spedizione.setServizio(infoSpedizione.getServizioCorriere());
 		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
 		
-		//Documento
-		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-		if (documento != null) {
-			//logger.info("Base64: '" + documento.getDocumentoBase64() + "'");
-			//spedizione.setDocumentoBase64(new String(documento.getDocumentoBase64()));
-			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
-			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
-			documento.getData();
-			documento.getRiferimento();
-			documento.getTipo();
-		}
+		//Documento - Non lo faccio nella versione base
+//		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
+//		if (documento != null) {
+//			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
+//			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
+//			documento.getData();
+//			documento.getRiferimento();
+//			documento.getTipo();
+//		}
 
 		// Contrassegno
 		ContrassegnoJSON infoContrassegno = infoSpedizione.getContrassegno();
@@ -951,7 +973,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return aggiornamento;
 	}
 
-	private boolean inserisciInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
+	protected boolean inserisciInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
 		boolean inserimento;
 		// Utility
 		SimpleDateFormat meseGiorno = new SimpleDateFormat("MMdd");
@@ -975,7 +997,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		int dataConsegna = infoSpedizione.getDataConsegna() != null ? Integer.parseInt(meseGiorno.format(infoSpedizione.getDataConsegna())) : 0;
 		spedizione.setDataConsegna(dataConsegna);
 		spedizione.setMittenteAlfa(primoOrdine.getNrOrdine());
-		int progressivoSpedizione = getProgressivoSpedizioneTestaCorr();
+		int progressivoSpedizione = daoTestaCorr.getProgressivoSpedizioneTestaCorr(); //getProgressivoSpedizioneTestaCorr();
 		spedizione.setMittenteNum(progressivoSpedizione);
 		String note = infoSpedizione.getNote() != null ? infoSpedizione.getNote() : ""; //Ho già verificato che sia <= 70 caratteri.
 		String note1 = note.length() > 35 ? note.substring(0, 35) : note;
@@ -986,16 +1008,14 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		spedizione.setServizio(infoSpedizione.getServizioCorriere());
 		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
 		
-		//Documento
-		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-		if (documento != null) {
-			//spedizione.setDocumentoBase64(new String(documento.getDocumentoBase64()));
-			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
-			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
-			documento.getData();
-			documento.getRiferimento();
-			documento.getTipo();
-		}
+		//Documento - Questa parte la faccio solo per quelli che hanno un documento da gestire.
+//		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
+//		if (documento != null) {
+//			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
+//			documento.getData();
+//			documento.getRiferimento();
+//			documento.getTipo();
+//		}
 
 		// Contrassegno
 		ContrassegnoJSON infoContrassegno = infoSpedizione.getContrassegno();
@@ -1018,7 +1038,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		spedizione.setProvincia(destinatario.getProvincia());
 		spedizione.setRagSocDest(destinatario.getRagSoc1());
 		spedizione.setRagSocEst(destinatario.getRagSoc2());
-		spedizione.setTelefono(destinatario.getTel());
+		//spedizione.setTelefono(destinatario.getTel());
 
 		spedizione.setCapMitt(mittente.getCap());
 		spedizione.setNazioneMitt(mittente.getNazione());
@@ -1104,20 +1124,20 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return inserimento;
 	}
 
-	private int getProgressivoSpedizioneTestaCorr() {
-		int progressivo;
-		EntityManager em = getManager();
-		try {
-			progressivo = em.createNamedQuery("TestaCorr.progressivoSpedizione", Integer.class).getSingleResult() + 1;
-		} catch (Exception e) {
-			progressivo = 1;
-		} finally {
-			em.close();
-		}
-		return progressivo;
-	}
+//	protected int getProgressivoSpedizioneTestaCorr() {
+//		int progressivo;
+//		EntityManager em = getManager();
+//		try {
+//			progressivo = em.createNamedQuery("TestaCorr.progressivoSpedizione", Integer.class).getSingleResult() + 1;
+//		} catch (Exception e) {
+//			progressivo = 1;
+//		} finally {
+//			em.close();
+//		}
+//		return progressivo;
+//	}
 
-	private List<ColliImballo> recuperaImballiDaOrdine(TestataOrdini ordine) {
+	protected List<ColliImballo> recuperaImballiDaOrdine(TestataOrdini ordine) {
 		EntityManager em = getManager();
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<ColliImballo> criteria = cb.createQuery(ColliImballo.class);
@@ -1139,7 +1159,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		int idDestina = -1;
 		// Recupero tutti gli ordini
 		for (String riferimento : riferimenti) {
-			TestataOrdini ordine = trovaDaRiferimento(riferimento);
+			TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimento);
 			ordiniDaSpedire.add(ordine);
 			// Se non trovo corrispondenza o non sono in uno stato congruo
 			// lancio un'eccezione.
@@ -1189,10 +1209,10 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		if (spedizione != null) {
 			json = new SpedizioneJSON();
 			DocumentoJSON documento = new DocumentoJSON();
-			documento.setData(new Date());
+			documento.setData(null);
 			documento.setRiferimento(spedizione.getMittenteAlfa());
 			documento.setTipo("ORDINE");
-			documento.setDocumentoBase64(spedizione.getDocumentoBase64());
+			documento.setDocumentoBase64(null);
 			json.setDocumentoFiscale(documento);
 			json.setCorriere(spedizione.getCorriere());
 		} else {

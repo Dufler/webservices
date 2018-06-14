@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.CaricoJSON;
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoJSON;
+import it.ltc.model.shared.json.cliente.CaricoJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
+import it.ltc.model.shared.json.cliente.IngressoJSON;
 
 /**
  * Il validatore esegue i seguenti controlli:

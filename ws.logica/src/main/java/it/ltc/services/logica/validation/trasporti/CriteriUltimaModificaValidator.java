@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 
 @Component
 public class CriteriUltimaModificaValidator implements Validator {

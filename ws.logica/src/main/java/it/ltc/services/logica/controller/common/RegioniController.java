@@ -18,17 +18,17 @@ public class RegioniController {
 	private final RegioneDao dao;
     
     public RegioniController() {
-    	dao = RegioneDao.getInstance();
+    	dao = new RegioneDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Regione> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Regione lookupMemberById(@PathVariable("id") String id) {
-        return dao.findBySigla(id);
+        return dao.trovaDaSigla(id);
     }
 
 }

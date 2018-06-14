@@ -18,17 +18,17 @@ public class SedeController {
 	private final SedeDao dao;
     
     public SedeController() {
-    	dao = SedeDao.getInstance();
+    	dao = new SedeDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Sede> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Sede lookupMemberById(@PathVariable("id") int id) {
-        return dao.findByID(id);
+        return dao.trovaDaID(id);
     }
 
 }

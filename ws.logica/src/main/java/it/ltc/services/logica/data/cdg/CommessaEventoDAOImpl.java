@@ -1,6 +1,5 @@
 package it.ltc.services.logica.data.cdg;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import it.ltc.database.dao.CRUDDao;
 import it.ltc.database.model.centrale.CdgCommessaEvento;
 import it.ltc.database.model.centrale.CdgCommessaEventoPK;
-import it.ltc.database.model.centrale.json.CdgCommessaEventoJSON;
 
 @Repository
 public class CommessaEventoDAOImpl extends CRUDDao<CdgCommessaEvento> implements CommessaEventoDAO {
@@ -18,81 +16,41 @@ public class CommessaEventoDAOImpl extends CRUDDao<CdgCommessaEvento> implements
 	}
 
 	@Override
-	public List<CdgCommessaEventoJSON> trovaTutte() {
+	public List<CdgCommessaEvento> trovaTutte() {
 		List<CdgCommessaEvento> entities = findAll();
-		List<CdgCommessaEventoJSON> jsons = new LinkedList<>();
-		for (CdgCommessaEvento entity : entities) {
-			CdgCommessaEventoJSON json = serializza(entity);
-			jsons.add(json);
-		}
-		return jsons;
+		return entities;
 	}
 
 	@Override
-	public CdgCommessaEventoJSON trova(int commessa, int evento) {
+	public CdgCommessaEvento trova(int commessa, int evento) {
 		CdgCommessaEventoPK key = new CdgCommessaEventoPK();
 		key.setCommessa(commessa);
 		key.setEvento(evento);
 		CdgCommessaEvento entity = findByID(key);
-		CdgCommessaEventoJSON json = serializza(entity);
-		return json;
+		return entity;
 	}
 
 	@Override
-	public CdgCommessaEventoJSON inserisci(CdgCommessaEventoJSON json) {
-		CdgCommessaEvento entity = deserializza(json);
-		entity = insert(entity);
-		json = serializza(entity);
-		return json;
+	public CdgCommessaEvento inserisci(CdgCommessaEvento commessaEvento) {
+		CdgCommessaEvento entity = insert(commessaEvento);
+		return entity;
 	}
 
 	@Override
-	public CdgCommessaEventoJSON aggiorna(CdgCommessaEventoJSON json) {
-		CdgCommessaEvento entity = deserializza(json);
-		entity = update(entity, entity.getId());
-		json = serializza(entity);
-		return json;
+	public CdgCommessaEvento aggiorna(CdgCommessaEvento commessaEvento) {
+		CdgCommessaEvento entity = update(commessaEvento, commessaEvento.getPK());
+		return entity;
 	}
 
 	@Override
-	public CdgCommessaEventoJSON elimina(CdgCommessaEventoJSON json) {
-		CdgCommessaEvento entity = deserializza(json);
-		entity = delete(entity.getId());
-		json = serializza(entity);
-		return json;
+	public CdgCommessaEvento elimina(CdgCommessaEvento commessaEvento) {
+		CdgCommessaEvento entity = delete(commessaEvento.getPK());
+		return entity;
 	}
 
 	@Override
 	protected void updateValues(CdgCommessaEvento oldEntity, CdgCommessaEvento entity) {
 		oldEntity.setDurata(entity.getDurata());
-	}
-	
-	protected CdgCommessaEvento deserializza(CdgCommessaEventoJSON json) {
-		CdgCommessaEvento entity;
-		if (json != null) {
-			entity = new CdgCommessaEvento();
-			CdgCommessaEventoPK key = new CdgCommessaEventoPK();
-			key.setCommessa(json.getCommessa());
-			key.setEvento(json.getEvento());
-			entity.setId(key);
-			entity.setDurata(json.getDurata());
-		} else {
-			entity = null;
-		}
-		return entity;
-	}
-	
-	protected CdgCommessaEventoJSON serializza(CdgCommessaEvento entity) {
-		CdgCommessaEventoJSON json;
-		if (entity != null) {
-			json = new CdgCommessaEventoJSON();
-			json.setCommessa(entity.getId().getCommessa());
-			json.setEvento(entity.getId().getEvento());
-			json.setDurata(entity.getDurata());
-		} else {
-			json = null;
-		}
-		return json;
 	}
 
 }

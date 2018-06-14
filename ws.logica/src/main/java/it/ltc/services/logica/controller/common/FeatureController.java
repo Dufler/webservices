@@ -18,17 +18,17 @@ public class FeatureController {
 	private final FeatureDao dao;
     
     public FeatureController() {
-    	dao = FeatureDao.getInstance();
+    	dao = new FeatureDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Feature> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Feature lookupMemberById(@PathVariable("id") String id) {
-        return dao.findByNome(id);
+        return dao.trovaDaNome(id);
     }
 
 }

@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
-import it.ltc.services.clienti.model.prodotto.OrdineJSON;
-import it.ltc.services.clienti.model.prodotto.UscitaDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.UscitaJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.OrdineJSON;
+import it.ltc.model.shared.json.cliente.UscitaDettaglioJSON;
+import it.ltc.model.shared.json.cliente.UscitaJSON;
 
 @Component
 public class OrdineValidator implements Validator {

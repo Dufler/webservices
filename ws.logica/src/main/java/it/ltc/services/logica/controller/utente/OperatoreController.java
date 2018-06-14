@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import it.ltc.database.dao.common.OperatoreDao;
 import it.ltc.database.model.centrale.Operatore;
-import it.ltc.services.logica.data.common.OperatoriDAO;
 
 @Controller
 @RequestMapping("/operatore")
@@ -24,7 +24,7 @@ public class OperatoreController {
 	private static final Logger logger = Logger.getLogger("OperatoreController");
 	
 	@Autowired
-	private OperatoriDAO dao;
+	private OperatoreDao dao;
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<Operatore>> trovaTutti(@RequestHeader("authorization") String authenticationString) {

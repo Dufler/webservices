@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.dao.common.VersioneTabellaDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.SpedizioneGiacenza;
 import it.ltc.database.model.centrale.VersioneTabella;
 import it.ltc.services.logica.data.trasporti.GiacenzeDAO;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 import it.ltc.services.logica.validation.trasporti.CriteriUltimaModificaValidator;
 import it.ltc.services.logica.validation.trasporti.GiacenzaValidator;
 
@@ -53,13 +53,13 @@ public class GiacenzeController {
 	}
 	
 	public GiacenzeController() {
-		daoVersione = VersioneTabellaDao.getInstance();
+		daoVersione = new VersioneTabellaDao();
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<SpedizioneGiacenza>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutte le giacenze modificate recentemente.");
-		VersioneTabella versioneTabellaSpedizioni = daoVersione.findByCodice("spedizione_giacenza");
+		VersioneTabella versioneTabellaSpedizioni = daoVersione.trovaDaCodice("spedizione_giacenza");
 		Date dataVersione = versioneTabellaSpedizioni.getDataVersione();
 		boolean reset = dataVersione.after(criteri.getDataUltimaModifica());
 		List<SpedizioneGiacenza> spedizioni = reset ? dao.trovaTutte() : dao.trovaDaUltimaModifica(criteri);

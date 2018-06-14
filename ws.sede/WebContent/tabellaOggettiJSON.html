@@ -1,0 +1,19 @@
+<p><b>Campi</b></p>
+<table class="table table-bordered">
+	<thead>
+		<tr class="info">
+			<th>Nome</th>
+			<th>Richiesto</th>
+			<th>Tipo</th>
+			<th>Descrizione</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="campo in campi">
+			<td data-ng-bind-html="campo.nome"></td>
+			<td data-ng-bind-html="campo.richiesto"></td>
+			<td data-ng-bind-html="campo.tipo"></td>
+			<td data-ng-bind-html="campo.descrizione"></td>
+		</tr>
+	</tbody>
+</table>

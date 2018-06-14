@@ -5,10 +5,10 @@ import java.util.List;
 import it.ltc.database.dao.Dao;
 import it.ltc.database.model.commessa.Ingresso;
 import it.ltc.database.model.commessa.IngressoDettaglio;
-import it.ltc.services.clienti.model.prodotto.CaricoJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoDettaglioJSON;
-import it.ltc.services.clienti.model.prodotto.IngressoJSON;
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON;
+import it.ltc.model.shared.json.cliente.CaricoJSON;
+import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
+import it.ltc.model.shared.json.cliente.IngressoJSON;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
 
 public class CaricoDAOImpl extends Dao implements CaricoDAO<Ingresso, IngressoDettaglio> {
 
@@ -35,27 +35,27 @@ public class CaricoDAOImpl extends Dao implements CaricoDAO<Ingresso, IngressoDe
 	}
 
 	@Override
-	public boolean inserisci(CaricoJSON carico) {
+	public CaricoJSON inserisci(CaricoJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 	
 	@Override
-	public boolean inserisciDettaglio(IngressoDettaglioJSON carico) {
+	public IngressoDettaglioJSON inserisciDettaglio(IngressoDettaglioJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
-	public boolean aggiorna(IngressoJSON carico) {
+	public IngressoJSON aggiorna(IngressoJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
-	public boolean elimina(IngressoJSON carico) {
+	public IngressoJSON elimina(IngressoJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
@@ -77,15 +77,15 @@ public class CaricoDAOImpl extends Dao implements CaricoDAO<Ingresso, IngressoDe
 	}
 
 	@Override
-	public boolean aggiornaDettaglio(IngressoDettaglioJSON carico) {
+	public IngressoDettaglioJSON aggiornaDettaglio(IngressoDettaglioJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
-	public boolean eliminaDettaglio(IngressoDettaglioJSON carico) {
+	public IngressoDettaglioJSON eliminaDettaglio(IngressoDettaglioJSON carico) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override

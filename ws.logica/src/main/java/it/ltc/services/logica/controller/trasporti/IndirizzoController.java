@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import it.ltc.database.dao.common.IndirizzoDao;
 import it.ltc.database.dao.common.LoginController;
 import it.ltc.database.dao.common.VersioneTabellaDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.Indirizzo;
 import it.ltc.database.model.centrale.VersioneTabella;
 import it.ltc.database.model.utente.Utente;
-import it.ltc.services.logica.data.trasporti.IndirizziDAO;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 import it.ltc.services.logica.validation.trasporti.CriteriUltimaModificaValidator;
+import it.ltc.services.logica.validation.trasporti.IndirizzoValidator;
 
 @Controller
 @RequestMapping("/indirizzo")
@@ -39,10 +40,13 @@ public class IndirizzoController {
 	private static final int PERMESSO_ELIMINA_INDIRIZZO = 55;
 	
 	@Autowired
-	private IndirizziDAO daoIndirizzi;
+	private IndirizzoDao daoIndirizzi;
 	
 	@Autowired
 	private CriteriUltimaModificaValidator validatorCriteriModifica;
+	
+	@Autowired
+	private IndirizzoValidator validatorIndirizzi;
 	
 	private final LoginController userManager;
 	private final VersioneTabellaDao daoVersione;
@@ -52,15 +56,20 @@ public class IndirizzoController {
 	    binder.setValidator(validatorCriteriModifica);
 	}
 	
+	@InitBinder("indirizzo")
+	protected void initIndirizzoBinder(WebDataBinder binder) {
+	    binder.setValidator(validatorIndirizzi);
+	}
+	
 	public IndirizzoController() {
 		userManager = LoginController.getInstance();
-		daoVersione = VersioneTabellaDao.getInstance();
+		daoVersione = new VersioneTabellaDao();
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<Indirizzo>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutti gli indirizzi modificati recentemente.");
-		VersioneTabella versioneTabellaSpedizioni = daoVersione.findByCodice("indirizzo");
+		VersioneTabella versioneTabellaSpedizioni = daoVersione.trovaDaCodice("indirizzo");
 		Date dataVersione = versioneTabellaSpedizioni.getDataVersione();
 		boolean reset = dataVersione.after(criteri.getDataUltimaModifica());
 		List<Indirizzo> indirizzi = reset ? daoIndirizzi.trovaTutti() : daoIndirizzi.trovaDaUltimaModifica(criteri);
@@ -79,7 +88,7 @@ public class IndirizzoController {
 		Indirizzo indirizzo;
 		if (user.isAllowedTo(PERMESSO_INSERISCI_INDIRIZZO)) {
 			indirizzo = daoIndirizzi.inserisci(nuovoIndirizzo);
-			status = HttpStatus.CREATED;
+			status = indirizzo != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
 		} else {
 			indirizzo = null;
 			status = HttpStatus.FORBIDDEN;

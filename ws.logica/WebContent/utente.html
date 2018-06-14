@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Logica - Web Services - Utente</title>
+	<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+	<!-- Fogli di stile -->
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="resources/css/style.css" />
+	<link rel="stylesheet" href="resources/css/pretty-json.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+	<!-- JS -->
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/underscore-min.js"></script>
+	<script src="resources/js/backbone-min.js"></script>
+	<script src="resources/js/pretty-json-min.js"></script>
+	<script src="resources/js/esempiUtenza.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<h1>Utente</h1>
+		<p>
+			<a href="index.html">torna all'indice</a>
+		</p>
+		<p>Qui sono riportati tutti gli endpoint che verranno usati dagli utenti.</p>
+		<h2>endpoint</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#login">Login</a></li>
+			<li class="list-group-item"><a href="#update">Aggiorna dati</a></li>
+		</ul>
+		<h2>Campi complessi</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#utenza">Utenza</a></li>
+		</ul>
+		
+		<div class="well well-sm">
+			<h3 id="login">Login</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/logica/rest/utente/login<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/logica/rest/utente/login<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b> Questo end point serve ad autenticarsi ed ottenere le informazioni legate all'<a href="utenza">utenza</a>.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Utente.postman_collection.json">download</a><br>
+			</p>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="update">Aggiorna dati</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/logica/rest/utente/update<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/logica/rest/utente/update<br>
+				<b>Tipo:</b> PUT<br>
+				<b>Descrizione:</b> Questo end point serve ad aggiornare le proprie informazioni presenti a sistema.<br>&Egrave; possibile aggiornare la propria password, il nome, il cognome e l'indirizzo email<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Utente.postman_collection.json">download</a><br>
+			</p>
+			<p><b>Campi previsti</b></p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="#utenza">utenza</a></td>
+						<td>necessario</td>
+						<td>complesso</td>
+						<td>Va inserito l'oggetto JSON che rappresenta le informazioni sulla propria utenza da aggiornare. Non inserendo un campo viene lasciato il valore gi&agrave; esistente. Se si desidera cambiare password va passato il nuovo valore sul campo <strong>nuovaPassword</strong>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="utenza">Utenza</h3>
+			<p>
+				<b>Campi previsti</b>
+			</p>
+			<table class="table table-bordered">
+				<thead>
+					<tr class="info">
+						<th>Nome</th>
+						<th>Richiesto</th>
+						<th>Tipo</th>
+						<th>Descrizione</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>username</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Username identificativo dell'utente.</td>
+					</tr>
+					<tr>
+						<td>nome</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il nome dell'utente.</td>
+					</tr>
+					<tr>
+						<td>cognome</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>Il cognome dell'utente.</td>
+					</tr>
+					<tr>
+						<td>email</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>L'indirizzo email dell'utente. Eventuali comunicazioni saranno spedite a questo indirizzo.</td>
+					</tr>
+					<tr>
+						<td>nuovaPassword</td>
+						<td>N/A</td>
+						<td>testo</td>
+						<td>La nuova password che rimpiazzer&agrave; quella vecchia in fase di aggiornamento.</td>
+					</tr>
+					<tr>
+						<td>sedi</td>
+						<td>N/A</td>
+						<td>array di numerici interi</td>
+						<td>La lista delle sedi in cui l'utente è abilitato.</td>
+					</tr>
+					<tr>
+						<td>commesse</td>
+						<td>N/A</td>
+						<td>array di numerici interi</td>
+						<td>La lista delle commesse in cui l'utente è abilitato.</td>
+					</tr>
+					<tr>
+						<td>permessi</td>
+						<td>N/A</td>
+						<td>array di numerici interi</td>
+						<td>La lista dei permessi dell'utente.</td>
+					</tr>
+					<tr>
+						<td>features</td>
+						<td>N/A</td>
+						<td>array di stringhe</td>
+						<td>La lista delle features per cui l'utente è abilitato.</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedutenza">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedutenza" class="panel-collapse collapse">
+						<div id="jsonUtenza" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+</html>

@@ -10,8 +10,8 @@ import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 
 import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.SpedizioneContrassegno;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 
 @Repository
 public class ContrassegniDAOImpl extends CRUDDao<SpedizioneContrassegno> implements ContrassegniDAO {

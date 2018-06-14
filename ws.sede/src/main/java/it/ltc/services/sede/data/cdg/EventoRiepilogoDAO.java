@@ -3,21 +3,21 @@ package it.ltc.services.sede.data.cdg;
 import java.util.Date;
 import java.util.List;
 
-import it.ltc.database.model.sede.json.CdgEventoRiepilogoJSON;
+import it.ltc.database.model.sede.CdgEventoRiepilogo;
 import it.ltc.services.sede.model.cdg.FiltroEventoRiepilogo;
 
 public interface EventoRiepilogoDAO {
 	
-	public List<CdgEventoRiepilogoJSON> trovaTutti();
+	public List<CdgEventoRiepilogo> trovaTutti();
 	
-	public CdgEventoRiepilogoJSON trova(int evento, int commessa, Date data);
+	public CdgEventoRiepilogo trova(int evento, int commessa, Date data);
 	
-	public CdgEventoRiepilogoJSON inserisci(CdgEventoRiepilogoJSON evento);
+	public CdgEventoRiepilogo inserisci(CdgEventoRiepilogo evento);
 	
-	public CdgEventoRiepilogoJSON aggiorna(CdgEventoRiepilogoJSON evento);
+	public CdgEventoRiepilogo aggiorna(CdgEventoRiepilogo evento);
 	
-	public CdgEventoRiepilogoJSON elimina(CdgEventoRiepilogoJSON evento);
+	public CdgEventoRiepilogo elimina(CdgEventoRiepilogo evento);
 
-	public List<CdgEventoRiepilogoJSON> trovaPerCommessaEData(FiltroEventoRiepilogo filtro);
+	public List<CdgEventoRiepilogo> trovaPerCommessaEData(FiltroEventoRiepilogo filtro);
 
 }

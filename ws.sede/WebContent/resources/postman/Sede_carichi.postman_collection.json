@@ -1,0 +1,372 @@
+{
+	"info": {
+		"_postman_id": "5d97c3cb-5bf0-4cf0-b6ba-8bfe8edfe5c9",
+		"name": "Sede_carichi",
+		"description": "Collezione che contiene tutte le chiamate agli end point che gestiscono i carichi lato sede.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET - Tipi di carico",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "test.services.ltc-logistics.it/sede/rest/tipocarico",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"tipocarico"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Cerca carichi",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"tipo\" : \"CARICO\",\n\t\"stato\" : \"CHIUSO\",\n\t\"riferimentoCliente\" : \"2018\",\n\t\"fornitore\": \"0\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico"
+					]
+				},
+				"description": "Non è necessario inserire tutti i filtri, eventualmente può anche non essercene nessuno.\nVengono restituiti fino a 100 risultati ordinati per data crescente."
+			},
+			"response": []
+		},
+		{
+			"name": "GET - Dettagli carico da ID",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test.ws",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/117",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"117"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Nuovo collo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"carico\" : 119,\n\t\"magazzino\" : \"PG1\",\n\t\"barcodeCliente\" : \"COLLO123\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/collo",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"collo"
+					]
+				},
+				"description": "Inserisce a sistema un nuovo collo e aggiorna le relative quantità riscontrate."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina collo",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\" : 6,\n\t\"carico\" : 119\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/collo",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"collo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Aggiorna collo",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\" : 8,\n\t\"carico\" : 119,\n\t\"magazzino\" : \"PG1\",\n\t\"barcodeCliente\" : \"COLLO123\"\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/collo",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"collo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST - Aggiungi prodotto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"carico\" : 119,\n\t\"collo\" : 8,\n\t\"riga\" : 1,\n\t\"forzaEccedenza\" : false,\n\t\"prodotto\" : 2,\n\t\"quantita\" : 1\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/prodotto",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"prodotto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT - Modifica prodotto",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\" : 25,\n\t\"carico\" : 120,\n\t\"collo\" : 9,\n\t\"riga\" : 11,\n\t\"forzaEccedenza\" : false,\n\t\"prodotto\" : 1,\n\t\"quantita\" : 14\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/prodotto",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"prodotto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE - Elimina prodotto",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\" : 25,\n\t\"carico\" : 120,\n\t\"collo\" : 9,\n\t\"riga\" : 11,\n\t\"prodotto\" : 2\n}"
+				},
+				"url": {
+					"raw": "http://test.services.ltc-logistics.it/sede/rest/carico/prodotto",
+					"protocol": "http",
+					"host": [
+						"test",
+						"services",
+						"ltc-logistics",
+						"it"
+					],
+					"path": [
+						"sede",
+						"rest",
+						"carico",
+						"prodotto"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "test.ws",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "test",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "f59f1c5d-4876-4566-8f54-25e4b0b5886f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7e79f7e7-146e-4793-9413-e34e30b8a9e9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -18,17 +18,17 @@ public class TrackingStatoController {
 	private final TrackingStatoDao dao;
     
     public TrackingStatoController() {
-    	dao = TrackingStatoDao.getInstance();
+    	dao = new TrackingStatoDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<TrackingStato> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutti();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody TrackingStato lookupMemberById(@PathVariable("id") String id) {
-        return dao.findByID(id);
+        return dao.trovaDaCodice(id);
     }
 
 }

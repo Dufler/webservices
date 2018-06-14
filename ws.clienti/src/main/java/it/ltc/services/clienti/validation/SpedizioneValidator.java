@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.ContrassegnoJSON;
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
-import it.ltc.services.clienti.model.prodotto.SpedizioneJSON;
+import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.SpedizioneJSON;
 
 @Component
 public class SpedizioneValidator implements Validator {

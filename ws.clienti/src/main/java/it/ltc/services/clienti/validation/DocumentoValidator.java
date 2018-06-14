@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.DocumentoJSON;
+import it.ltc.model.shared.json.cliente.DocumentoJSON;
 
 @Component
 public class DocumentoValidator implements Validator {

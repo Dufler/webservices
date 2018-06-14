@@ -1,8 +1,8 @@
 {
 	"info": {
+		"_postman_id": "5c763a63-5d13-3e0e-6cea-d9cee92c4c7e",
 		"name": "Cliente - Prodotti",
-		"_postman_id": "df07d7cf-f57a-4363-b5b3-a7d7a91317fb",
-		"description": "",
+		"description": "Collezione che contiene tutti gli end point per la gestione dei prodotti.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -178,10 +178,46 @@
 						"prodotto",
 						"cerca"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "test",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "test.ws",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "c0e3170c-cda7-42e6-a585-361d2ccd6bfe",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "0fff35e7-e880-439b-84cc-0a5cd0a3f055",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

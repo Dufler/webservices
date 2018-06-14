@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.dao.common.LoginController;
 import it.ltc.database.model.utente.Utente;
+import it.ltc.services.logica.model.utente.ReimpostaPassword;
 
 @Controller
 @RequestMapping("/utente")
@@ -55,6 +56,48 @@ public class UtenteController {
 			status = HttpStatus.UNAUTHORIZED;
 		}
 		ResponseEntity<Utente> response = new ResponseEntity<Utente>(user, status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.PATCH, consumes = "application/json", value = "/reimpostapassword")
+	public ResponseEntity<Void> reimpostaPassword(@RequestBody Utente utente) {
+		logger.info("Richiesta di reimpostare la password.");
+		HttpStatus status;
+		if (utente != null && utente.getUsername() != null) {
+			Utente user = loginController.reimpostaPassword(utente.getUsername());
+			status = user != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		} else {
+			status = HttpStatus.BAD_REQUEST;
+		}
+		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, consumes = "application/json", value = "/esisterisorsa")
+	public ResponseEntity<Void> esisteRisorsa(@RequestBody ReimpostaPassword risorsa) {
+		logger.info("Richiesta di verifica esistenza risorsa temporanea.");
+		HttpStatus status;
+		if (risorsa != null && risorsa.getRisorsa() != null && !risorsa.getRisorsa().isEmpty()) {
+			Utente user = loginController.trovaDaRisorsa(risorsa.getRisorsa());
+			status = user != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		} else {
+			status = HttpStatus.BAD_REQUEST;
+		}
+		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, consumes = "application/json", value = "/reimpostapassword")
+	public ResponseEntity<Void> reimpostaPassword(@RequestBody ReimpostaPassword risorsa) {
+		logger.info("Richiesta di reimpostare la password tramite risorsa temporanea.");
+		HttpStatus status;
+		if (risorsa != null && risorsa.getRisorsa() != null && !risorsa.getRisorsa().isEmpty() && risorsa.getNuovaPassword() != null) {
+			Utente user = loginController.reimpostaNuovaPassword(risorsa.getRisorsa(), risorsa.getNuovaPassword());
+			status = user != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		} else {
+			status = HttpStatus.BAD_REQUEST;
+		}
+		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
 		return response;
 	}
 

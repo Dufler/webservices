@@ -18,17 +18,17 @@ public class ValutaController {
 	private final ValutaDao dao;
     
     public ValutaController() {
-    	dao = ValutaDao.getInstance();
+    	dao = new ValutaDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Valuta> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Valuta lookupMemberById(@PathVariable("id") String id) {
-        return dao.findByCodice(id);
+        return dao.trovaDaCodice(id);
     }
 
 }

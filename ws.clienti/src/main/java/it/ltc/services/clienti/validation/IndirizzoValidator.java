@@ -9,7 +9,7 @@ import it.ltc.database.dao.common.NazioneDao;
 import it.ltc.database.dao.common.ProvinciaDao;
 import it.ltc.database.model.centrale.Nazione;
 import it.ltc.database.model.centrale.Provincia;
-import it.ltc.services.clienti.model.prodotto.IndirizzoJSON;
+import it.ltc.model.shared.json.cliente.IndirizzoJSON;
 
 /**
  * Il validatore esegue i seguenti controlli:
@@ -28,6 +28,14 @@ public class IndirizzoValidator implements Validator {
 	
 	public static final String REGEX_EMAIL = "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
 	public static final String REGEX_CAP_ITA = "^\\d{5}";
+	
+	private final NazioneDao daoNazioni;
+	private final ProvinciaDao daoProvince;
+	
+	public IndirizzoValidator() {
+		daoNazioni = new NazioneDao();
+		daoProvince = new ProvinciaDao();
+	}
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -58,7 +66,7 @@ public class IndirizzoValidator implements Validator {
 		if (provincia == null || provincia.isEmpty())
 			errors.reject("provincia.necessaria", "E' necessario specificare una provincia per l'indirizzo.");
 		else {
-			Provincia p = ProvinciaDao.getInstance().findBySigla(provincia);
+			Provincia p = daoProvince.trovaDaSigla(provincia);
 			if (p == null)
 				errors.reject("provincia.valida", "E' necessario specificare una provincia esistente per l'indirizzo.");
 		}
@@ -69,7 +77,7 @@ public class IndirizzoValidator implements Validator {
 			errors.reject("nazione.necessaria", "E' necessario specificare una nazione per l'indirizzo.");
 			n = null;
 		} else {
-			n = NazioneDao.getInstance().findByCodiceISO3(nazione);
+			n = daoNazioni.trovaDaCodiceISO3(nazione);
 			if (n == null)
 				errors.reject("nazione.valida", "E' necessario specificare una nazione esistente per l'indirizzo.");
 		}

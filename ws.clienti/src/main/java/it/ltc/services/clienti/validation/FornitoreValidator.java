@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.FornitoreJSON;
-import it.ltc.services.clienti.model.prodotto.IndirizzoJSON;
+import it.ltc.model.shared.json.cliente.FornitoreJSON;
+import it.ltc.model.shared.json.cliente.IndirizzoJSON;
 
 /**
  * Il validatore esegue i seguenti controlli:

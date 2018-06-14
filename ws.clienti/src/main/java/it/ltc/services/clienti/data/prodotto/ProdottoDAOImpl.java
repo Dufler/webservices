@@ -5,30 +5,30 @@ import java.util.List;
 
 import it.ltc.database.dao.Dao;
 import it.ltc.database.model.commessa.Prodotto;
-import it.ltc.services.clienti.model.prodotto.ProdottoJSON;
+import it.ltc.model.shared.json.cliente.ProdottoJSON;
 
 //@Repository("ProdottoDAO")
-public class ProdottoDAOImpl extends Dao implements ProdottoDAO<Prodotto> {
+public class ProdottoDAOImpl extends Dao implements ProdottoDAO {
 	
 	public ProdottoDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
 	}
 
 	@Override
-	public ProdottoJSON trovaDaID(int id) {
+	public ProdottoJSON trovaPerID(int id) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Non ancora implementato!");
 		//return null;
 	}
 	
 	@Override
-	public ProdottoJSON trovaDaSKU(String sku) {
+	public ProdottoJSON trovaPerSKU(String sku) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ProdottoJSON trovaDaBarcode(String barcode) {
+	public ProdottoJSON trovaPerBarcode(String barcode) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -41,26 +41,25 @@ public class ProdottoDAOImpl extends Dao implements ProdottoDAO<Prodotto> {
 	}
 
 	@Override
-	public boolean inserisci(ProdottoJSON prodotto) {
+	public ProdottoJSON inserisci(ProdottoJSON prodotto) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Non ancora implementato!");
 	}
 
 	@Override
-	public boolean aggiorna(ProdottoJSON prodotto) {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Non ancora implementato!");
-		//return false;
-	}
-
-	@Override
-	public boolean dismetti(ProdottoJSON prodotto) {
+	public ProdottoJSON aggiorna(ProdottoJSON prodotto) {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Non ancora implementato!");
 		//return false;
 	}
 
 	@Override
+	public ProdottoJSON dismetti(ProdottoJSON prodotto) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Non ancora implementato!");
+		//return false;
+	}
+
 	public Prodotto deserializza(ProdottoJSON json) {
 		Prodotto prodotto = new Prodotto();
 		prodotto.setCodificaCliente(json.getChiaveCliente());
@@ -82,7 +81,6 @@ public class ProdottoDAOImpl extends Dao implements ProdottoDAO<Prodotto> {
 		return prodotto;
 	}
 
-	@Override
 	public ProdottoJSON serializza(Prodotto prodotto) {
 		// TODO Auto-generated method stub
 		return null;

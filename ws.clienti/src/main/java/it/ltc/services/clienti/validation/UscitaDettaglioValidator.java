@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.UscitaDettaglioJSON;
+import it.ltc.model.shared.json.cliente.UscitaDettaglioJSON;
 
 @Component
 public class UscitaDettaglioValidator implements Validator {

@@ -6,14 +6,18 @@ import org.springframework.validation.Validator;
 
 import it.ltc.database.dao.common.TipoContrassegnoDao;
 import it.ltc.database.model.centrale.SpedizioneContrassegnoTipo;
-import it.ltc.services.clienti.model.prodotto.ContrassegnoJSON;
+import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
 
 @Component
 public class ContrassegnoValidator implements Validator {
 	
 	public enum ValutaContrassegno { EUR, USD }
 	
-	//public enum TipoContrassegno { BB, BM, CB, CM, NA, OM, SC, TM, TO }
+	private final TipoContrassegnoDao daoTipoContrassegno;
+	
+	public ContrassegnoValidator() {
+		daoTipoContrassegno = new TipoContrassegnoDao();
+	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -29,7 +33,7 @@ public class ContrassegnoValidator implements Validator {
 		if (tipo == null || tipo.isEmpty()) {
 			errors.reject("contrassegno.tipo.necessario", "E' necessario indicare la tipologia di contrassegno.");
 		} else {
-			SpedizioneContrassegnoTipo tipoContrassegno = TipoContrassegnoDao.getInstance().findByCodice(tipo);
+			SpedizioneContrassegnoTipo tipoContrassegno = daoTipoContrassegno.trovaDaCodice(tipo);
 			if (tipoContrassegno == null)
 				errors.reject("contrassegno.tipo.valido", "La tipologia di contrassegno indicata non e' valida. (" + tipo + ")");
 		}

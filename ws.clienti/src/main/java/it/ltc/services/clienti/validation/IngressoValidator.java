@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.IngressoJSON;
+import it.ltc.model.shared.json.cliente.IngressoJSON;
 
 @Component
 public class IngressoValidator implements Validator {
 	
-	private enum Tipo { CARICO, RESO, CAMPIONARIO, BOUTIQUE } //TODO - Fare si che le tipologie risiedano nel DB del cliente.
+	//private enum Tipo { CARICO, RESO, CAMPIONARIO, BOUTIQUE } //TODO - Fare si che le tipologie risiedano nel DB del cliente.
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -22,6 +22,7 @@ public class IngressoValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		IngressoJSON ingresso = (IngressoJSON) target;
+		
 		//Controllo sui campi necessari
 		if (ingresso.getFornitore() == null || ingresso.getFornitore().isEmpty())
 			errors.reject("fornitore.necessario", "E' necessario indicare un fornitore.");
@@ -34,15 +35,14 @@ public class IngressoValidator implements Validator {
 		String tipo = ingresso.getTipo();
 		if (tipo == null || tipo.isEmpty())
 			errors.reject("tipo.necessario", "E' necessario inserire una tipologia di carico.");
-		else try {
-			Tipo.valueOf(tipo);
-		} catch (Exception e) {
-			errors.reject("tipo.valido", "E' necessario inserire una tipologia di carico valida. I possibili valori sono: " + Tipo.values());
-		}
+		
 		//Controllo sui facoltativi
 		Date dataArrivo = ingresso.getDataArrivo();
 		if (dataArrivo != null && dataArrivo.before(new Date()))
 			errors.reject("dataarrivo.valida", "La data di arrivo precede quella di immissione del carico.");
+		String note = ingresso.getNote();
+		if (note != null && note.length() > 250)
+			errors.reject("note.lunghezza", "Le note sono troppo lunghe. (MAX 250 caratteri)");
 	}
 
 }

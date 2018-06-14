@@ -1,0 +1,19 @@
+<p><b>Risposte</b></p>
+<table class="table table-bordered">
+	<thead>
+		<tr class="info">
+			<th>Dato</th>
+			<th>Codice HTTP</th>
+			<th>Tipo</th>
+			<th>Descrizione</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="risposta in risposte">
+			<td data-ng-bind-html="risposta.dato"></td>
+			<td data-ng-bind-html="risposta.codiceHttp"></td>
+			<td data-ng-bind-html="risposta.tipo"></td>
+			<td data-ng-bind-html="risposta.descrizione"></td>
+		</tr>
+	</tbody>
+</table>

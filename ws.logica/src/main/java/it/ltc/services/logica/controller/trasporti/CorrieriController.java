@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import it.ltc.database.dao.common.CorriereDao;
 import it.ltc.database.dao.common.CorriereServizioDao;
 import it.ltc.database.model.centrale.Corriere;
-import it.ltc.database.model.centrale.json.ServizioCorriereJSON;
+import it.ltc.database.model.centrale.CorriereServizio;
 
 @Controller
 @RequestMapping("/corriere")
@@ -21,22 +21,22 @@ public class CorrieriController {
 	private final CorriereServizioDao daoServizi;
     
     public CorrieriController() {
-    	daoCorrieri = CorriereDao.getInstance();
-    	daoServizi = CorriereServizioDao.getInstance();
+    	daoCorrieri = new CorriereDao();
+    	daoServizi = new CorriereServizioDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Corriere> getCorrieri() {
-        return daoCorrieri.findAll();
+        return daoCorrieri.trovaTutti();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Corriere getCorriereById(@PathVariable("id") Integer id) {
-        return daoCorrieri.findByID(id);
+        return daoCorrieri.trovaDaID(id);
     }
     
     @RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/servizio")
-    public @ResponseBody List<ServizioCorriereJSON> getServizi() {
+    public @ResponseBody List<CorriereServizio> getServizi() {
         return daoServizi.trovaTutti();
     }
 

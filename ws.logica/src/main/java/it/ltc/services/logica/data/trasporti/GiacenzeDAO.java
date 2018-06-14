@@ -2,8 +2,8 @@ package it.ltc.services.logica.data.trasporti;
 
 import java.util.List;
 
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.SpedizioneGiacenza;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 
 public interface GiacenzeDAO {
 

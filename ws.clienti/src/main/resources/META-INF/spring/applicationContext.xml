@@ -24,6 +24,7 @@
 
 	<!-- Aggiunto -->
 	<!-- <bean id="pabpp" class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/> -->
+<!-- 	<bean id="CategoriaMerceologicaLegacyDao" class="it.ltc.database.dao.common.legacy.CategoriaMerceologicaLegacyDao" /> -->
 	<context:annotation-config />
 
 	<!-- fine -->

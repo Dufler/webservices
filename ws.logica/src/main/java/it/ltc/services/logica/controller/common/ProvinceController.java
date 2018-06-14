@@ -18,17 +18,17 @@ public class ProvinceController {
 	private final ProvinciaDao dao;
     
     public ProvinceController() {
-    	dao = ProvinciaDao.getInstance();
+    	dao = new ProvinciaDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Provincia> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Provincia lookupMemberById(@PathVariable("id") String id) {
-        return dao.findBySigla(id);
+        return dao.trovaDaSigla(id);
     }
 
 }

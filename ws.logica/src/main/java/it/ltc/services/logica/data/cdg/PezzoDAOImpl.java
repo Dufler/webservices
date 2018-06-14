@@ -1,6 +1,5 @@
 package it.ltc.services.logica.data.cdg;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Repository;
 import it.ltc.database.dao.CRUDDao;
 import it.ltc.database.model.centrale.CdgPezzo;
 import it.ltc.database.model.centrale.CdgPezzoEvento;
-import it.ltc.database.model.centrale.CdgPezzoEventoPK;
-import it.ltc.database.model.centrale.json.CdgPezzoEventoJSON;
 
 @Repository
 public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
@@ -52,10 +49,9 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 			try {
 				t.begin();
 				em.persist(entity);
-				for (CdgPezzoEventoJSON spacchettamento : entity.getSpacchettamenti()) {
+				for (CdgPezzoEvento spacchettamento : entity.getSpacchettamenti()) {
 					spacchettamento.setPezzo(entity.getId());
-					CdgPezzoEvento abbinamento = deserializza(spacchettamento);
-					em.persist(abbinamento);
+					em.persist(spacchettamento);
 				}
 				t.commit();
 			} catch (Exception e) {
@@ -83,7 +79,7 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 					t.begin();
 					em.merge(oldEntity);
 					//Se mi hanno dato gli spacchettameni allora aggiorno anche quelli
-					List<CdgPezzoEventoJSON> spacchettamenti = entity.getSpacchettamenti();
+					List<CdgPezzoEvento> spacchettamenti = entity.getSpacchettamenti();
 					if (spacchettamenti != null && !spacchettamenti.isEmpty()) {
 						//Elimino tutti gli spacchettamenti già presenti
 						CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -95,9 +91,8 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 							em.remove(abbinamento);
 						}
 						//Inserisco quelli che mi hanno dato
-						for (CdgPezzoEventoJSON spacchettamento : spacchettamenti) {
-							CdgPezzoEvento abbinamento = deserializza(spacchettamento);
-							em.persist(abbinamento);
+						for (CdgPezzoEvento spacchettamento : spacchettamenti) {
+							em.persist(spacchettamento);
 						}
 					}
 					t.commit();
@@ -134,10 +129,7 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 	
 	protected void recuperaSpacchettamentiAssociati(CdgPezzo pezzo) {
 		List<CdgPezzoEvento> spacchettamenti = trovaSpacchettamentoDaPezzo(pezzo);
-		List<CdgPezzoEventoJSON> abbinamenti = new LinkedList<>();
-		for (CdgPezzoEvento spacchettamento : spacchettamenti)
-			abbinamenti.add(serializza(spacchettamento));
-		pezzo.setSpacchettamenti(abbinamenti);
+		pezzo.setSpacchettamenti(spacchettamenti);
 	}
 	
 	protected List<CdgPezzoEvento> trovaSpacchettamentoDaPezzo(CdgPezzo pezzo) {
@@ -149,36 +141,6 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 		List<CdgPezzoEvento> lista = em.createQuery(criteria).getResultList();
 		em.close();
         return lista;
-	}
-	
-	protected CdgPezzoEvento deserializza(CdgPezzoEventoJSON json) {
-		CdgPezzoEvento entity;
-		if (json != null) {
-			entity = new CdgPezzoEvento();
-			CdgPezzoEventoPK key = new CdgPezzoEventoPK();
-			key.setPezzo(json.getPezzo());
-			key.setEvento(json.getEvento());
-			entity.setId(key);
-			entity.setCosto(json.getCosto());
-			entity.setRicavo(json.getRicavo());
-		} else {
-			entity = null;
-		}
-		return entity;
-	}
-	
-	protected CdgPezzoEventoJSON serializza(CdgPezzoEvento entity) {
-		CdgPezzoEventoJSON json;
-		if (entity != null) {
-			json = new CdgPezzoEventoJSON();
-			json.setPezzo(entity.getId().getPezzo());
-			json.setEvento(entity.getId().getEvento());
-			json.setCosto(entity.getCosto());
-			json.setRicavo(entity.getRicavo());
-		} else {
-			json = null;
-		}
-		return json;
 	}
 
 }

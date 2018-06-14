@@ -18,50 +18,55 @@ import javax.persistence.criteria.Root;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Repository;
 
-import it.ltc.database.dao.Dao;
+import it.ltc.database.dao.CRUDDao;
 import it.ltc.database.dao.common.CorriereDao;
 import it.ltc.database.dao.common.NazioneDao;
 import it.ltc.database.dao.common.SpedizioneServizioDao;
 import it.ltc.database.dao.common.TrackingStatoDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.Corriere;
 import it.ltc.database.model.centrale.Indirizzo;
 import it.ltc.database.model.centrale.Nazione;
 import it.ltc.database.model.centrale.Spedizione;
-import it.ltc.database.model.centrale.Spedizione.Fatturazione;
 import it.ltc.database.model.centrale.SpedizioneContrassegno;
 import it.ltc.database.model.centrale.SpedizioneLight;
 import it.ltc.database.model.centrale.SpedizioneLight.Archiviazione;
 import it.ltc.database.model.centrale.SpedizioneServizio;
 import it.ltc.database.model.centrale.Tracking;
 import it.ltc.database.model.centrale.TrackingStato;
+import it.ltc.database.model.centrale.enumcondivise.Fatturazione;
 import it.ltc.services.logica.model.trasporti.ContrassegnoJSON;
 import it.ltc.services.logica.model.trasporti.CriteriRicercaSpedizioniLight;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 import it.ltc.services.logica.model.trasporti.IndirizzoJSON;
 import it.ltc.services.logica.model.trasporti.SpedizioneCompletaJSON;
 import it.ltc.services.logica.model.trasporti.TrackingJSON;
 
 @Repository
-public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
+public class SpedizioneDAOImpl extends CRUDDao<Spedizione> implements SpedizioneDAO {
 	
 	private static final Logger logger = Logger.getLogger("SpedizioneDAOImpl");
+	
+	private final NazioneDao daoNazioni;
+	private final SpedizioneServizioDao daoServizi;
+	private final TrackingStatoDao daoStatoTracking;
+	private final CorriereDao daoCorrieri;
 	
 	private final HashMap<String, TrackingStato> mappaCodificaStati;
 
 	public SpedizioneDAOImpl() {
-		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME);
+		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, Spedizione.class);
+		
+		daoNazioni = new NazioneDao();
+		daoServizi = new SpedizioneServizioDao();
+		daoStatoTracking = new TrackingStatoDao();
+		daoCorrieri = new CorriereDao();
+		
 		mappaCodificaStati = new HashMap<>();
 	}
 
 	@Override
 	public List<Spedizione> trovaTutte() {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Spedizione> criteria = cb.createQuery(Spedizione.class);
-        Root<Spedizione> member = criteria.from(Spedizione.class);
-        criteria.select(member);
-        List<Spedizione> spedizioni = em.createQuery(criteria).getResultList();
-        em.close();
+        List<Spedizione> spedizioni = findAll();
         return spedizioni;
 	}
 
@@ -85,7 +90,7 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
         Root<Spedizione> member = criteria.from(Spedizione.class);
         Predicate condizioneData = cb.between(member.get("dataPartenza"), start, end);
         Predicate condizioneCommessa = cb.equal(member.get("idCommessa"), idCommessa);
-        Predicate condizioneFatturabile = cb.equal(member.get("fatturazione"), Spedizione.Fatturazione.FATTURABILE);
+        Predicate condizioneFatturabile = cb.equal(member.get("fatturazione"), Fatturazione.FATTURABILE);
         criteria.select(member).where(cb.and(condizioneCommessa, condizioneData, condizioneFatturabile));
         List<Spedizione> spedizioni = em.createQuery(criteria).getResultList();
         em.close();
@@ -94,69 +99,13 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 
 	@Override
 	public Spedizione inserisci(Spedizione spedizione) {
-		EntityManager em = getManager();
-		EntityTransaction t = em.getTransaction();
-		try {
-			t.begin();
-			em.persist(spedizione);
-			t.commit();
-		} catch (Exception e) {
-			logger.error(e);
-			t.rollback();
-			spedizione = null;
-		} finally {
-			em.close();
-		}
-		return spedizione;
+		Spedizione entity = insert(spedizione);
+		return entity;
 	}
 
 	@Override
 	public Spedizione aggiorna(Spedizione spedizione) {
-		EntityManager em = getManager();
-		Spedizione entity = em.find(Spedizione.class, spedizione.getId());
-		if (entity != null) {
-			entity.setAssicurazione(spedizione.getAssicurazione());
-			entity.setCodiceCliente(spedizione.getCodiceCliente());
-			entity.setColli(spedizione.getColli());
-			entity.setContrassegno(spedizione.getContrassegno());
-			entity.setCosto(spedizione.getCosto());
-			entity.setDataPartenza(spedizione.getDataPartenza());
-			entity.setDatiCompleti(spedizione.getDatiCompleti());
-			entity.setFatturazione(spedizione.getFatturazione());
-			entity.setGiacenza(spedizione.getGiacenza());
-			entity.setIdCommessa(spedizione.getIdCommessa());
-			entity.setIdCorriere(spedizione.getIdCorriere());
-			entity.setIdDocumento(spedizione.getIdDocumento());
-			entity.setIndirizzoDestinazione(spedizione.getIndirizzoDestinazione());
-			entity.setIndirizzoPartenza(spedizione.getIndirizzoPartenza());
-			entity.setInRitardo(spedizione.getInRitardo());
-			entity.setLetteraDiVettura(spedizione.getLetteraDiVettura());
-			entity.setNote(spedizione.getNote());
-			entity.setParticolarita(spedizione.getParticolarita());
-			entity.setPeso(spedizione.getPeso());
-			entity.setPezzi(spedizione.getPezzi());
-			entity.setRagioneSocialeDestinatario(spedizione.getRagioneSocialeDestinatario());
-			entity.setRicavo(spedizione.getRicavo());
-			entity.setRiferimentoCliente(spedizione.getRiferimentoCliente());
-			entity.setRiferimentoMittente(spedizione.getRiferimentoMittente());
-			entity.setServizio(spedizione.getServizio());
-			entity.setStato(spedizione.getStato());
-			entity.setTipo(spedizione.getTipo());
-			entity.setValoreMerceDichiarato(spedizione.getValoreMerceDichiarato());
-			entity.setVolume(spedizione.getVolume());	
-			EntityTransaction t = em.getTransaction();
-			try {
-				t.begin();
-				em.merge(spedizione);
-				t.commit();
-			} catch (Exception e) {
-				logger.error(e);
-				t.rollback();
-				spedizione = null;
-			} finally {
-				em.close();
-			}
-		}
+		Spedizione entity = update(spedizione, spedizione.getId());
 		return entity;
 	}
 
@@ -235,18 +184,14 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 
 	@Override
 	public Spedizione trovaDaID(int id) {
-		EntityManager em = getManager();
-		Spedizione spedizione = em.find(Spedizione.class, id);
-		em.close();
-		return spedizione;
+		Spedizione entity = findByID(id);
+		return entity;
 	}
 
 	@Override
 	public SpedizioneCompletaJSON trovaDettagli(int id) {
 		SpedizioneCompletaJSON json;
-		EntityManager em = getManager();
-		Spedizione spedizione = em.find(Spedizione.class, id);
-		em.close();
+		Spedizione spedizione = trovaDaID(id);
 		if (spedizione != null) {
 			json = new SpedizioneCompletaJSON();
 			//Copio le info sulla spedizione
@@ -326,7 +271,7 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 		if ("ITA".equals(iso)) {
 			testo = "Italia";
 		} else {
-			Nazione nazione = NazioneDao.getInstance().findByCodiceISO3(iso);
+			Nazione nazione = daoNazioni.trovaDaCodiceISO3(iso);
 			testo = nazione != null ? nazione.getNome() : "N/A";
 		}
 		return testo;
@@ -354,7 +299,7 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 	}
 	
 	private String getCorriere(Spedizione spedizione) {
-		Corriere corriere = CorriereDao.getInstance().findByID(spedizione.getIdCorriere());
+		Corriere corriere = daoCorrieri.trovaDaID(spedizione.getIdCorriere());
 		String testo = corriere != null ? corriere.getNome() : "N/A";
 		return testo;
 	}
@@ -366,7 +311,7 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 	
 	private String getStato(String codifica) {
 		if (!mappaCodificaStati.containsKey(codifica)) {
-			TrackingStato stato = TrackingStatoDao.getInstance().findByID(codifica);
+			TrackingStato stato = daoStatoTracking.trovaDaCodice(codifica);
 			mappaCodificaStati.put(codifica, stato);
 		}
 		TrackingStato stato = mappaCodificaStati.get(codifica);
@@ -375,7 +320,7 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 	}
 	
 	private String getServizio(Spedizione spedizione) {
-		SpedizioneServizio servizio = SpedizioneServizioDao.getInstance().findByID(spedizione.getServizio());
+		SpedizioneServizio servizio = daoServizi.trovaDaCodice(spedizione.getServizio());
 		String testo = servizio != null ? servizio.getNome() : "N/A";
 		return testo;
 	}
@@ -395,7 +340,8 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 				archiviazione = true;
 			} catch (Exception e) {
 				logger.error(e);
-				t.rollback();
+				if (t != null && t.isActive())
+					t.rollback();
 				archiviazione = false;
 			} finally {
 				em.close();
@@ -422,7 +368,8 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 				eliminazione = true;
 			} catch (Exception e) {
 				logger.error(e);
-				t.rollback();
+				if (t != null && t.isActive())
+					t.rollback();
 				eliminazione = false;
 			} finally {
 				em.close();
@@ -432,6 +379,39 @@ public class SpedizioneDAOImpl extends Dao implements SpedizioneDAO {
 			em.close();
 		}
 		return eliminazione;
+	}
+
+	@Override
+	protected void updateValues(Spedizione entity, Spedizione spedizione) {
+		entity.setAssicurazione(spedizione.getAssicurazione());
+		entity.setCodiceCliente(spedizione.getCodiceCliente());
+		entity.setColli(spedizione.getColli());
+		entity.setContrassegno(spedizione.getContrassegno());
+		entity.setCosto(spedizione.getCosto());
+		entity.setDataPartenza(spedizione.getDataPartenza());
+		entity.setDatiCompleti(spedizione.getDatiCompleti());
+		entity.setFatturazione(spedizione.getFatturazione());
+		entity.setGiacenza(spedizione.getGiacenza());
+		entity.setIdCommessa(spedizione.getIdCommessa());
+		entity.setIdCorriere(spedizione.getIdCorriere());
+		entity.setIdDocumento(spedizione.getIdDocumento());
+		entity.setIndirizzoDestinazione(spedizione.getIndirizzoDestinazione());
+		entity.setIndirizzoPartenza(spedizione.getIndirizzoPartenza());
+		entity.setInRitardo(spedizione.getInRitardo());
+		entity.setLetteraDiVettura(spedizione.getLetteraDiVettura());
+		entity.setNote(spedizione.getNote());
+		entity.setParticolarita(spedizione.getParticolarita());
+		entity.setPeso(spedizione.getPeso());
+		entity.setPezzi(spedizione.getPezzi());
+		entity.setRagioneSocialeDestinatario(spedizione.getRagioneSocialeDestinatario());
+		entity.setRicavo(spedizione.getRicavo());
+		entity.setRiferimentoCliente(spedizione.getRiferimentoCliente());
+		entity.setRiferimentoMittente(spedizione.getRiferimentoMittente());
+		entity.setServizio(spedizione.getServizio());
+		entity.setStato(spedizione.getStato());
+		entity.setTipo(spedizione.getTipo());
+		entity.setValoreMerceDichiarato(spedizione.getValoreMerceDichiarato());
+		entity.setVolume(spedizione.getVolume());	
 	}
 
 }

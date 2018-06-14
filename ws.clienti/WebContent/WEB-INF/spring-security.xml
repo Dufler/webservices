@@ -9,8 +9,12 @@
  <!-- To allow public access by default and to set authentication mode to basic login/password -->
  <security:http create-session="stateless" use-expressions="true">
   <!-- security:anonymous enabled="true" / -->
-  <security:intercept-url pattern="/rest/**" access="hasRole('ROLE_USER')"/>
-  <security:http-basic />
+<!--   <security:intercept-url pattern="/rest/**" access="hasRole('ROLE_USER')"/> -->
+	<security:intercept-url method="GET" pattern="/rest/**" access="hasRole('ROLE_USER')" />
+	<security:intercept-url method="POST" pattern="/rest/**" access="hasRole('ROLE_USER')" />
+	<security:intercept-url method="PUT" pattern="/rest/**" access="hasRole('ROLE_USER')" />
+	<security:intercept-url method="DELETE" pattern="/rest/**" access="hasRole('ROLE_USER')" />
+  	<security:http-basic />
  </security:http>
 
  <!-- To delegate authorization to method calls rather than to urls -->

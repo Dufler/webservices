@@ -48,7 +48,6 @@ public class CostoRicavoGenericoDAOImpl extends CRUDDao<CdgCostiRicaviGenerici> 
 	protected void updateValues(CdgCostiRicaviGenerici oldEntity, CdgCostiRicaviGenerici entity) {
 		oldEntity.setDriver(entity.getDriver());
 		oldEntity.setNome(entity.getNome());
-		oldEntity.setSede(entity.getSede());
 	}
 
 }

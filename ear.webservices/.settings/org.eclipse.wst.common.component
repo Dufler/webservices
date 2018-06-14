@@ -163,5 +163,17 @@
         <dependent-module archiveName="it.ltc.database.model.legacy.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.legacy/it.ltc.database.model.legacy">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="it.ltc.utility.mail.jar" deploy-path="/lib" handle="module:/resource/it.ltc.utility.mail/it.ltc.utility.mail">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.legacyltc.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.legacyltc/it.ltc.database.model.legacyltc">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.dao.legacy.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.dao.legacy/it.ltc.database.dao.legacy">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.model.shared.jar" deploy-path="/lib" handle="module:/resource/it.ltc.model.shared/it.ltc.model.shared">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>

@@ -2,18 +2,18 @@ package it.ltc.services.logica.data.fatturazione;
 
 import java.util.List;
 
-import it.ltc.database.model.centrale.json.PreferenzeFatturazioneJSON;
+import it.ltc.database.model.centrale.FatturaPreferenzeCommessa;
 
 public interface PreferenzeFatturazioneDAO {
 	
-	public List<PreferenzeFatturazioneJSON> trovaTutti();
+	public List<FatturaPreferenzeCommessa> trovaTutti();
 	
-	public PreferenzeFatturazioneJSON trova(int ambito, int commessa);
+	public FatturaPreferenzeCommessa trova(int ambito, int commessa);
 	
-	public PreferenzeFatturazioneJSON inserisci(PreferenzeFatturazioneJSON preferenze);
+	public FatturaPreferenzeCommessa inserisci(FatturaPreferenzeCommessa preferenze);
 	
-	public PreferenzeFatturazioneJSON aggiorna(PreferenzeFatturazioneJSON preferenze);
+	public FatturaPreferenzeCommessa aggiorna(FatturaPreferenzeCommessa preferenze);
 	
-	public PreferenzeFatturazioneJSON elimina(PreferenzeFatturazioneJSON preferenze);
+	public FatturaPreferenzeCommessa elimina(FatturaPreferenzeCommessa preferenze);
 
 }

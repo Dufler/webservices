@@ -37,13 +37,6 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 
 	@Override
 	public List<Azienda> trovaDaContatto(int idContatto) {
-//		EntityManager em = getManager();
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//        CriteriaQuery<AziendaContatti> criteria = cb.createQuery(AziendaContatti.class);
-//        Root<AziendaContatti> member = criteria.from(AziendaContatti.class);
-//        criteria.select(member).where(cb.equal(member.get("contatto"), idContatto));
-//		List<AziendaContatti> lista = em.createQuery(criteria).getResultList();
-//		em.close();
 		List<AziendaContatti> lista = aziendaContattiDao.trovaDaContatto(idContatto);
 		List<Azienda> aziende = new LinkedList<Azienda>();
 		for (AziendaContatti match : lista) {
@@ -56,13 +49,6 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 	
 	@Override
 	public List<Azienda> trovaDaBrand(int idBrand) {
-//		EntityManager em = getManager();
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//        CriteriaQuery<AziendaBrand> criteria = cb.createQuery(AziendaBrand.class);
-//        Root<AziendaBrand> member = criteria.from(AziendaBrand.class);
-//        criteria.select(member).where(cb.equal(member.get("brand"), idBrand));
-//		List<AziendaBrand> lista = em.createQuery(criteria).getResultList();
-//		em.close();
 		List<AziendaBrand> lista = aziendaBrandDao.trovaDaBrand(idBrand);
 		List<Azienda> aziende = new LinkedList<Azienda>();
 		for (AziendaBrand match : lista) {
@@ -121,6 +107,7 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 		oldEntity.setTelefono(entity.getTelefono());
 		oldEntity.setTipoLogistica(entity.getTipoLogistica());
 		oldEntity.setValutazione(entity.getValutazione());
+		oldEntity.setDescrizione(entity.getDescrizione());
 	}
 
 }

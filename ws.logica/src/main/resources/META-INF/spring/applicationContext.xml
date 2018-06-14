@@ -24,6 +24,30 @@
 
 	<!-- Aggiunto -->
 	<!-- <bean id="pabpp" class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/> -->
+	
+	<!-- Bean utility --> <!-- <bean id="" class="it.ltc.database.dao.common." /> -->
+	<bean id="CapDao" class="it.ltc.database.dao.common.CapDao" />
+	<bean id="CategoriaMerceologicaDao" class="it.ltc.database.dao.common.CategoriaMerceologicaDao" />
+	<bean id="ClienteDao" class="it.ltc.database.dao.common.ClienteDao" />
+	<bean id="CodiceClienteCorriereDao" class="it.ltc.database.dao.common.CodiceClienteCorriereDao" />
+	<bean id="CommessaDao" class="it.ltc.database.dao.common.CommessaDao" />
+	<bean id="CorriereDao" class="it.ltc.database.dao.common.CorriereDao" />
+	<bean id="CorriereServizioDao" class="it.ltc.database.dao.common.CorriereServizioDao" />
+	<bean id="IndirizzoDao" class="it.ltc.database.dao.common.IndirizzoDao" />
+	<bean id="NazioneDao" class="it.ltc.database.dao.common.NazioneDao" />
+	<bean id="OperatoreDao" class="it.ltc.database.dao.common.OperatoreDao" />
+	<bean id="FeatureDao" class="it.ltc.database.dao.common.FeatureDao" />
+	<bean id="PermessoDao" class="it.ltc.database.dao.common.PermessoDao" />
+	<bean id="ProvinciaDao" class="it.ltc.database.dao.common.ProvinciaDao" />
+	<bean id="RegioneDao" class="it.ltc.database.dao.common.RegioneDao" />
+	<bean id="SedeDao" class="it.ltc.database.dao.common.SedeDao" />
+	<bean id="SpedizioneServizioDao" class="it.ltc.database.dao.common.SpedizioneServizioDao" />
+	<bean id="TipoContrassegnoDao" class="it.ltc.database.dao.common.TipoContrassegnoDao" />
+	<bean id="TrackingStatoDao" class="it.ltc.database.dao.common.TrackingStatoDao" />
+	<bean id="ValutaDao" class="it.ltc.database.dao.common.ValutaDao" />
+	<bean id="VersioneTabellaDao" class="it.ltc.database.dao.common.VersioneTabellaDao" />
+	<!-- fine -->
+	
 	<context:annotation-config />
 
 	<!-- fine -->

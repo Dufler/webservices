@@ -2,17 +2,17 @@ package it.ltc.services.logica.data.cdg;
 
 import java.util.List;
 
-import it.ltc.database.model.centrale.json.CdgCommessaEventoJSON;
+import it.ltc.database.model.centrale.CdgCommessaEvento;
 
 public interface CommessaEventoDAO {
 
-	public List<CdgCommessaEventoJSON> trovaTutte();
+	public List<CdgCommessaEvento> trovaTutte();
 	
-	public CdgCommessaEventoJSON trova(int commessa, int evento);
+	public CdgCommessaEvento trova(int commessa, int evento);
 	
-	public CdgCommessaEventoJSON inserisci(CdgCommessaEventoJSON json);
+	public CdgCommessaEvento inserisci(CdgCommessaEvento json);
 	
-	public CdgCommessaEventoJSON aggiorna(CdgCommessaEventoJSON json);
+	public CdgCommessaEvento aggiorna(CdgCommessaEvento json);
 	
-	public CdgCommessaEventoJSON elimina(CdgCommessaEventoJSON json);
+	public CdgCommessaEvento elimina(CdgCommessaEvento json);
 }

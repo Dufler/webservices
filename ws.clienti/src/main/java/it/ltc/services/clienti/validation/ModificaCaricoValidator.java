@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.ModificaCaricoJSON;
+import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
 
 @Component
 public class ModificaCaricoValidator implements Validator {

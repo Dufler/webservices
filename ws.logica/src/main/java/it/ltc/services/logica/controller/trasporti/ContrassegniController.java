@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.dao.common.TipoContrassegnoDao;
 import it.ltc.database.dao.common.VersioneTabellaDao;
+import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.SpedizioneContrassegno;
 import it.ltc.database.model.centrale.SpedizioneContrassegnoTipo;
 import it.ltc.database.model.centrale.VersioneTabella;
 import it.ltc.services.logica.data.trasporti.ContrassegniDAO;
-import it.ltc.services.logica.model.trasporti.CriteriUltimaModifica;
 import it.ltc.services.logica.validation.trasporti.ContrassegnoValidator;
 import it.ltc.services.logica.validation.trasporti.CriteriUltimaModificaValidator;
 
@@ -56,8 +56,8 @@ public class ContrassegniController {
 	}
 	
 	public ContrassegniController() {
-		daoVersione = VersioneTabellaDao.getInstance();
-		daoTipiContrassegno = TipoContrassegnoDao.getInstance();
+		daoVersione = new VersioneTabellaDao();
+		daoTipiContrassegno = new TipoContrassegnoDao();
 	}
 	
 	//TODO - check sui permessi
@@ -65,7 +65,7 @@ public class ContrassegniController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<SpedizioneContrassegno>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutti i contrassegni modificati recentemente.");
-		VersioneTabella versioneTabellaSpedizioni = daoVersione.findByCodice("spedizione_contrassegno");
+		VersioneTabella versioneTabellaSpedizioni = daoVersione.trovaDaCodice("spedizione_contrassegno");
 		Date dataVersione = versioneTabellaSpedizioni.getDataVersione();
 		boolean reset = dataVersione.after(criteri.getDataUltimaModifica());
 		List<SpedizioneContrassegno> contrassegni = reset ? dao.trovaTutti() : dao.trovaDaUltimaModifica(criteri);
@@ -88,7 +88,7 @@ public class ContrassegniController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/tipi")
 	public ResponseEntity<List<SpedizioneContrassegnoTipo>> trovaTipiContrassegno(@RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutti i tipi di contrassegno.");
-		List<SpedizioneContrassegnoTipo> tipi = daoTipiContrassegno.findAll();
+		List<SpedizioneContrassegnoTipo> tipi = daoTipiContrassegno.trovaTutti();
 		ResponseEntity<List<SpedizioneContrassegnoTipo>> response = new ResponseEntity<List<SpedizioneContrassegnoTipo>>(tipi, HttpStatus.OK);
 		return response;
 	}

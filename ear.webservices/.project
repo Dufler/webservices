@@ -15,6 +15,10 @@
 		<project>it.ltc.utility.miscellanea</project>
 		<project>it.ltc.database.model.centrale</project>
 		<project>it.ltc.database.model.legacy</project>
+		<project>it.ltc.utility.mail</project>
+		<project>it.ltc.database.model.legacyltc</project>
+		<project>it.ltc.database.dao.legacy</project>
+		<project>it.ltc.model.shared</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

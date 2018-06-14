@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.centrale.json.PreferenzeFatturazioneJSON;
+import it.ltc.database.model.centrale.FatturaPreferenzeCommessa;
 import it.ltc.services.logica.data.fatturazione.PreferenzeFatturazioneDAO;
 import it.ltc.services.logica.validation.fatturazione.PreferenzeFatturazioneValidator;
 
@@ -40,37 +40,37 @@ public class PreferenzeFatturazioneController {
 	//TODO - inserire controlli su autenticazione e permessi.
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<List<PreferenzeFatturazioneJSON>> trovaTutti(@RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<List<FatturaPreferenzeCommessa>> trovaTutti(@RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutte le preferenze di fatturazione.");
-		List<PreferenzeFatturazioneJSON> ambiti = dao.trovaTutti();
-		ResponseEntity<List<PreferenzeFatturazioneJSON>> response = new ResponseEntity<List<PreferenzeFatturazioneJSON>>(ambiti, HttpStatus.OK);
+		List<FatturaPreferenzeCommessa> ambiti = dao.trovaTutti();
+		ResponseEntity<List<FatturaPreferenzeCommessa>> response = new ResponseEntity<List<FatturaPreferenzeCommessa>>(ambiti, HttpStatus.OK);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<PreferenzeFatturazioneJSON> inserisci(@Valid @RequestBody PreferenzeFatturazioneJSON ambito, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<FatturaPreferenzeCommessa> inserisci(@Valid @RequestBody FatturaPreferenzeCommessa ambito, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Inserimento di una nuova preferenza di fatturazione.");
-		PreferenzeFatturazioneJSON entity = dao.inserisci(ambito);
+		FatturaPreferenzeCommessa entity = dao.inserisci(ambito);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<PreferenzeFatturazioneJSON> response = new ResponseEntity<PreferenzeFatturazioneJSON>(entity, status);
+		ResponseEntity<FatturaPreferenzeCommessa> response = new ResponseEntity<FatturaPreferenzeCommessa>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-	public ResponseEntity<PreferenzeFatturazioneJSON> modifica(@Valid @RequestBody PreferenzeFatturazioneJSON ambito, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<FatturaPreferenzeCommessa> modifica(@Valid @RequestBody FatturaPreferenzeCommessa ambito, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Modifica di una preferenza di fatturazione.");
-		PreferenzeFatturazioneJSON entity = dao.aggiorna(ambito);
+		FatturaPreferenzeCommessa entity = dao.aggiorna(ambito);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<PreferenzeFatturazioneJSON> response = new ResponseEntity<PreferenzeFatturazioneJSON>(entity, status);
+		ResponseEntity<FatturaPreferenzeCommessa> response = new ResponseEntity<FatturaPreferenzeCommessa>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<PreferenzeFatturazioneJSON> elimina(@Valid @RequestBody PreferenzeFatturazioneJSON ambito, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<FatturaPreferenzeCommessa> elimina(@Valid @RequestBody FatturaPreferenzeCommessa ambito, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Eliminazione di una preferenza di fatturazione.");
-		PreferenzeFatturazioneJSON entity = dao.elimina(ambito);
+		FatturaPreferenzeCommessa entity = dao.elimina(ambito);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<PreferenzeFatturazioneJSON> response = new ResponseEntity<PreferenzeFatturazioneJSON>(entity, status);
+		ResponseEntity<FatturaPreferenzeCommessa> response = new ResponseEntity<FatturaPreferenzeCommessa>(entity, status);
 		return response;
 	}
 

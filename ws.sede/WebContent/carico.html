@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html data-ng-app="ltcApp">
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Logica Sede - Web Services - Carico</title>
+	<link rel="shortcut icon" href="resources/images/ltc_logo_16x16.png" />
+	<!-- Fogli di stile -->
+	<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="resources/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="resources/css/style.css" />
+	<link rel="stylesheet" href="resources/css/pretty-json.css" />
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+	<!-- JS -->
+	<script src="resources/js/jquery.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<!-- add -->
+	<script src="resources/js/angular.min.js"></script>
+	<script src="resources/js/angular-sanitize.js"></script>
+	<script src="resources/js/script.js"></script>
+	<!-- end -->
+	<script src="resources/js/underscore-min.js"></script>
+	<script src="resources/js/backbone-min.js"></script>
+	<script src="resources/js/pretty-json-min.js"></script>
+	<script src="resources/js/esempiCarico.js"></script>
+</head>
+<body data-ng-controller="mainController">
+	<div class="container-fluid">
+		<h1>Operatore</h1>
+		<p>
+			<a href="index.html">torna all'indice</a>
+		</p>
+		<p>Qui sono riportati tutti gli endpoint che verranno usati dagli operatori per la gestione dei carichi.</p>
+		<h2>endpoint</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#tipicarico">Tipi di Carico</a></li>
+			<li class="list-group-item"><a href="#cercacarichi">Cerca Carichi</a></li>
+			<li class="list-group-item"><a href="#dettaglicarico">Dettagli Carico</a></li>
+			<li class="list-group-item"><a href="#nuovocollo">Nuovo Collo</a></li>
+			<li class="list-group-item"><a href="#aggiornacollo">Aggiorna Collo</a></li>
+			<li class="list-group-item"><a href="#eliminacollo">Elimina Collo</a></li>
+		</ul>
+		<h2>Campi complessi</h2>
+		<ul class="list-group">
+			<li class="list-group-item"><a href="#tipocarico">Tipo di Carico</a></li>
+			<li class="list-group-item"><a href="#carico">Carico</a></li>
+			<li class="list-group-item"><a href="#ingresso">Ingresso</a></li>
+			<li class="list-group-item"><a href="#ingressodettaglio">Dettaglio</a></li>
+			<li class="list-group-item"><a href="#documento">Documento</a></li>
+			<li class="list-group-item"><a href="#collo">Collo</a></li>
+		</ul>
+		
+		<div class="well well-sm">
+			<h3 id="tipicarico">Tipi di Carico</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/tipocarico<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/tipocarico<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b> Questo end point serve ad ottenere la lista completa dei tipi di carico per il dato cliente.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="tipiCaricoController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="cercacarichi">Cerca Carichi</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/carico<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/carico<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b> Questo end point serve a cercare dei carichi. &Egrave; possibile filtrare i risultati per tipo, stato, riferimento e fornitore.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="cercaCarichiController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			<div data-ng-controller="cercaCarichiController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="dettaglicarico">Dettagli Carico</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/carico/{id}<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/carico/{id}<br>
+				<b>Tipo:</b> GET<br>
+				<b>Descrizione:</b> Questo end point serve ad ottenere i dettagli dello specifico carico identificato dal parametro ID passato nella URL.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="cercaCaricoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			<div data-ng-controller="cercaCaricoController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="nuovocollo">Nuovo Collo</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Tipo:</b> POST<br>
+				<b>Descrizione:</b> Questo end point serve ad inserire un nuovo collo nel carico.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="nuovoColloController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			<div data-ng-controller="nuovoColloController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="aggiornacollo">Aggiorna Collo</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Tipo:</b> PUT<br>
+				<b>Descrizione:</b> Questo end point serve ad aggiornare il contenuto di un collo gi&agrave; inserito nel carico.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="aggiornaColloController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			<div data-ng-controller="aggiornaColloController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="eliminacollo">Elimina Collo</h3>
+			<p>
+				<b>Endpoint test:</b> test.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Endpoint produzione:</b> ws.services.ltc-logistics.it/sede/rest/riscontrocarico<br>
+				<b>Tipo:</b> DELETE<br>
+				<b>Descrizione:</b> Questo end point serve ad eliminare un collo e il suo contenuto gi&agrave; inserito nel carico.<br>
+				<b>Esempio Postman:</b> <a href="resources/postman/Sede_carichi.postman_collection.json">download</a><br>
+			</p>
+			<div data-ng-controller="eliminaColloController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			<div data-ng-controller="eliminaColloController">
+  				<div data-ng-include="'tabellaRisposte.html'"></div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="tipocarico">Tipo di Carico</h3>
+			
+			<div data-ng-controller="tipoCaricoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedtipocarico">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedtipocarico" class="panel-collapse collapse">
+						<div id="jsonTipoCarico" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="carico">Carico</h3>
+			
+			<div data-ng-controller="caricoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsecarico">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsecarico" class="panel-collapse collapse">
+						<div id="jsonCarico" class="panel-body"></div>
+      				</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="ingresso">Ingresso</h3>
+			
+			<div data-ng-controller="ingressoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapseingresso">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapseingresso" class="panel-collapse collapse">
+						<div id="jsonIngresso" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="ingressodettaglio">Dettaglio</h3>
+			
+			<div data-ng-controller="dettaglioController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedettaglio">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedettaglio" class="panel-collapse collapse">
+						<div id="jsonDettaglio" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h2 id="documento">Documento</h2>
+		
+			<div data-ng-controller="documentoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedocumento">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedocumento" class="panel-collapse collapse">
+						<div id="jsonDocumento" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="collo">Collo</h3>
+			
+			<div data-ng-controller="colloController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedcollo">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedcollo" class="panel-collapse collapse">
+						<div id="jsonCollo" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="well well-sm">
+			<h3 id="prodotto">Prodotto</h3>
+			
+			<div data-ng-controller="prodottoController">
+  				<div data-ng-include="'tabellaOggettiJSON.html'"></div>
+			</div>
+			
+			<div class="panel-group">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" href="#collapsedProdotto">Esempio JSON</a>
+						</h4>
+					</div>
+					<div id="collapsedProdotto" class="panel-collapse collapse">
+						<div id="jsonProdotto" class="panel-body"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+	</div>
+</body>
+</html>

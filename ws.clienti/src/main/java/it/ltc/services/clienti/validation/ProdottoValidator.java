@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.services.clienti.model.prodotto.ProdottoJSON;
+import it.ltc.model.shared.json.cliente.ProdottoJSON;
 
 /**
  * Il validatore esegue i seguenti controlli:
@@ -22,7 +22,7 @@ public class ProdottoValidator implements Validator {
 	
 	private static final Logger logger = Logger.getLogger("ProdottoValidator");
 	
-	public static final String regexStagione = "^(AU|IN|PR|ES|AI|PE|CO)\\d{2}";
+	public static final String regexStagione = "^(AU|IN|PR|ES|AI|PE|CO)\\d{2}"; //Qua volendo possiamo andare ad aggiungere una codifica per mese nel caso in cui servisse. (es. Gennaio -> GE etc.)
 
 	@Override
 	public boolean supports(Class<?> clazz) {

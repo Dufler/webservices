@@ -27,7 +27,7 @@ public class PermessoController {
 	private final PermessoDao dao;
     
     public PermessoController() {
-    	dao = PermessoDao.getInstance();
+    	dao = new PermessoDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")

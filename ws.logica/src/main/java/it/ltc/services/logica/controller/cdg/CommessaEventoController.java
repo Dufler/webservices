@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.centrale.json.CdgCommessaEventoJSON;
+import it.ltc.database.model.centrale.CdgCommessaEvento;
 import it.ltc.services.logica.data.cdg.CommessaEventoDAO;
 import it.ltc.services.logica.validation.cdg.CdgCommessaEventoValidator;
 
@@ -42,37 +42,37 @@ public class CommessaEventoController {
 	//TODO - check sui permessi
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<List<CdgCommessaEventoJSON>> trovaTutte(@RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<List<CdgCommessaEvento>> trovaTutte(@RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutti gli abbinamenti commessa-evento del controllo di gestione.");
-		List<CdgCommessaEventoJSON> entities = dao.trovaTutte();
-		ResponseEntity<List<CdgCommessaEventoJSON>> response = new ResponseEntity<List<CdgCommessaEventoJSON>>(entities, HttpStatus.OK);
+		List<CdgCommessaEvento> entities = dao.trovaTutte();
+		ResponseEntity<List<CdgCommessaEvento>> response = new ResponseEntity<List<CdgCommessaEvento>>(entities, HttpStatus.OK);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<CdgCommessaEventoJSON> inserisci(@Valid @RequestBody CdgCommessaEventoJSON contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<CdgCommessaEvento> inserisci(@Valid @RequestBody CdgCommessaEvento contrassegno, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Inserimento di una nuovo abbinamento commessa-evento del controllo di gestione.");
-		CdgCommessaEventoJSON entity = dao.inserisci(contrassegno);
+		CdgCommessaEvento entity = dao.inserisci(contrassegno);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<CdgCommessaEventoJSON> response = new ResponseEntity<CdgCommessaEventoJSON>(entity, status);
+		ResponseEntity<CdgCommessaEvento> response = new ResponseEntity<CdgCommessaEvento>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-	public ResponseEntity<CdgCommessaEventoJSON> modifica(@Valid @RequestBody CdgCommessaEventoJSON contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<CdgCommessaEvento> modifica(@Valid @RequestBody CdgCommessaEvento contrassegno, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Modifica di un abbinamento commessa-evento del controllo di gestione.");
-		CdgCommessaEventoJSON entity = dao.aggiorna(contrassegno);
+		CdgCommessaEvento entity = dao.aggiorna(contrassegno);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<CdgCommessaEventoJSON> response = new ResponseEntity<CdgCommessaEventoJSON>(entity, status);
+		ResponseEntity<CdgCommessaEvento> response = new ResponseEntity<CdgCommessaEvento>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<CdgCommessaEventoJSON> elimina(@Valid @RequestBody CdgCommessaEventoJSON contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<CdgCommessaEvento> elimina(@Valid @RequestBody CdgCommessaEvento contrassegno, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Eliminazione di un abbinamento commessa-evento del controllo di gestione.");
-		CdgCommessaEventoJSON entity = dao.elimina(contrassegno);
+		CdgCommessaEvento entity = dao.elimina(contrassegno);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-		ResponseEntity<CdgCommessaEventoJSON> response = new ResponseEntity<CdgCommessaEventoJSON>(entity, status);
+		ResponseEntity<CdgCommessaEvento> response = new ResponseEntity<CdgCommessaEvento>(entity, status);
 		return response;
 	}
 

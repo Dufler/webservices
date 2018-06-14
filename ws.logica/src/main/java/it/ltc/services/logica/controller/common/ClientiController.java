@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import it.ltc.database.dao.common.ClienteDao;
 import it.ltc.database.model.centrale.Cliente;
-import it.ltc.services.logica.data.common.ClientiDAO;
 import it.ltc.services.logica.validation.common.ClienteValidator;
 
 @Controller
@@ -27,7 +27,7 @@ public class ClientiController {
 	private static final Logger logger = Logger.getLogger("ClientiController");
 	
 	@Autowired
-	private ClientiDAO dao;
+	private ClienteDao dao;
 	
 	@Autowired
 	private ClienteValidator validator;

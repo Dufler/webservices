@@ -13,6 +13,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
@@ -54,11 +55,14 @@ public class CustomExceptionResolver extends DefaultHandlerExceptionResolver {
 	
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response,	Object handler, Exception ex) {
-		if (intercept)
+		if (intercept) 
 		try {
 			if (ex instanceof CustomException) {
 				return handleCustomException((CustomException) ex, request, response, handler);
-			} else if (ex instanceof NoSuchRequestHandlingMethodException) {
+			} else if (ex instanceof BadCredentialsException) {
+				return handleAuthException((BadCredentialsException) ex, request, response, handler);
+			}
+			else if (ex instanceof NoSuchRequestHandlingMethodException) {
 				return handleNoSuchRequestHandlingMethod((NoSuchRequestHandlingMethodException) ex, request, response, handler);
 			}
 			else if (ex instanceof HttpRequestMethodNotSupportedException) {
@@ -165,8 +169,23 @@ public class CustomExceptionResolver extends DefaultHandlerExceptionResolver {
 	 * @return
 	 * @throws IOException
 	 */
-	protected ModelAndView handleCustomException(CustomException ex, HttpServletRequest request, HttpServletResponse response,	Object handler) throws IOException {
+	protected ModelAndView handleCustomException(CustomException ex, HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
 		CustomErrorMessage message = new CustomErrorMessage(ex);
+		sendErrorJSON(response, message);
+		return new ModelAndView();
+	}
+	
+	/**
+	 * Metodo per la gestione degli errori di autenticazione.
+	 * @param ex
+	 * @param request
+	 * @param response
+	 * @param handler
+	 * @return
+	 * @throws IOException
+	 */
+	protected ModelAndView handleAuthException(BadCredentialsException ex, HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+		CustomErrorMessage message = new CustomErrorMessage(401, ex.getMessage(), null);
 		sendErrorJSON(response, message);
 		return new ModelAndView();
 	}

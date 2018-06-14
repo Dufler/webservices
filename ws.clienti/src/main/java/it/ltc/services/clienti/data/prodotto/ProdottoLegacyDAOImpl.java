@@ -1,65 +1,34 @@
 package it.ltc.services.clienti.data.prodotto;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.jboss.logging.Logger;
 
-import it.ltc.database.dao.Dao;
+import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.model.legacy.ArtiBar;
 import it.ltc.database.model.legacy.Articoli;
-import it.ltc.database.model.legacy.CatMercGruppi;
-import it.ltc.database.model.legacy.ColliPack;
-import it.ltc.database.model.legacy.PakiArticolo;
-import it.ltc.database.model.legacy.RighiOrdine;
-import it.ltc.services.clienti.model.prodotto.ProdottoJSON;
+import it.ltc.model.shared.dao.IProdottoDao;
+import it.ltc.model.shared.json.cliente.ProdottoJSON;
 import it.ltc.services.custom.exception.CustomException;
 
-//@Repository("ProdottoLegacyDAO")
-public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> {
+public class ProdottoLegacyDAOImpl extends ProdottoDaoConVerifiche<Articoli> implements ProdottoDAO {
 	
-	private static final Logger logger = Logger.getLogger("ProdottoLegacyDAOImpl");
-	private static final SimpleDateFormat idUnivocoGenerator = new SimpleDateFormat("yyMMddHHmmssSSS");
+	private static final Logger logger = Logger.getLogger("ProdottoLegacyDAOImpl");	
 
 	public ProdottoLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
+		logger.info("Istanziato dao prodotti legacy generico");
 	}
 	
-	@Override
-	public ProdottoJSON trovaDaID(int id) {
-		EntityManager em = getManager();
-		Articoli articolo = em.find(Articoli.class, id);
-		em.close();
-		ProdottoJSON json = articolo != null ? serializza(articolo) : null;
-		return json;
+	protected IProdottoDao<Articoli> getDaoProdotti(String persistenceUnit) {
+		return new ArticoliDao(persistenceUnit);
 	}
 
 	@Override
-	public List<ProdottoJSON> trovaTutti() {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Articoli> criteria = cb.createQuery(Articoli.class);
-        Root<Articoli> member = criteria.from(Articoli.class);
-        criteria.select(member);
-        List<Articoli> articoli = em.createQuery(criteria).getResultList();
-        em.close();
-        List<ProdottoJSON> prodotti = new LinkedList<>();
-        for (Articoli articolo : articoli)
-        	prodotti.add(serializza(articolo));
-		return prodotti;
-	}
-
-	@Override
-	public boolean inserisci(ProdottoJSON prodotto) {
+	public ProdottoJSON inserisci(ProdottoJSON prodotto) {
 		//Deserializzo
 		Articoli articolo = deserializza(prodotto);
 		ArtiBar barcodeArticolo = generaBarcodeArticolo(articolo);
@@ -73,7 +42,6 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 		barcodeArticolo.setIdUniArticolo(idUnivoco);
 		logger.info("nuovo ID univoco per l'articolo: '" + idUnivoco + "'");
 		//Inserisco
-		boolean insert;
 		EntityManager em = getManager();
 		EntityTransaction t = em.getTransaction();
 		try {
@@ -81,19 +49,19 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 			em.persist(articolo);
 			em.persist(barcodeArticolo);
 			t.commit();
-			insert = true;
 			logger.info("(Legacy SQL) Prodotto inserito!");
 		} catch (Exception e) {
 			logger.error(e);
-			insert = false;
-			t.rollback();
+			articolo = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
-		return insert;
+		return serializza(articolo);
 	}
 
-	private ArtiBar generaBarcodeArticolo(Articoli articolo) {
+	protected ArtiBar generaBarcodeArticolo(Articoli articolo) {
 		ArtiBar barcode = new ArtiBar();
 		barcode.setBarraEAN(articolo.getCodBarre());
 		barcode.setBarraUPC(articolo.getBarraEAN());
@@ -103,60 +71,17 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 		return barcode;
 	}
 
-	/**
-	 * Controllo sull'univocità della chiave cliente (CodArtStr e IDUniArticolo)
-	 * @param articolo l'articolo con il dato sku/codice.
-	 * @throws CustomException se esiste un duplicato.
-	 */
-	private void checkCodArtStrUnicity(String codArtStr) throws CustomException {
-		Articoli prodotto = findBySKU(codArtStr);
-        if (prodotto != null) {
-        	String message = "E' gia' presente un articolo con la stessa chiaveCliente (" + codArtStr + ")";
-        	logger.error(message);
-        	throw new CustomException(message);
-        } 
-	}
-	
-	/**
-	 * Controllo sull'univocità del barcode (CodBarre e BarraEAN)
-	 * @param articolo l'articolo con il dato barcode.
-	 * @throws CustomException se esiste un duplicato.
-	 */
-	private void checkBarcodeUnicity(String codBarre) throws CustomException {
-		Articoli prodotto = findByBarcode(codBarre);
-        if (prodotto != null) {
-        	String message = "E' gia' presente un articolo con la stesso barcode (" + codBarre + ")";
-        	logger.error(message);
-        	throw new CustomException(message);
-        }     
-	}
-	
-	private void checkCategoria(String categoria) throws CustomException {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<CatMercGruppi> criteria = cb.createQuery(CatMercGruppi.class);
-        Root<CatMercGruppi> member = criteria.from(CatMercGruppi.class);
-        criteria.select(member).where(cb.equal(member.get("categoria"), categoria));
-        List<CatMercGruppi> list = em.createQuery(criteria).setMaxResults(1).getResultList();
-		em.close();
-        if (list.isEmpty()) {
-			String message = "La categoria merceologica specificata non esiste. (" + categoria + ")";
-			logger.error(message);
-			throw new CustomException(message);
-		}
-	}
-
 	@Override
 	//@Transactional
-	public boolean aggiorna(ProdottoJSON prodotto) {
+	public ProdottoJSON aggiorna(ProdottoJSON prodotto) {
 		//Controllo di avere già l'anagrafica basandomi sullo SKU
-		Articoli articolo = findBySKU(prodotto.getChiaveCliente());
-		ArtiBar barcode = findBarcodeBySKU(prodotto.getChiaveCliente());
+		Articoli articolo = daoProdotti.trovaDaSKU(prodotto.getChiaveCliente());
+		ArtiBar barcode = daoArtibar.trovaDaSKU(prodotto.getChiaveCliente());
 		if (articolo == null || barcode == null)
 			throw new CustomException("L'articolo che si sta tentando di aggiornare non esiste. Controlla la chiave cliente!");
 		//Se esiste controllo che non sia già arrivato in magazzino
 		//nel caso in cui sia gia' presente eseguo l'aggiornamento solo per alcuni campi.
-		boolean presente = isPresenteInMagazzino(prodotto); 
+		boolean presente = daoColliPack.isProdottoPresenteInMagazzino(prodotto.getChiaveCliente());
 		//Recupero la entity
 		EntityManager em = getManager();
 		articolo = em.find(Articoli.class, articolo.getIdArticolo());
@@ -205,43 +130,41 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 		if (prodotto.getValore() != null)
 			articolo.setValVen(new BigDecimal(prodotto.getValore()));
 		//Update
-		boolean update;
 		EntityTransaction t = em.getTransaction();
 		try {
 			t.begin();
 			em.merge(articolo);
 			t.commit();
-			update = true;
 		} catch (Exception e) {
 			logger.error(e);
-			update = false;
-			t.rollback();
+			articolo = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
-		return update;
+		return serializza(articolo);
 	}
 
 	@Override
-	public boolean dismetti(ProdottoJSON prodotto) {
+	public ProdottoJSON dismetti(ProdottoJSON prodotto) {
 		if (prodotto == null)
 			throw new CustomException("L'articolo che si sta tentando di aggiornare non esiste. Controlla la chiave cliente!");
-		Articoli articolo = findBySKU(prodotto.getChiaveCliente());
+		Articoli articolo = daoProdotti.trovaDaSKU(prodotto.getChiaveCliente());
 		if (articolo == null)
 			throw new CustomException("L'articolo che si sta tentando di aggiornare non esiste. Controlla la chiave cliente!");
 		//Se esiste controllo che non sia presente su carichi o ordini attualmente in lavorazione.
-		if (isPresenteInCarichi(prodotto))
+		if (daoPakiArticolo.isProdottoPresenteInCarichi(prodotto.getChiaveCliente()))
 			throw new CustomException("Non e' possibile dismettere il prodotto, è attualmente presente in uno o più carichi.");
-		if (isPresenteInOrdini(prodotto))
+		if (daoRigheOrdini.isProdottoPresente(prodotto.getChiaveCliente()))
 			throw new CustomException("Non e' possibile dismettere il prodotto, è attualmente presente in uno o più ordini.");
 		//Se esiste controllo che non sia già arrivato in magazzino
-		if (isPresenteInMagazzino(prodotto)) {
+		if (daoColliPack.isProdottoPresenteInMagazzino(prodotto.getChiaveCliente())) {
 			throw new CustomException("Non e' possibile dismettere il prodotto, è attualmente presente in magazzino.");
 		}
 		//Elimino anche il barcode ad esso collegato.
-		ArtiBar barcode = findBarcodeBySKU(prodotto.getChiaveCliente());
+		ArtiBar barcode = daoArtibar.trovaDaSKU(prodotto.getChiaveCliente());
 		//Delete
-		boolean delete;
 		EntityManager em = getManager();
 		articolo = em.find(Articoli.class, articolo.getIdArticolo());
 		barcode = em.find(ArtiBar.class, barcode.getIdArtiBar());
@@ -251,43 +174,18 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 			em.remove(articolo);
 			em.remove(barcode);
 			t.commit();
-			delete = true;
 		} catch(Exception e) {
 			logger.error(e);
-			delete = false;
-			t.rollback();
+			articolo = null;
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
-		}		
-		return delete;
+		}	
+		return serializza(articolo);
 	}
 
-	private boolean isPresenteInOrdini(ProdottoJSON prodotto) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<RighiOrdine> criteria = cb.createQuery(RighiOrdine.class);
-        Root<RighiOrdine> member = criteria.from(RighiOrdine.class);
-        criteria.select(member).where(cb.equal(member.get("codiceArticolo"), prodotto.getChiaveCliente()));
-        List<RighiOrdine> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        boolean presente = !articoli.isEmpty();
-		return presente;
-	}
-
-	private boolean isPresenteInCarichi(ProdottoJSON prodotto) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
-        Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-        criteria.select(member).where(cb.equal(member.get("codArtStr"), prodotto.getChiaveCliente()));
-        List<PakiArticolo> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        boolean presente = !articoli.isEmpty();
-		return presente;
-	}
-
-	@Override
-	public Articoli deserializza(ProdottoJSON json) {
+	protected Articoli deserializza(ProdottoJSON json) {
 		Articoli articolo = new Articoli();
 		if (json != null) {
 			articolo.setCodArtStr(json.getChiaveCliente());
@@ -315,33 +213,14 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 			articolo.setDescAggiuntiva(json.getDescrizioneAggiuntiva());
 			articolo.setNote(json.getNote());
 			articolo.setTipoCassa(json.getCassa());
-			logger.info("Articolo deserializzato: " + articolo);
 		}
 		return articolo;
 	}
-	
-	private String getIDUnivoco() {
-		Date now = new Date();
-		String chiave = idUnivocoGenerator.format(now);
-		return chiave;
-	}
-	
-	private boolean isPresenteInMagazzino(ProdottoJSON prodotto) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<ColliPack> criteria = cb.createQuery(ColliPack.class);
-        Root<ColliPack> member = criteria.from(ColliPack.class);
-        criteria.select(member).where(cb.equal(member.get("codArtStr"), prodotto.getChiaveCliente()));
-        List<ColliPack> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        boolean presente = !articoli.isEmpty();
-		return presente;
-	}
 
-	@Override
-	public ProdottoJSON serializza(Articoli articolo) {
-		ProdottoJSON json = new ProdottoJSON();
+	protected ProdottoJSON serializza(Articoli articolo) {
+		ProdottoJSON json;
 		if (articolo != null) {
+			json = new ProdottoJSON();
 			json.setId(articolo.getIdArticolo());
 			//Controllo sul valore per la cassa.
 			String cassa = articolo.getTipoCassa();
@@ -371,79 +250,26 @@ public class ProdottoLegacyDAOImpl extends Dao implements ProdottoDAO<Articoli> 
 			json.setSkuFornitore(articolo.getCodArtOld());
 			json.setDescrizioneAggiuntiva(articolo.getDescAggiuntiva());
 			json.setNote(articolo.getNote());
+		} else {
+			json = null;
 		}
 		return json;
 	}
 
 	@Override
-	public ProdottoJSON trovaDaSKU(String sku) {
-		Articoli articolo = findBySKU(sku);
+	public ProdottoJSON trovaPerSKU(String sku) {
+		Articoli articolo = daoProdotti.trovaDaSKU(sku);
         ProdottoJSON prodotto = articolo == null ? null : serializza(articolo);
 		return prodotto;
 	}
-	
-	public Articoli findByIDUnivoco(String idUnivoco) {
-		logger.info("Ricerca articolo tramite ID Univoco: '" + idUnivoco + "'");
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Articoli> criteria = cb.createQuery(Articoli.class);
-        Root<Articoli> member = criteria.from(Articoli.class);
-        criteria.select(member).where(cb.equal(member.get("idUniArticolo"), idUnivoco));
-        List<Articoli> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        Articoli articolo = articoli.isEmpty() ? null : articoli.get(0);
-        logger.info("Articolo trovato: " + articolo);
-		return articolo;
-	}
-	
-	public Articoli findBySKU(String sku) {
-		logger.info("Ricerca articolo tramite SKU: '" + sku + "'");
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Articoli> criteria = cb.createQuery(Articoli.class);
-        Root<Articoli> member = criteria.from(Articoli.class);
-        criteria.select(member).where(cb.equal(member.get("codArtStr"), sku));
-        List<Articoli> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        Articoli articolo = articoli.isEmpty() ? null : articoli.get(0);
-        logger.info("Articolo trovato: " + articolo);
-		return articolo;
-	}
-	
-	public ArtiBar findBarcodeBySKU(String sku) {
-		logger.info("Ricerca barcode tramite SKU: '" + sku + "'");
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<ArtiBar> criteria = cb.createQuery(ArtiBar.class);
-        Root<ArtiBar> member = criteria.from(ArtiBar.class);
-        criteria.select(member).where(cb.equal(member.get("codiceArticolo"), sku));
-        List<ArtiBar> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        ArtiBar articolo = articoli.isEmpty() ? null : articoli.get(0);
-        logger.info("Barcode trovato: " + articolo);
-		return articolo;
-	}
 
 	@Override
-	public ProdottoJSON trovaDaBarcode(String barcode) {
-		Articoli articolo = findByBarcode(barcode);
+	public ProdottoJSON trovaPerBarcode(String barcode) {
+		Articoli articolo = daoProdotti.trovaDaBarcode(barcode);
         ProdottoJSON prodotto = articolo == null ? null : serializza(articolo);
         logger.info("Articolo trovato: " + prodotto);
 		return prodotto;
 	}
-	
-	public Articoli findByBarcode(String barcode) {
-		logger.info("Ricerca tramite barcode: '" + barcode + "'");
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Articoli> criteria = cb.createQuery(Articoli.class);
-        Root<Articoli> member = criteria.from(Articoli.class);
-        criteria.select(member).where(cb.or(cb.equal(member.get("codBarre"), barcode), cb.equal(member.get("barraEAN"), barcode)));
-        List<Articoli> articoli = em.createQuery(criteria).setMaxResults(1).getResultList();
-        em.close();
-        Articoli articolo = articoli.isEmpty() ? null : articoli.get(0);
-        logger.info("Articolo trovato: " + articolo);
-		return articolo;
-	}
+
 
 }

@@ -12,6 +12,12 @@ import it.ltc.services.logica.model.trasporti.CriteriFatturazione;
 
 @Component
 public class CriteriFatturazioneValidator implements Validator {
+	
+	private final CommessaDao daoCommesse;
+	
+	public CriteriFatturazioneValidator() {
+		daoCommesse = new CommessaDao();
+	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -23,7 +29,7 @@ public class CriteriFatturazioneValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		CriteriFatturazione criteri = (CriteriFatturazione) target;
 		
-		Commessa commessa = CommessaDao.getInstance().trovaDaID(criteri.getIdCommessa());
+		Commessa commessa = daoCommesse.trovaDaID(criteri.getIdCommessa());
 		if (commessa == null)
 			errors.reject("commessa.valida", "Bisogna selezionare una commessa valida.");
 		Date now = new Date();

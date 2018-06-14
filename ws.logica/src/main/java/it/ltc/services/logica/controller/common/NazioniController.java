@@ -18,17 +18,17 @@ public class NazioniController {
 	private final NazioneDao dao;
     
     public NazioniController() {
-    	dao = NazioneDao.getInstance();
+    	dao = new NazioneDao();
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Nazione> listAllMembers() {
-        return dao.findAll();
+        return dao.trovaTutte();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody Nazione lookupMemberById(@PathVariable("id") String id) {
-        return dao.findByCodiceISO3(id);
+        return dao.trovaDaCodiceISO3(id);
     }
 
 }

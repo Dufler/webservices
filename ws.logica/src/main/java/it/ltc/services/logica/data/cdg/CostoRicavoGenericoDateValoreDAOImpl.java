@@ -67,6 +67,8 @@ public class CostoRicavoGenericoDateValoreDAOImpl extends CRUDDao<CdgCostiRicavi
 		oldEntity.setDataFine(entity.getDataFine());
 		oldEntity.setDataInizio(entity.getDataInizio());
 		oldEntity.setValore(entity.getValore());
+		oldEntity.setSede(entity.getSede());
+		oldEntity.setDescrizione(entity.getDescrizione());
 	}
 
 }
