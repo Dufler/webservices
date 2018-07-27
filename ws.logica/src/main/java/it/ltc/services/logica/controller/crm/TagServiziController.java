@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,18 +48,18 @@ public class TagServiziController {
 		return response;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/perazienda")
-	public ResponseEntity<List<CrmTagServiziRichiesti>> trovaDaAzienda(@RequestBody CrmTagServiziRichiesti tag, @RequestHeader("authorization") String authenticationString) {
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/azienda/{id}")
+	public ResponseEntity<List<CrmTagServiziRichiesti>> trovaDaAzienda(@RequestHeader("authorization") String authenticationString, @PathVariable("id") int id) {
 		logger.info("Trovo tutte le associazioni l'azienda specificata e i tag.");
-		List<CrmTagServiziRichiesti> entities = dao.trovaDaAzienda(tag.getAzienda());
+		List<CrmTagServiziRichiesti> entities = dao.trovaDaAzienda(id);
 		ResponseEntity<List<CrmTagServiziRichiesti>> response = new ResponseEntity<List<CrmTagServiziRichiesti>>(entities, HttpStatus.OK);
 		return response;
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/pertag")
-	public ResponseEntity<List<CrmTagServiziRichiesti>> trovaDaTag(@RequestBody CrmTagServiziRichiesti tag, @RequestHeader("authorization") String authenticationString) {
-		logger.info("Trovo tutte le associazioni l'azienda specificata e i tag.");
-		List<CrmTagServiziRichiesti> entities = dao.trovaDaTag(tag.getTag());
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/tag/{s}")
+	public ResponseEntity<List<CrmTagServiziRichiesti>> trovaDaTag(@RequestHeader("authorization") String authenticationString, @PathVariable("s") String tag) {
+		logger.info("Trovo tutte le associazioni il tag specificato e le aziende.");
+		List<CrmTagServiziRichiesti> entities = dao.trovaDaTag(tag);
 		ResponseEntity<List<CrmTagServiziRichiesti>> response = new ResponseEntity<List<CrmTagServiziRichiesti>>(entities, HttpStatus.OK);
 		return response;
 	}

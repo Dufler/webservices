@@ -4,9 +4,17 @@ public class ColloCaricoJSON {
 	
 	private int id;
 	private int carico;
+	private String collo;
 	private String etichetta;
 	private String magazzino;
 	private String barcodeCliente;
+	private String operatoreCreazione;
+	private String operatoreUbicazione;
+	/**
+	 * APERTO, CHIUSO, o UBICATO
+	 */
+	private String stato;
+	private String ubicazione;
 	
 	public ColloCaricoJSON() {}
 	
@@ -24,6 +32,14 @@ public class ColloCaricoJSON {
 
 	public void setCarico(int carico) {
 		this.carico = carico;
+	}
+
+	public String getCollo() {
+		return collo;
+	}
+
+	public void setCollo(String collo) {
+		this.collo = collo;
 	}
 
 	public String getEtichetta() {
@@ -48,6 +64,38 @@ public class ColloCaricoJSON {
 
 	public void setBarcodeCliente(String barcodeCliente) {
 		this.barcodeCliente = barcodeCliente;
+	}
+
+	public String getOperatoreCreazione() {
+		return operatoreCreazione;
+	}
+
+	public void setOperatoreCreazione(String operatoreCreazione) {
+		this.operatoreCreazione = operatoreCreazione;
+	}
+
+	public String getOperatoreUbicazione() {
+		return operatoreUbicazione;
+	}
+
+	public void setOperatoreUbicazione(String operatoreUbicazione) {
+		this.operatoreUbicazione = operatoreUbicazione;
+	}
+
+	public String getStato() {
+		return stato;
+	}
+
+	public void setStato(String stato) {
+		this.stato = stato;
+	}
+
+	public String getUbicazione() {
+		return ubicazione;
+	}
+
+	public void setUbicazione(String ubicazione) {
+		this.ubicazione = ubicazione;
 	}
 
 }

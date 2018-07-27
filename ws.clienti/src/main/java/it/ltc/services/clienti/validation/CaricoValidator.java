@@ -52,18 +52,21 @@ public class CaricoValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		CaricoJSON carico = (CaricoJSON) target;
 		logger.info("Avvio la validazione per il carico: " + carico);
+		
+		//Testata
 		IngressoJSON ingresso = carico.getIngresso();
 		if (ingresso != null) {
 			validatoreIngresso.validate(ingresso, errors);
 		} else {
 			errors.reject("ingresso.necessario", "E' necessario inserire le informazioni sul carico.");
 		}
+		
+		//Dettagli
 		List<IngressoDettaglioJSON> dettagli = carico.getDettagli();
 		if (dettagli == null || dettagli.isEmpty()) {
 			errors.reject("dettagliingresso.necessari", "E' necessario inserire le informazioni di dettaglio sul carico.");
 		} else {
 			Set<Integer> numeriDiRiga = new HashSet<>();
-			//Set<String> skuProdottieMadeIn = new HashSet<>();
 			int totale = 0;
 			for (IngressoDettaglioJSON dettaglio : dettagli) {
 				//Aumento il totale dei pezzi
@@ -74,18 +77,14 @@ public class CaricoValidator implements Validator {
 					errors.reject("riga.duplicata", "E' stato inserito un numero riga duplicato (" + riga + ")");
 				else
 					numeriDiRiga.add(riga);
-				//Controllo che non siano stati inseriti elementi duplicati
-//				String sku = dettaglio.getProdotto();
-//				String madeIn = dettaglio.getMadeIn() != null ? dettaglio.getMadeIn() : "";
-//				String chiaveProdotto = sku + madeIn;
-//				if (skuProdottieMadeIn.contains(chiaveProdotto))
-//					errors.reject("riga.duplicata", "E' stato inserito un prodotto duplicato ( SKU: '" + sku + "' Made In: '" + madeIn + "'");
 				//Valido il resto nello specifico
 				validatoreDettagli.validate(dettaglio, errors);
 			}
 			if (ingresso != null && totale != ingresso.getPezziStimati())
 				errors.reject("totale.discordante", "Il totale dei prodotti dichiarati è diverso dal totale della lista (" + totale + " / " + ingresso.getPezziStimati() + ")");
 		}
+		
+		//Documento
 		DocumentoJSON documento = carico.getDocumento();
 		if (documento == null)
 			errors.reject("documento.necessario", "E' necessario inserire le informazioni sul documento dell'ingresso.");

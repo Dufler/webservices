@@ -2,6 +2,7 @@ package it.ltc.services.clienti.validation;
 
 import java.util.Date;
 
+import org.jboss.logging.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -10,6 +11,8 @@ import it.ltc.model.shared.json.cliente.DocumentoJSON;
 
 @Component
 public class DocumentoValidator implements Validator {
+	
+	private static final Logger logger = Logger.getLogger("DocumentoValidator");
 	
 	private enum Tipo {CARICO, RESO, ORDINE, CAMPIONARIO, LAVORAZIONE, ALTRO}
 
@@ -22,6 +25,7 @@ public class DocumentoValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		DocumentoJSON documento = (DocumentoJSON) target;
+		logger.info("Avvio la validazione per il documento: " + documento);
 		
 		String riferimento = documento.getRiferimento();
 		if (riferimento == null || riferimento.isEmpty())

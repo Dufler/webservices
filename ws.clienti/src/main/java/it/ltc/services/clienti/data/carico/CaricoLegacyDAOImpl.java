@@ -19,6 +19,7 @@ import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.dao.legacy.ColliPackSerialiDao;
+import it.ltc.database.dao.legacy.FornitoreDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
 import it.ltc.database.dao.legacy.PakiArticoloDao;
 import it.ltc.database.dao.legacy.PakiTestaDao;
@@ -37,7 +38,6 @@ import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
 import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.LavorazioneSeriali;
 import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.Riscontro;
 import it.ltc.model.shared.json.cliente.ModificaCaricoJSON.StatoCarico;
-import it.ltc.services.clienti.data.fornitore.FornitoreLegacyDAOImpl;
 import it.ltc.services.custom.exception.CustomException;
 
 public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiTesta, PakiArticolo> {
@@ -45,7 +45,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 	private static final Logger logger = Logger.getLogger("CaricoLegacyDAOImpl");
 
 	private final PakiTestaTipoDao daoTipo;
-	private final FornitoreLegacyDAOImpl daoFornitore;
+	private final FornitoreDao daoFornitore;
 	private final PakiArticoloDao daoPakiArticolo;
 	private final ArticoliDao daoProdotti;
 	private final ColliPackSerialiDao daoColliPack;
@@ -55,7 +55,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 	public CaricoLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
 		daoTipo = new PakiTestaTipoDao(persistenceUnit);
-		daoFornitore = new FornitoreLegacyDAOImpl(persistenceUnit);
+		daoFornitore = new FornitoreDao(persistenceUnit);
 		daoPakiArticolo = new PakiArticoloDao(persistenceUnit);
 		daoProdotti = new ArticoliDao(persistenceUnit);
 		daoColliPack = new ColliPackSerialiDao(persistenceUnit);
@@ -102,7 +102,9 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		if (carico != null) {
 			List<PakiArticolo> dettagli;
 			//Se hanno richiesto nel dettaglio allora aggiungo info
-			if (dettagliato) {
+			String stato = carico.getStato() != null ? carico.getStato() : "";
+			boolean statoOk = (stato.equals("LAVORATO") || stato.equals("CHIUSO"));
+			if (dettagliato && statoOk) {
 				dettagli = daoPakiArticolo.trovaRigheDaCarico(carico.getIdTestaPaki());
 				//Recupero i seriali e ne faccio una mappa
 				List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
@@ -350,7 +352,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
 		Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-		Predicate condizioneRiferimento = cb.equal(member.get("nrDispo"), json.getRiferimento());
+		Predicate condizioneRiferimento = cb.equal(member.get("idPakiTesta"), carico.getIdTestaPaki());
 		Predicate condizioneRiga = cb.equal(member.get("rigaPacki"), json.getRiga());
 		criteria.select(member).where(cb.and(condizioneRiferimento, condizioneRiga));
 		List<PakiArticolo> list = em.createQuery(criteria).getResultList();
@@ -444,7 +446,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
 		Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-		Predicate condizioneRiferimento = cb.equal(member.get("nrDispo"), json.getRiferimento());
+		Predicate condizioneRiferimento = cb.equal(member.get("idPakiTesta"), carico.getIdTestaPaki());
 		Predicate condizioneRiga = cb.equal(member.get("rigaPacki"), json.getRiga());
 		criteria.select(member).where(cb.and(condizioneRiferimento, condizioneRiga));
 		List<PakiArticolo> list = em.createQuery(criteria).getResultList();
@@ -533,9 +535,9 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<PakiArticolo> criteria = cb.createQuery(PakiArticolo.class);
 		Root<PakiArticolo> member = criteria.from(PakiArticolo.class);
-		Predicate condizioneRiferimento = cb.equal(member.get("nrDispo"), json.getRiferimento());
+		Predicate condizioneCarico = cb.equal(member.get("idPakiTesta"), carico.getIdTestaPaki());
 		Predicate condizioneRiga = cb.equal(member.get("rigaPacki"), json.getRiga());
-		criteria.select(member).where(cb.and(condizioneRiferimento, condizioneRiga));
+		criteria.select(member).where(cb.and(condizioneCarico, condizioneRiga));
 		List<PakiArticolo> list = em.createQuery(criteria).getResultList();
 		PakiArticolo dettaglio = list.size() == 1 ? list.get(0) : null;
 		if (dettaglio != null) {

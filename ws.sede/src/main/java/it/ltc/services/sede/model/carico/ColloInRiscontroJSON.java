@@ -9,6 +9,7 @@ import java.util.List;
  * @author Damiano
  *
  */
+@Deprecated
 public class ColloInRiscontroJSON {
 	
 	private int id;

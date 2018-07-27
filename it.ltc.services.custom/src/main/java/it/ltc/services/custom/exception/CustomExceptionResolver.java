@@ -26,7 +26,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.mvc.multiaction.NoSuchRequestHandlingMethodException;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 public class CustomExceptionResolver extends DefaultHandlerExceptionResolver {
@@ -62,9 +61,9 @@ public class CustomExceptionResolver extends DefaultHandlerExceptionResolver {
 			} else if (ex instanceof BadCredentialsException) {
 				return handleAuthException((BadCredentialsException) ex, request, response, handler);
 			}
-			else if (ex instanceof NoSuchRequestHandlingMethodException) {
-				return handleNoSuchRequestHandlingMethod((NoSuchRequestHandlingMethodException) ex, request, response, handler);
-			}
+//			else if (ex instanceof NoSuchRequestHandlingMethodException) {
+//				return handleNoSuchRequestHandlingMethod((NoSuchRequestHandlingMethodException) ex, request, response, handler);
+//			}
 			else if (ex instanceof HttpRequestMethodNotSupportedException) {
 				return handleHttpRequestMethodNotSupported((HttpRequestMethodNotSupportedException) ex, request, response, handler);
 			}

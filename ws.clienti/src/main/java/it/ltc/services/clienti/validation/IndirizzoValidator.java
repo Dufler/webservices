@@ -53,14 +53,20 @@ public class IndirizzoValidator implements Validator {
 		String ragioneSociale = indirizzo.getRagioneSociale();
 		if (ragioneSociale == null || ragioneSociale.isEmpty())
 			errors.reject("ragioneSociale.necessaria", "E' necessario specificare una ragione sociale per l'indirizzo.");
+		else if (ragioneSociale.length() > 50)
+			errors.reject("ragioneSociale.lunghezza", "La ragione sociale indicata è troppo lunga. (MAX 50 caratteri)");
 		
 		String via = indirizzo.getIndirizzo();
 		if (via == null || via.isEmpty())
 			errors.reject("indirizzo.necessario", "E' necessario specificare una via per l'indirizzo.");
+		else if (via.length() > 250)
+			errors.reject("indirizzo.lunghezza", "L'indirizzo indicato è troppo lungo. (MAX 250 caratteri)");
 		
 		String localita = indirizzo.getLocalita();
 		if (localita == null || localita.isEmpty())
 			errors.reject("localita.necessaria", "E' necessario specificare una localita' per l'indirizzo.");
+		else if (localita.length() > 50)
+			errors.reject("localita.lunghezza", "La località indicata è troppo lunga. (MAX 50 caratteri)");
 		
 		String provincia = indirizzo.getProvincia();
 		if (provincia == null || provincia.isEmpty())
@@ -82,6 +88,21 @@ public class IndirizzoValidator implements Validator {
 				errors.reject("nazione.valida", "E' necessario specificare una nazione esistente per l'indirizzo.");
 		}
 		
+		String cap = indirizzo.getCap();
+		if (cap == null || cap.isEmpty())
+			errors.reject("cap.necessario", "E' necessario specificare un cap per l'indirizzo.");
+		else if (n != null) {
+			//Controllo del CAP in base alla nazione.
+			boolean capValido;
+			switch (nazione) {
+				case "ITA" : capValido = cap.matches(REGEX_CAP_ITA); break;
+				default : capValido = cap.length() < 11; //10 o meno caratteri.
+			}
+			if (!capValido)
+				errors.reject("cap.valido", "E' necessario specificare un cap valido per l'indirizzo.");
+		}
+		
+		//Campi facoltativi
 		String telefono = indirizzo.getTelefono();
 		if (telefono != null && telefono.length() > 20)
 			errors.reject("telefono.lunghezza", "Il numero telefonico specificato e' troppo lungo (MAX 20 Caratteri).");
@@ -93,20 +114,7 @@ public class IndirizzoValidator implements Validator {
 			if (email.length() > 100)
 				errors.reject("email.lunghezza", "L'indirizzo email specificato e' troppo lungo (MAX 100 Caratteri).");
 		}
-		
-		String cap = indirizzo.getCap();
-		if (cap == null || cap.isEmpty())
-			errors.reject("cap.necessario", "E' necessario specificare un cap per l'indirizzo.");
-		else if (n != null) {
-			//Controllo del CAP in base alla nazione.
-			boolean capValido;
-			switch (nazione) {
-				case "ITA" : capValido = cap.matches(REGEX_CAP_ITA); break;
-				default : capValido = true;
-			}
-			if (!capValido)
-				errors.reject("cap.valido", "E' necessario specificare un cap valido per l'indirizzo.");
-		}
+	
 	}
 
 }

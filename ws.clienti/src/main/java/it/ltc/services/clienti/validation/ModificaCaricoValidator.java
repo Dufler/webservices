@@ -1,5 +1,6 @@
 package it.ltc.services.clienti.validation;
 
+import org.jboss.logging.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -9,7 +10,7 @@ import it.ltc.model.shared.json.cliente.ModificaCaricoJSON;
 @Component
 public class ModificaCaricoValidator implements Validator {
 
-	
+	private static final Logger logger = Logger.getLogger("ModificaCaricoValidator");
 	
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -20,6 +21,7 @@ public class ModificaCaricoValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		ModificaCaricoJSON modifiche = (ModificaCaricoJSON) target;
+		logger.info("Avvio la validazione per le modifiche al carico: " + modifiche);
 		
 		int idCarico = modifiche.getId();
 		if (idCarico < 1)

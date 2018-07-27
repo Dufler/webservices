@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.dao.legacy.PakiTestaTipoDao;
+import it.ltc.database.dao.shared.fornitori.TipoCaricoLegacyDAOImpl;
 import it.ltc.database.model.centrale.Commessa;
 import it.ltc.database.model.utente.Utente;
 import it.ltc.model.shared.dao.ITipoCaricoDao;
@@ -28,7 +28,7 @@ public class TipoCaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<TipoCaricoJSON>> trovaTutti(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Trovo tutti i riepiloghi d'evento della sede.");
+		logger.info("Trovo tutti i tipi di carico per la commessa.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		ITipoCaricoDao dao = getDao(user, commessa);
 		List<TipoCaricoJSON> entities = dao.trovaTutti();
@@ -42,7 +42,7 @@ public class TipoCaricoController extends RestController {
 		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null) {
 			String persistenceUnitName = commessa.getNomeRisorsa();
-			dao = new PakiTestaTipoDao(persistenceUnitName); //FIXME : Farne uno per il nuovo quando sarà necessario.
+			dao = new TipoCaricoLegacyDAOImpl(persistenceUnitName); //FIXME : Farne uno per il nuovo quando sarà necessario.
 		} else {
 			throw new CustomException("E' necessario specificare una commessa valida nell'header della richiesta.");
 		}

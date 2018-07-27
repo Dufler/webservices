@@ -10,6 +10,7 @@ public class ProdottoCaricoJSON {
 	private int riga;
 	private boolean forzaEccedenza;
 	private String seriale;
+	private String operatoreCreazione;
 	
 	public ProdottoCaricoJSON() {}
 
@@ -75,6 +76,14 @@ public class ProdottoCaricoJSON {
 
 	public void setSeriale(String seriale) {
 		this.seriale = seriale;
+	}
+
+	public String getOperatoreCreazione() {
+		return operatoreCreazione;
+	}
+
+	public void setOperatoreCreazione(String operatoreCreazione) {
+		this.operatoreCreazione = operatoreCreazione;
 	}
 
 }

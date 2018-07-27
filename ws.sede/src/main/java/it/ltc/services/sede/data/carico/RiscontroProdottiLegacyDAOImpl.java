@@ -1,10 +1,14 @@
 package it.ltc.services.sede.data.carico;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.jboss.logging.Logger;
 
+import it.ltc.database.dao.CondizioneWhere;
 import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.dao.legacy.ColliCaricoDao;
 import it.ltc.database.dao.legacy.ColliPackDao;
@@ -116,7 +120,7 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 		return nuovaRiga;
 	}
 	
-	protected ColliPack creaColliPack(PakiTesta testata, PakiArticolo riga, Articoli articolo, ColliCarico collo, int quantitaDaAggiungere) {
+	protected ColliPack creaColliPack(PakiTesta testata, PakiArticolo riga, Articoli articolo, ColliCarico collo, int quantitaDaAggiungere, String operatore) {
 		ColliPack prodotto = new ColliPack();
 		//Inserisco le informazioni necessarie
 		prodotto.setIdTestaPaki(testata.getIdTestaPaki());
@@ -130,6 +134,7 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 		prodotto.setQtaimpegnata(0);
 		prodotto.setTaglia(articolo.getTaglia());
 		prodotto.setDescrizione(articolo.getDescrizione());
+		prodotto.setOperatore(operatore);
 		return prodotto;
 	}
 	
@@ -146,7 +151,7 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 		int quantita = prodotto.isForzaEccedenza() || riga.getQtaPaki() == 0 ? prodotto.getQuantita() : Math.min(riga.getQtaPaki() - riga.getQtaVerificata(), prodotto.getQuantita());
 		if (quantita < 1)
 			throw new CustomException("Impossibile aggiungere il prodotto richiesto sulla riga specificata.");
-		ColliPack nuovoProdotto = creaColliPack(carico, riga, articolo, collo, quantita);
+		ColliPack nuovoProdotto = creaColliPack(carico, riga, articolo, collo, quantita, prodotto.getOperatoreCreazione());
 		riga.setQtaVerificata(riga.getQtaVerificata() + quantita);
 		carico.setQtaTotAre(carico.getQtaTotAre() + quantita);
 		//Salvo i dati a sistema
@@ -253,6 +258,60 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 			em.close();
 		}
 		return prodotto;
+	}
+
+	@Override
+	public List<ProdottoCaricoJSON> trovaProdotti(ProdottoCaricoJSON prodotto) {
+		List<CondizioneWhere> condizioni = new LinkedList<>();
+		int idRiga = prodotto.getRiga();
+		if (idRiga > 0)
+			condizioni.add(new CondizioneWhere("idPakiarticolo", idRiga));
+		int idCarico = prodotto.getCarico();
+		if (idCarico > 0)
+			condizioni.add(new CondizioneWhere("idTestaPaki", idCarico));
+		int idCollo = prodotto.getCollo();
+		if (idCollo > 0) {
+			ColliCarico collo = daoColli.trovaDaID(idCollo);
+			if (collo != null)
+				condizioni.add(new CondizioneWhere("nrIdColloPk", collo.getKeyColloCar()));
+		}
+		String operatore = prodotto.getOperatoreCreazione();
+		if (operatore != null && !operatore.isEmpty()) {
+			condizioni.add(new CondizioneWhere("operatore", operatore));
+		}
+		int idArticolo = prodotto.getProdotto();
+		if (idArticolo > 0) {
+			Articoli articolo = daoArticoli.trovaDaID(idArticolo);
+			if (articolo != null)
+				condizioni.add(new CondizioneWhere("codArtStr", articolo.getCodArtStr()));
+		}
+		List<ColliPack> entities = findAll(condizioni, 100);
+		List<ProdottoCaricoJSON> prodotti = new LinkedList<>();
+		for (ColliPack entity : entities) {
+			ProdottoCaricoJSON collo = serializza(entity);
+			prodotti.add(collo);
+		}
+		return prodotti;
+	}
+
+	private ProdottoCaricoJSON serializza(ColliPack entity) {
+		ProdottoCaricoJSON json;
+		if (entity != null) {
+			json = new ProdottoCaricoJSON();
+			json.setCarico(entity.getIdTestaPaki());
+			ColliCarico collo = daoColli.trovaDaCodice(entity.getNrIdColloPk());
+			json.setCollo(collo != null ? collo.getIdCollo() : 0);
+			json.setId(entity.getIdColliPack());
+			json.setOperatoreCreazione(entity.getOperatore());
+			Articoli articolo = daoArticoli.trovaDaSKU(entity.getCodArtStr());
+			json.setProdotto(articolo != null ? articolo.getIdArticolo() : 0);
+			json.setQuantita(entity.getQta());
+			json.setRiga(entity.getIdPakiarticolo());
+			json.setSeriale(null);
+		} else {
+			json = null;
+		}
+		return json;
 	}
 
 }

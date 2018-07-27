@@ -4,13 +4,14 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ import it.ltc.database.model.utente.Utente;
 import it.ltc.model.shared.dao.IFornitoreDao;
 import it.ltc.model.shared.json.cliente.FornitoreJSON;
 import it.ltc.services.custom.controller.RestController;
-import it.ltc.services.sede.data.carico.FornitoreDAOFactory;
+import it.ltc.services.sede.data.fornitore.FornitoreDAOFactory;
 import it.ltc.services.sede.validation.carico.FornitoreValidator;
 
 @Controller
@@ -29,7 +30,7 @@ public class FornitoreController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("Fornitore");
+	private static final Logger logger = Logger.getLogger("FornitoreController");
 	
 	@Autowired
 	private FornitoreDAOFactory factory;
@@ -89,8 +90,20 @@ public class FornitoreController extends RestController {
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		List<FornitoreJSON> fornitori = dao.trovaTutti();
 		HttpStatus status = fornitori.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-		logger.info("Prodotti trovati: " + fornitori.size());
+		logger.info("Fornitori trovati: " + fornitori.size());
 		ResponseEntity<List<FornitoreJSON>> response = new ResponseEntity<List<FornitoreJSON>>(fornitori, status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
+	public ResponseEntity<FornitoreJSON> trovaDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer id) {
+		logger.info("Nuova richiesta di elenco fornitori");
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Utente: " + user.getUsername());
+		IFornitoreDao dao = factory.getDao(user, commessa);
+		FornitoreJSON fornitore = dao.trovaDaID(id);
+		HttpStatus status = fornitore == null ? HttpStatus.BAD_REQUEST : HttpStatus.OK;
+		ResponseEntity<FornitoreJSON> response = new ResponseEntity<FornitoreJSON>(fornitore, status);
 		return response;
 	}
 

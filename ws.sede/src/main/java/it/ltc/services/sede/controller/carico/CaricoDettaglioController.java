@@ -50,7 +50,7 @@ public class CaricoDettaglioController extends RestController {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.inserisci(carico);
-		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		HttpStatus status = carico != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
 		ResponseEntity<CaricoDettaglio> response = new ResponseEntity<CaricoDettaglio>(carico, status);
 		return response;
 	}

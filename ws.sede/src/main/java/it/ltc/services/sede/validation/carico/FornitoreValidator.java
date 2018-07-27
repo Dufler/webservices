@@ -42,6 +42,10 @@ public class FornitoreValidator implements Validator {
 		if (riferimentoCliente == null || riferimentoCliente.isEmpty())
 			errors.reject("riferimentoCliente.necessario", "E' necessario specificare un riferimento per il fornitore.");
 		
+		String note = fornitore.getNote();
+		if (note != null && note.length() > 250)
+			errors.reject("note", "Le note indicate sono troppo lunghe. (MAX 250 caratteri)");
+		
 		IndirizzoJSON indirizzo = fornitore.getIndirizzo();
 		if (indirizzo == null)
 			errors.reject("indirizzo.necessario", "E' necessario specificare un indirizzo per il fornitore.");

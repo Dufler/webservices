@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import it.ltc.database.dao.common.SpedizioneServizioDao;
 import it.ltc.database.dao.common.VersioneTabellaDao;
@@ -24,6 +23,8 @@ import it.ltc.database.dao.common.model.CriteriUltimaModifica;
 import it.ltc.database.model.centrale.Spedizione;
 import it.ltc.database.model.centrale.SpedizioneServizio;
 import it.ltc.database.model.centrale.VersioneTabella;
+import it.ltc.services.custom.controller.RestController;
+import it.ltc.services.custom.permission.Permessi;
 import it.ltc.services.logica.data.trasporti.SpedizioneDAO;
 import it.ltc.services.logica.model.trasporti.CriteriFatturazione;
 import it.ltc.services.logica.validation.trasporti.CriteriFatturazioneValidator;
@@ -32,13 +33,18 @@ import it.ltc.services.logica.validation.trasporti.SpedizioneValidator;
 
 @Controller
 @RequestMapping("/spedizione")
-public class SpedizioneController {
+public class SpedizioneController extends RestController {
 	
 	private static final Logger logger = Logger.getLogger("SpedizioneController");
 	
-	private final SpedizioneServizioDao daoServizi;
+	private static final int PERMESSO_LETTURA = Permessi.TRASPORTI_SPEDIZIONI.getID();
+	private static final int PERMESSO_GESTIONE = Permessi.TRASPORTI_SPEDIZIONI_CUD.getID();
 	
-	private final VersioneTabellaDao daoVersione;
+	@Autowired
+	private SpedizioneServizioDao daoServizi;
+	
+	@Autowired
+	private VersioneTabellaDao daoVersione;
 	
 	@Autowired
 	private SpedizioneDAO daoSpedizioni;
@@ -67,20 +73,18 @@ public class SpedizioneController {
 	    binder.setValidator(validatorCriteriModifica);
 	}
 	
-	public SpedizioneController() {
-		daoServizi = new SpedizioneServizioDao();
-		daoVersione = new VersioneTabellaDao();
-	}
-	
-	//TODO - Aggiungere i controlli sui permessi per tutti i metodi
-	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/servizio")
-    public @ResponseBody List<SpedizioneServizio> getServizi() {
-        return daoServizi.trovaTutti();
+    public ResponseEntity<List<SpedizioneServizio>> getServizi(@RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_LETTURA);
+		logger.info("Trovo tutti i servizi.");
+		List<SpedizioneServizio> servizi = daoServizi.trovaTutti();
+		ResponseEntity<List<SpedizioneServizio>> response = new ResponseEntity<List<SpedizioneServizio>>(servizi, HttpStatus.OK);
+		return response;
     }
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<Spedizione>> trovaTutte(@RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_LETTURA);
 		logger.info("Trovo tutte le spedizioni.");
 		List<Spedizione> spedizioni = daoSpedizioni.trovaTutte();
 		ResponseEntity<List<Spedizione>> response = new ResponseEntity<List<Spedizione>>(spedizioni, HttpStatus.OK);
@@ -89,6 +93,7 @@ public class SpedizioneController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<Spedizione>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_LETTURA);
 		logger.info("Trovo tutte le spedizioni modificate recentemente.");
 		VersioneTabella versioneTabellaSpedizioni = daoVersione.trovaDaCodice("spedizione");
 		Date dataVersione = versioneTabellaSpedizioni.getDataVersione();
@@ -104,6 +109,7 @@ public class SpedizioneController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/fatturabili")
 	public ResponseEntity<List<Spedizione>> trovaFatturabili(@Valid @RequestBody CriteriFatturazione criteri, @RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_LETTURA);
 		logger.info("Trovo tutte le spedizioni fatturabili in base alla commessa e le date specificate.");
 		List<Spedizione> spedizioni = daoSpedizioni.trovaSpedizioniFatturabili(criteri.getIdCommessa(), criteri.getInizio(), criteri.getFine());
 		ResponseEntity<List<Spedizione>> response = new ResponseEntity<List<Spedizione>>(spedizioni, HttpStatus.OK);
@@ -112,6 +118,7 @@ public class SpedizioneController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<Spedizione> inserisci(@Valid @RequestBody Spedizione spedizione, @RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_GESTIONE);
 		logger.info("Inserimento di una nuova spedizione.");
 		Spedizione nuova = daoSpedizioni.inserisci(spedizione);
 		HttpStatus status = nuova != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -121,6 +128,7 @@ public class SpedizioneController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<Spedizione> modifica(@Valid @RequestBody Spedizione spedizione, @RequestHeader("authorization") String authenticationString) {
+		checkCredentialsAndPermission(authenticationString, PERMESSO_GESTIONE);
 		logger.info("Aggiornamento della spedizione.");
 		Spedizione nuova = daoSpedizioni.aggiorna(spedizione);
 		HttpStatus status = nuova != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;

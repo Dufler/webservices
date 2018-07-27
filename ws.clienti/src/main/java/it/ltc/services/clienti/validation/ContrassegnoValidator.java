@@ -1,5 +1,6 @@
 package it.ltc.services.clienti.validation;
 
+import org.jboss.logging.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -10,6 +11,8 @@ import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
 
 @Component
 public class ContrassegnoValidator implements Validator {
+	
+	private static final Logger logger = Logger.getLogger("ContrassegnoValidator");
 	
 	public enum ValutaContrassegno { EUR, USD }
 	
@@ -28,7 +31,7 @@ public class ContrassegnoValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		ContrassegnoJSON contrassegno = (ContrassegnoJSON) target;
-		
+		logger.info("Avvio la validazione per il contrassegno: " + contrassegno);
 		String tipo = contrassegno.getTipo();
 		if (tipo == null || tipo.isEmpty()) {
 			errors.reject("contrassegno.tipo.necessario", "E' necessario indicare la tipologia di contrassegno.");

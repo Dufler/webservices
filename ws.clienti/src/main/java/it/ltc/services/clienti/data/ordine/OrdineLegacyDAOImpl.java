@@ -20,7 +20,9 @@ import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.Dao;
 import it.ltc.database.dao.legacy.ArticoliDao;
+import it.ltc.database.dao.legacy.ColliImballoDao;
 import it.ltc.database.dao.legacy.ImballoDao;
+import it.ltc.database.dao.legacy.MagaSdDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
 import it.ltc.database.dao.legacy.RighiOrdineDao;
 import it.ltc.database.dao.legacy.TestaCorrDao;
@@ -62,16 +64,21 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 
 	protected final IndirizziLegacyDAOImpl daoIndirizzi;
 	protected final TestaCorrDao daoTestaCorr;
-	private final ArticoliDao daoProdotti;
-	private final MagazzinoDao daoMagazzini;
-	private final ImballoDao daoImballi;
-	private final TestataOrdiniDao daoTestataOrdine;
-	private final RighiOrdineDao daoRigheOrdine;
-	private final TestataOrdiniTipoDao daoTipiOrdine;
+	protected final ArticoliDao daoProdotti;
+	protected final MagazzinoDao daoMagazzini;
+	protected final ImballoDao daoImballi;
+	protected final TestataOrdiniDao daoTestataOrdine;
+	protected final RighiOrdineDao daoRigheOrdine;
+	protected final TestataOrdiniTipoDao daoTipiOrdine;
+	protected final MagaSdDao daoSaldi;
+	protected final ColliImballoDao daoColliImballati;
 	
 	private final Set<String> tipiRiga;
 	private final HashMap<String, String> magazzini;
 	private final HashMap<String, Imballi> imballi;
+	
+	protected final DecimalFormat df;
+	protected final SimpleDateFormat meseGiorno;
 
 	public OrdineLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
@@ -83,9 +90,13 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		daoTestataOrdine = new TestataOrdiniDao(persistenceUnit);
 		daoRigheOrdine = new RighiOrdineDao(persistenceUnit);
 		daoTipiOrdine = new TestataOrdiniTipoDao(persistenceUnit);
+		daoSaldi = new MagaSdDao(persistenceUnit);
+		daoColliImballati = new ColliImballoDao(persistenceUnit);
 		tipiRiga = new HashSet<>();
 		magazzini = new HashMap<>();
 		imballi = new HashMap<>();
+		df = new DecimalFormat("0000000");
+		meseGiorno = new SimpleDateFormat("MMdd");
 	}
 	
 	@Override
@@ -107,8 +118,10 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimento);
 		if (ordine != null) {
 			List<RighiOrdine> dettagli;
-			// Se hanno richiesto nel dettaglio allora aggiungo info
-			if (dettagliato) {
+			// Se hanno richiesto nel dettaglio e l'ordine è in uno stato congruo allora aggiungo info.
+			StatoOrdine stato = getStatoOrdine(ordine);
+			boolean statoOk = (stato == StatoOrdine.DIIB || stato == StatoOrdine.COIB || stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP || stato == StatoOrdine.SPED);
+			if (dettagliato && statoOk) {
 				dettagli = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped());
 				// Recupero i seriali e ne faccio una mappa
 				List<RighiImballoLight> seriali = trovaSeriali(ordine.getNrLista());
@@ -515,22 +528,21 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Controllo lo stato dell'ordine
 		checkOrdineModificabileOAssegnabile(ordine.getStato());
 		// Recupero la lista di prodotti richiesti e controllo la disponibilita'
-		List<RighiOrdine> prodotti = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped()); //trovaDettagli(ordine.getIdTestaSped());
+		List<RighiOrdine> prodotti = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped());
 		logger.info("Verranno ora verificate " + prodotti.size() + " righe.");
-		EntityManager em = getManager();
+		//EntityManager em = getManager();
 		boolean finalizza;
 		List<CustomErrorCause> righeNonValide = new LinkedList<>();
-		List<MagaSd> saldi = new LinkedList<>();
+		HashMap<String, MagaSd> saldi = new HashMap<>();
+		//List<MagaSd> saldi = new LinkedList<>();
 		List<MagaMov> movimenti = new LinkedList<>();
 		for (RighiOrdine prodotto : prodotti) {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<MagaSd> criteria = cb.createQuery(MagaSd.class);
-			Root<MagaSd> member = criteria.from(MagaSd.class);
-			Predicate condizioneProdotto = cb.equal(member.get("idUniArticolo"), prodotto.getIdUnicoArt());
-			Predicate condizioneMagazzino = cb.equal(member.get("codMaga"), prodotto.getMagazzino());
-			criteria.select(member).where(cb.and(condizioneProdotto, condizioneMagazzino));
-			List<MagaSd> list = em.createQuery(criteria).setMaxResults(1).getResultList();
-			MagaSd saldo = list.isEmpty() ? null : list.get(0);
+			String keySaldo = prodotto.getIdUnicoArt() + "-" +  prodotto.getMagazzino();
+			if (!saldi.containsKey(keySaldo)) {
+				MagaSd saldo = daoSaldi.trovaDaArticoloEMagazzino(prodotto.getIdUnicoArt(), prodotto.getMagazzino());
+				saldi.put(keySaldo, saldo);
+			}
+			MagaSd saldo = saldi.get(keySaldo);
 			// Controllo ciò che ho trovato:
 			// - se la lista è vuota oppure se non ho disponibilita' aggiungo il numero di riga a quelle non valide e boccio la transazione.
 			// - altrimenti aggiorno la disponibilita' e l'impegno e genero il movimento di magazzino.
@@ -545,7 +557,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				int impegnato = saldo.getImpegnato() + prodotto.getQtaSpedizione();
 				saldo.setDisponibile(disponibile);
 				saldo.setImpegnato(impegnato);
-				saldi.add(saldo);
+				//saldi.add(saldo);
 				MagaMov movimento = getMovimento(saldo, prodotto);
 				movimenti.add(movimento);
 			}
@@ -553,10 +565,13 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Se non ho trovato problemi aggiorno tutti i saldi e inserisco i movimenti di magazzino
 		// Altrimenti chiudo l'entity manager e restituisco la lista delle righe non valide.
 		if (!righeNonValide.isEmpty()) {
+			EntityManager em = getManager();
+			ordine = em.find(TestataOrdini.class, ordine.getIdTestaSped());
 			EntityTransaction t = em.getTransaction();
 			try {
 				t.begin();
 				ordine.setStato("ERRO");
+				em.merge(ordine);
 				t.commit();
 			} catch (Exception e) {
 				logger.error(e);
@@ -566,13 +581,14 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			}
 			throw new CustomException("Assegnazione fallita!", 400, righeNonValide);
 		} else {
+			EntityManager em = getManager();
 			ordine = em.find(TestataOrdini.class, ordine.getIdTestaSped());
 			EntityTransaction t = em.getTransaction();
 			try {
 				t.begin();
 				ordine.setStato("IMPO");
 				em.merge(ordine);
-				for (MagaSd saldo : saldi) {
+				for (MagaSd saldo : saldi.values()) {
 					em.merge(saldo);
 				}
 				for (MagaMov movimento : movimenti) {
@@ -604,6 +620,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		movimento.setDisponibilemov(saldo.getDisponibile());
 		movimento.setEsistenzamov(saldo.getEsistenza());
 		movimento.setImpegnatomov(saldo.getImpegnato());
+		movimento.setSegno("+");
 		movimento.setSegnoDis("-");
 		movimento.setSegnoEsi("N");
 		movimento.setSegnoImp("+");
@@ -703,14 +720,26 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	@Override
 	public OrdineJSON serializzaOrdine(TestataOrdini uscita, List<RighiOrdine> dettagli) {
 		OrdineJSON json = new OrdineJSON();
+		//Testata
 		UscitaJSON ordine = serializzaUscita(uscita, true);
 		json.setOrdine(ordine);
-		List<UscitaDettaglioJSON> prodotti = new LinkedList<>();
-		for (RighiOrdine dettaglio : dettagli) {
-			UscitaDettaglioJSON prodotto = serializzaDettaglio(dettaglio);
-			prodotti.add(prodotto);
+		// Dettagli, se presenti
+		if (dettagli != null) {
+			List<UscitaDettaglioJSON> prodotti = new LinkedList<>();
+			for (RighiOrdine dettaglio : dettagli) {
+				UscitaDettaglioJSON prodotto = serializzaDettaglio(dettaglio);
+				prodotti.add(prodotto);
+			}
+			json.setDettagli(prodotti);
 		}
-		json.setDettagli(prodotti);
+		// Documento
+		DocumentoJSON documento = new DocumentoJSON();
+		if (documento != null) {
+			documento.setRiferimento(uscita.getNrDoc());
+			documento.setTipo(uscita.getTipoDoc());
+			documento.setData(uscita.getDataDoc());
+		}
+		json.setDocumento(documento);
 		return json;
 	}
 
@@ -721,14 +750,8 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		json.setCodiceTracking(uscita.getNrLetteraVettura());
 		// Dati ordine
 		json.setId(uscita.getIdTestaSped());
-		String stato;
-		try {
-			StatoOrdine statoOrdine = StatoOrdine.valueOf(uscita.getStato());
-			stato = statoOrdine.getNome();
-		} catch (Exception e) {
-			stato = StatoOrdine.NONE.getNome();
-		}
-		json.setStato(stato);
+		StatoOrdine statoOrdine = getStatoOrdine(uscita);
+		json.setStato(statoOrdine.getNome());
 		json.setTipo(uscita.getTipoOrdine());
 		json.setDataOrdine(uscita.getDataOrdine());
 		json.setPezziImballati(uscita.getQtaimballata());
@@ -838,6 +861,11 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	}
 	
 	private OrdineImballatoJSON ottieniDettagliImballo(TestataOrdini ordine) {
+		//Controllo lo stato dell'ordine, se non va bene lancio un'eccezione
+		StatoOrdine stato = getStatoOrdine(ordine);
+		boolean statoOk = (stato == StatoOrdine.DIIB || stato == StatoOrdine.COIB || stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP || stato == StatoOrdine.SPED);
+		if (!statoOk)
+			throw new CustomException("L'ordine non è ancora stato finito di imballare.");
 		OrdineImballatoJSON ordineImballato = new OrdineImballatoJSON();
 		//Recupero e inserisco le informazioni generali sull'ordine.
 		UscitaJSON infoGenerali = serializzaUscita(ordine, false);
@@ -972,12 +1000,36 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		}
 		return aggiornamento;
 	}
+	
+	protected ColliPreleva creaColloDaPrelevare(TestataOrdini ordine, ColliImballo colloImballato, SpedizioneJSON infoSpedizione) {
+		ColliPreleva colloDaPrelevare = new ColliPreleva();
+		colloDaPrelevare.setNrLista(ordine.getNrLista());
+		colloDaPrelevare.setBarcodeCorriere(colloImballato.getBarCodeImb());
+		colloDaPrelevare.setCodiceCorriere(infoSpedizione.getCorriere());
+		colloDaPrelevare.setKeyColloPre(colloImballato.getKeyColloSpe());
+		colloDaPrelevare.setNrColloCliente(colloImballato.getNrIdCollo());
+		return colloDaPrelevare;
+	}
+	
+	protected RigaCorr creaRigaSpedizione(TestataOrdini ordine, ColliImballo colloImballato, SpedizioneJSON infoSpedizione, int progressivoSpedizione) {
+		//Calcolo il volume corretto: secondo Antonio va diviso per 1 milione
+		double volumeCollo = ((double) colloImballato.getVolume()) / 1000000.0;
+		RigaCorr rigaSpedizione = new RigaCorr();
+		rigaSpedizione.setCodRaggruppamento(progressivoSpedizione);
+		rigaSpedizione.setFormato(colloImballato.getCodFormato());
+		rigaSpedizione.setNrCollo(colloImballato.getNrIdCollo());
+		rigaSpedizione.setNrColloStr(df.format(progressivoSpedizione));
+		rigaSpedizione.setNrLista(ordine.getNrLista());
+		rigaSpedizione.setNrSpedi(progressivoSpedizione);
+		rigaSpedizione.setPeso(colloImballato.getPesoKg());
+		rigaSpedizione.setPezzi(colloImballato.getPezziCollo());
+		rigaSpedizione.setVolume(volumeCollo);
+		rigaSpedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
+		return rigaSpedizione;
+	}
 
 	protected boolean inserisciInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
 		boolean inserimento;
-		// Utility
-		SimpleDateFormat meseGiorno = new SimpleDateFormat("MMdd");
-		DecimalFormat df = new DecimalFormat("0000000");
 		// Preparo le variabili che mi serviranno per andare in insert.
 		TestaCorr spedizione = new TestaCorr();
 		List<ColliPreleva> colliDaPrelevare = new LinkedList<>();
@@ -1011,10 +1063,9 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		//Documento - Questa parte la faccio solo per quelli che hanno un documento da gestire.
 //		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
 //		if (documento != null) {
-//			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
-//			documento.getData();
-//			documento.getRiferimento();
-//			documento.getTipo();
+//			spedizione.setDocumentoData(new Timestamp(documento.getData().getTime()));
+//			spedizione.setDocumentoRiferimento(documento.getRiferimento());
+//			spedizione.setDocumentoTipo(documento.getTipo());
 //		}
 
 		// Contrassegno
@@ -1060,33 +1111,17 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			// Recupero i ColliImballo corrispondenti
 			List<ColliImballo> colliImballati = recuperaImballiDaOrdine(ordine);
 			for (ColliImballo colloImballato : colliImballati) {
-				//Calcolo il volume corretto: secondo Antonio va diviso per 1 milione
-				double volumeCollo = ((double) colloImballato.getVolume()) / 1000000.0;
 				// Creo il ColliPreleva corrispondente
-				ColliPreleva colloDaPrelevare = new ColliPreleva();
-				colloDaPrelevare.setBarcodeCorriere(colloImballato.getBarCodeImb());
-				colloDaPrelevare.setCodiceCorriere(infoSpedizione.getCorriere());
-				colloDaPrelevare.setKeyColloPre(colloImballato.getKeyColloSpe());
-				colloDaPrelevare.setNrColloCliente(colloImballato.getNrIdCollo());
+				ColliPreleva colloDaPrelevare = creaColloDaPrelevare(ordine, colloImballato, infoSpedizione);
 				colliDaPrelevare.add(colloDaPrelevare);
 				// Creo la RigaCorr corrispondente
-				RigaCorr rigaSpedizione = new RigaCorr();
-				rigaSpedizione.setCodRaggruppamento(progressivoSpedizione);
-				rigaSpedizione.setFormato(colloImballato.getCodFormato());
-				rigaSpedizione.setNrCollo(colloImballato.getNrIdCollo());
-				rigaSpedizione.setNrColloStr(df.format(progressivoSpedizione));
-				rigaSpedizione.setNrLista(ordine.getNrLista());
-				rigaSpedizione.setNrSpedi(progressivoSpedizione);
-				rigaSpedizione.setPeso(colloImballato.getPesoKg());
-				rigaSpedizione.setPezzi(colloImballato.getPezziCollo());
-				rigaSpedizione.setVolume(volumeCollo);
-				rigaSpedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
+				RigaCorr rigaSpedizione = creaRigaSpedizione(ordine, colloImballato, infoSpedizione, progressivoSpedizione);
 				righeSpedizione.add(rigaSpedizione);
 				// Aggiungo per avere i totali di pezzi, peso e volume
 				colli += 1;
 				pezzi += colloImballato.getPezziCollo();
 				peso += colloImballato.getPesoKg();
-				volume += volumeCollo;
+				volume += rigaSpedizione.getVolume();
 			}
 		}
 		// Aggiorno le info su testacorr
@@ -1124,31 +1159,25 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return inserimento;
 	}
 
-//	protected int getProgressivoSpedizioneTestaCorr() {
-//		int progressivo;
-//		EntityManager em = getManager();
-//		try {
-//			progressivo = em.createNamedQuery("TestaCorr.progressivoSpedizione", Integer.class).getSingleResult() + 1;
-//		} catch (Exception e) {
-//			progressivo = 1;
-//		} finally {
-//			em.close();
-//		}
-//		return progressivo;
-//	}
-
 	protected List<ColliImballo> recuperaImballiDaOrdine(TestataOrdini ordine) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<ColliImballo> criteria = cb.createQuery(ColliImballo.class);
-		Root<ColliImballo> member = criteria.from(ColliImballo.class);
-		Predicate condizioneLista = cb.equal(member.get("nrLista"), ordine.getNrLista());
-		Predicate condizioneStato = cb.equal(member.get("stato"), "CH");
-		Predicate condizioneCancellato = cb.equal(member.get("cancellato"), "NO");
-		criteria.select(member).where(cb.and(condizioneLista, condizioneStato, condizioneCancellato));
-		List<ColliImballo> dettagli = em.createQuery(criteria).getResultList();
-		em.close();
+		List<ColliImballo> dettagli = daoColliImballati.trovaDaNumeroLista(ordine.getNrLista());
 		return dettagli;
+	}
+	
+	/**
+	 * Controlla lo stato dell'ordine e lo converte in un valore della enum.<br>
+	 * Nel caso in cui qualcosa sia andato storto restituisce lo stato "NONE".
+	 * @param uscita la testata dell'ordine.
+	 * @return lo stato dell'ordine come enum.
+	 */
+	protected StatoOrdine getStatoOrdine(TestataOrdini uscita) {
+		StatoOrdine stato;
+		try {
+			stato = StatoOrdine.valueOf(uscita.getStato());
+		} catch (Exception e) {
+			stato = StatoOrdine.NONE;
+		}
+		return stato;
 	}
 
 	private List<TestataOrdini> checkOrdiniDaSpedire(SpedizioneJSON spedizione) {
@@ -1160,15 +1189,15 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Recupero tutti gli ordini
 		for (String riferimento : riferimenti) {
 			TestataOrdini ordine = daoTestataOrdine.trovaDaRiferimento(riferimento);
-			ordiniDaSpedire.add(ordine);
 			// Se non trovo corrispondenza o non sono in uno stato congruo
 			// lancio un'eccezione.
 			if (ordine == null) {
 				CustomErrorCause problema = new CustomErrorCause("Non esiste alcun ordine a sistema con il riferimento indicato.", riferimento);
 				problemiRiscontrati.add(problema);
+				continue; //Passo al riferimento successivo.
 			} else {
-				String statoOrdine = ordine.getStato();
-				StatoOrdine stato = StatoOrdine.valueOf(statoOrdine);
+				ordiniDaSpedire.add(ordine);
+				StatoOrdine stato = getStatoOrdine(ordine);
 				if (!(stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP)) {
 					CustomErrorCause problema = new CustomErrorCause("Non è possibile indicare informazioni per la spedizione dell'ordine indicato.", riferimento + " (Stato: " + stato.getNome() + ")");
 					problemiRiscontrati.add(problema);
@@ -1188,6 +1217,14 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 					idDestina = ordine.getIdDestina();
 				} else if (idDestina != ordine.getIdDestina()) {
 					CustomErrorCause problema = new CustomErrorCause("Non è possibile raggruppare in una sola spedizione ordini con destinatari diversi.", riferimento);
+					problemiRiscontrati.add(problema);
+				}
+			}
+			//Controllo che lo stato del TestaCorr presente sia 0, passa a 1 quando vengono stampati i documenti
+			if (idTestaCorr > 0) {
+				TestaCorr testataSpedizione = daoTestaCorr.trovaDaID(idTestaCorr);
+				if (testataSpedizione != null && testataSpedizione.getTrasmesso() != 0) {
+					CustomErrorCause problema = new CustomErrorCause("I documenti relativi alla spedizione sono stati già stampati e allegati ai colli. Non è possibile aggiornare le informazioni sulla spedizione.", riferimento);
 					problemiRiscontrati.add(problema);
 				}
 			}

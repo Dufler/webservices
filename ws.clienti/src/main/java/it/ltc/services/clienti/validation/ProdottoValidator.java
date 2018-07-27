@@ -32,8 +32,8 @@ public class ProdottoValidator implements Validator {
 
 	@Override
 	public void validate(Object target, Errors errors) {
-		logger.info("Avvio la validazione");
 		ProdottoJSON prodotto = (ProdottoJSON) target;
+		logger.info("Avvio la validazione per il prodotto: " + prodotto);
 		//Controllo sulla presenza dei campi obbligatori
 		
 		String chiaveCliente = prodotto.getChiaveCliente();
@@ -107,6 +107,14 @@ public class ProdottoValidator implements Validator {
 		Double valore = prodotto.getValore();
 		if (valore != null && valore < 0)
 			errors.reject("valore.errato", "Il valore deve essere maggiore di 0 euro.");
+		
+		String colore = prodotto.getColore();
+		if (colore != null && colore.length() > 40)
+			errors.reject("colore.lunghezza", "Il colore del prodotto è troppo lungo (MAX 40 caratteri).");
+		
+		String composizione = prodotto.getComposizione();
+		if (composizione != null && composizione.length() > 100)
+			errors.reject("composizione.lunghezza", "La composizione del prodotto è troppo lunga (MAX 100 caratteri).");
 	}
 
 }

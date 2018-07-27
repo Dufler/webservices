@@ -2,6 +2,8 @@ package it.ltc.services.clienti.data.fornitore;
 
 import org.springframework.stereotype.Component;
 
+import it.ltc.database.dao.shared.fornitori.FornitoreDAOImpl;
+import it.ltc.database.dao.shared.fornitori.FornitoreLegacyDAOImpl;
 import it.ltc.database.model.centrale.Commessa;
 import it.ltc.model.shared.dao.IFornitoreDao;
 import it.ltc.services.custom.dao.FactoryDao;

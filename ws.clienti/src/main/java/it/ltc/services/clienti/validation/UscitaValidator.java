@@ -1,5 +1,7 @@
 package it.ltc.services.clienti.validation;
 
+import java.util.Date;
+
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,6 +45,10 @@ public class UscitaValidator implements Validator {
 		
 		//Presenza dei campi necessari
 		
+		Date dataOrdine = ordine.getDataOrdine();
+		if (dataOrdine == null)
+			errors.reject("dataOrdine.necessaria", "E' necessario indicare una data per l'ordine.");
+		
 		//Controllo solo che sia stato inserito, la vera validazione avviene dopo controllando i tipi disponibili per il cliente.
 		String tipo = ordine.getTipo();
 		if (tipo == null || tipo.isEmpty())
@@ -70,6 +76,15 @@ public class UscitaValidator implements Validator {
 		Integer priorita = ordine.getPriorita();
 		if (priorita != null && (priorita < 1 || priorita > 10))
 			errors.reject("priorita.valido", "Il valore indicato per la priorita' non e' valido. (" + priorita + ", min 1 - MAX 10)");
+		
+		String note = ordine.getNote();
+		if (note != null && note.length() > 250)
+			errors.reject("note.lunghezza", "La lunghezza delle note è eccessiva. (MAX 250 caratteri)");
+		
+		Date dataConsegna = ordine.getDataConsegna();
+		if (dataConsegna != null && dataConsegna.before(new Date()))
+			errors.reject("dataConsegna.valida", "E' necessario indicare una data di consegna valida.");
+		
 	}
 
 }

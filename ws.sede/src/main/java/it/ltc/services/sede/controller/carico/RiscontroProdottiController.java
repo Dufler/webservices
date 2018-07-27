@@ -1,5 +1,7 @@
 package it.ltc.services.sede.controller.carico;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.jboss.logging.Logger;
@@ -39,36 +41,48 @@ public class RiscontroProdottiController extends RestController {
 	    binder.setValidator(validator);
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
+	public ResponseEntity<List<ProdottoCaricoJSON>> cerca(@RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+		logger.info("Ricerca colli nel carico.");
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		RiscontroProdottiDAO dao = getDao(user, commessa);
+		List<ProdottoCaricoJSON> prodotti = dao.trovaProdotti(collo);
+		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		ResponseEntity<List<ProdottoCaricoJSON>> response = new ResponseEntity<List<ProdottoCaricoJSON>>(prodotti, status);
+		return response;
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<ProdottoCaricoJSON> inserisci(@Valid @RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+	public ResponseEntity<ProdottoCaricoJSON> inserisci(@Valid @RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo prodotto nel carico.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
-		collo = dao.nuovoProdotto(collo);
-		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(collo, status);
+		prodotto.setOperatoreCreazione(user.getUsername());
+		prodotto = dao.nuovoProdotto(prodotto);
+		HttpStatus status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(prodotto, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-	public ResponseEntity<ProdottoCaricoJSON> aggiorna(@Valid @RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+	public ResponseEntity<ProdottoCaricoJSON> aggiorna(@Valid @RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Modifica di un prodotto nel carico.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
-		collo = dao.aggiornaProdotto(collo);
-		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(collo, status);
+		prodotto = dao.aggiornaProdotto(prodotto);
+		HttpStatus status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(prodotto, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<ProdottoCaricoJSON> elimina(@RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+	public ResponseEntity<ProdottoCaricoJSON> elimina(@RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Eliminazione di un prodotto nel carico.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
-		collo = dao.eliminaProdotto(collo);
-		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(collo, status);
+		prodotto = dao.eliminaProdotto(prodotto);
+		HttpStatus status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		ResponseEntity<ProdottoCaricoJSON> response = new ResponseEntity<ProdottoCaricoJSON>(prodotto, status);
 		return response;
 	}
 	

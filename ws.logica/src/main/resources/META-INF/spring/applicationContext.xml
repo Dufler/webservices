@@ -26,6 +26,7 @@
 	<!-- <bean id="pabpp" class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/> -->
 	
 	<!-- Bean utility --> <!-- <bean id="" class="it.ltc.database.dao.common." /> -->
+	<!-- Dao puri -->
 	<bean id="CapDao" class="it.ltc.database.dao.common.CapDao" />
 	<bean id="CategoriaMerceologicaDao" class="it.ltc.database.dao.common.CategoriaMerceologicaDao" />
 	<bean id="ClienteDao" class="it.ltc.database.dao.common.ClienteDao" />
@@ -46,6 +47,8 @@
 	<bean id="TrackingStatoDao" class="it.ltc.database.dao.common.TrackingStatoDao" />
 	<bean id="ValutaDao" class="it.ltc.database.dao.common.ValutaDao" />
 	<bean id="VersioneTabellaDao" class="it.ltc.database.dao.common.VersioneTabellaDao" />
+	<!-- Dao implementati da interfacce -->
+	<bean id="CategoriaMerceologicaDaoImpl" class="it.ltc.database.dao.shared.prodotti.CategoriaMerceologicaDaoImpl"/>
 	<!-- fine -->
 	
 	<context:annotation-config />

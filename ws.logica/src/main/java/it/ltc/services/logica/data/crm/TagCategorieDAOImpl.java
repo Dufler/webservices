@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import it.ltc.database.dao.CRUDDao;
 import it.ltc.database.model.centrale.CrmTagCategoriaMerceologica;
 import it.ltc.database.model.centrale.CrmTagCategoriaMerceologicaPK;
+import it.ltc.services.custom.exception.CustomException;
 
 @Repository
 public class TagCategorieDAOImpl extends CRUDDao<CrmTagCategoriaMerceologica> implements TagCategorieDAO {
@@ -61,7 +62,10 @@ public class TagCategorieDAOImpl extends CRUDDao<CrmTagCategoriaMerceologica> im
 
 	@Override
 	public CrmTagCategoriaMerceologica inserisci(CrmTagCategoriaMerceologica tag) {
-		CrmTagCategoriaMerceologica entity = insert(tag);
+		CrmTagCategoriaMerceologica entity = trova(tag.getAzienda(), tag.getTag());
+		if (entity != null)
+			throw new CustomException("La categoria specificata è già associata!");
+		entity = insert(tag);
 		return entity;
 	}
 

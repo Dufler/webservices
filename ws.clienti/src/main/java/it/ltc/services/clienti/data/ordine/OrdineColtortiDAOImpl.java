@@ -1,7 +1,6 @@
 package it.ltc.services.clienti.data.ordine;
 
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -22,6 +21,7 @@ import it.ltc.database.model.legacy.documento.TestaCorrConDocumento;
 import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
 import it.ltc.model.shared.json.cliente.DocumentoJSON;
 import it.ltc.model.shared.json.cliente.SpedizioneJSON;
+import it.ltc.services.custom.exception.CustomException;
 
 public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 	
@@ -53,14 +53,13 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 		
 		//Documento
 		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-		if (documento != null) {
-			//logger.info("Base64: '" + documento.getDocumentoBase64() + "'");
-			//spedizione.setDocumentoBase64(new String(documento.getDocumentoBase64()));
+		if (documento == null || documento.getDocumentoBase64() == null || documento.getDocumentoBase64().length == 0) {
+			throw new CustomException("E' necessario allegare un documento valido per la spedizione.");
+		} else {
 			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
-			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
-			documento.getData();
-			documento.getRiferimento();
-			documento.getTipo();
+			spedizione.setDocumentoData(new Timestamp(documento.getData().getTime()));
+			spedizione.setDocumentoRiferimento(documento.getRiferimento());
+			spedizione.setDocumentoTipo(documento.getTipo());
 		}
 
 		// Contrassegno
@@ -96,9 +95,6 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 
 	protected boolean inserisciInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
 		boolean inserimento;
-		// Utility
-		SimpleDateFormat meseGiorno = new SimpleDateFormat("MMdd");
-		DecimalFormat df = new DecimalFormat("0000000");
 		// Preparo le variabili che mi serviranno per andare in insert.
 		TestaCorrConDocumento spedizione = new TestaCorrConDocumento();
 		List<ColliPreleva> colliDaPrelevare = new LinkedList<>();
@@ -129,9 +125,10 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 		spedizione.setServizio(infoSpedizione.getServizioCorriere());
 		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
 		
-		//Documento
 		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-		if (documento != null) {
+		if (documento == null || documento.getDocumentoBase64() == null || documento.getDocumentoBase64().length == 0) {
+			throw new CustomException("E' necessario allegare un documento valido per la spedizione.");
+		} else {
 			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
 			spedizione.setDocumentoData(new Timestamp(documento.getData().getTime()));
 			spedizione.setDocumentoRiferimento(documento.getRiferimento());
@@ -181,33 +178,17 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 			// Recupero i ColliImballo corrispondenti
 			List<ColliImballo> colliImballati = recuperaImballiDaOrdine(ordine);
 			for (ColliImballo colloImballato : colliImballati) {
-				//Calcolo il volume corretto: secondo Antonio va diviso per 1 milione
-				double volumeCollo = ((double) colloImballato.getVolume()) / 1000000.0;
 				// Creo il ColliPreleva corrispondente
-				ColliPreleva colloDaPrelevare = new ColliPreleva();
-				colloDaPrelevare.setBarcodeCorriere(colloImballato.getBarCodeImb());
-				colloDaPrelevare.setCodiceCorriere(infoSpedizione.getCorriere());
-				colloDaPrelevare.setKeyColloPre(colloImballato.getKeyColloSpe());
-				colloDaPrelevare.setNrColloCliente(colloImballato.getNrIdCollo());
+				ColliPreleva colloDaPrelevare = creaColloDaPrelevare(ordine, colloImballato, infoSpedizione);
 				colliDaPrelevare.add(colloDaPrelevare);
 				// Creo la RigaCorr corrispondente
-				RigaCorr rigaSpedizione = new RigaCorr();
-				rigaSpedizione.setCodRaggruppamento(progressivoSpedizione);
-				rigaSpedizione.setFormato(colloImballato.getCodFormato());
-				rigaSpedizione.setNrCollo(colloImballato.getNrIdCollo());
-				rigaSpedizione.setNrColloStr(df.format(progressivoSpedizione));
-				rigaSpedizione.setNrLista(ordine.getNrLista());
-				rigaSpedizione.setNrSpedi(progressivoSpedizione);
-				rigaSpedizione.setPeso(colloImballato.getPesoKg());
-				rigaSpedizione.setPezzi(colloImballato.getPezziCollo());
-				rigaSpedizione.setVolume(volumeCollo);
-				rigaSpedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
+				RigaCorr rigaSpedizione = creaRigaSpedizione(ordine, colloImballato, infoSpedizione, progressivoSpedizione);
 				righeSpedizione.add(rigaSpedizione);
 				// Aggiungo per avere i totali di pezzi, peso e volume
 				colli += 1;
 				pezzi += colloImballato.getPezziCollo();
 				peso += colloImballato.getPesoKg();
-				volume += volumeCollo;
+				volume += rigaSpedizione.getVolume();
 			}
 		}
 		// Aggiorno le info su testacorr
@@ -237,7 +218,8 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 			inserimento = true;
 		} catch (Exception e) {
 			logger.error(e);
-			transaction.rollback();
+			if (transaction != null && transaction.isActive())
+				transaction.rollback();
 			inserimento = false;
 		} finally {
 			em.close();

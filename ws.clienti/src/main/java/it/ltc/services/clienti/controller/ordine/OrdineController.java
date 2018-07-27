@@ -37,7 +37,7 @@ public class OrdineController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("Ordine");
+	private static final Logger logger = Logger.getLogger("OrdineController");
 	
 	@Autowired
 	private OrdineDAOFactory factory;
@@ -76,9 +76,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<OrdineJSON> inserisci(@Valid @RequestBody OrdineJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di inserimento ordine: " + ordine);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di inserimento ordine dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		OrdineJSON entity = dao.inserisci(ordine);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -88,9 +87,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<UscitaDettaglioJSON> inserisciDettaglio(@Valid @RequestBody UscitaDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di inserimento dettaglio di carico: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di inserimento di un dettaglio dell'ordine dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		UscitaDettaglioJSON entity = dao.inserisciDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -100,9 +98,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<UscitaJSON> modifica(@Valid @RequestBody UscitaJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica ordine: " + ordine);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di modifica della testata dell'ordine dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		UscitaJSON entity = dao.aggiorna(ordine);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -112,9 +109,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<UscitaDettaglioJSON> modificaDettaglio(@Valid @RequestBody UscitaDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica dettaglio ordine: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di modifica di un dettaglio dell'ordine dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		UscitaDettaglioJSON entity = dao.aggiornaDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -124,9 +120,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<UscitaJSON> elimina(@RequestBody UscitaJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di eliminazione ordine: " + ordine);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di eliminazione ordine: " + ordine + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		UscitaJSON entity = dao.elimina(ordine);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -136,9 +131,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<UscitaDettaglioJSON> eliminaDettaglio(@RequestBody UscitaDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di eliminazione dettaglio ordine: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di eliminazione dettaglio ordine: " + dettaglio + "dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		UscitaDettaglioJSON entity = dao.eliminaDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -148,9 +142,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<UscitaJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di elenco ordini");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di elenco ordini dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		List<UscitaJSON> carichi = dao.trovaTutti();
 		HttpStatus status = carichi.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -160,72 +153,69 @@ public class OrdineController extends RestController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="{id}")
-	public ResponseEntity<OrdineJSON> dettaglioDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
-		logger.info("Nuova richiesta di dettaglio ordine");
+	public ResponseEntity<OrdineJSON> dettaglioDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer id) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di dettaglio ordine ID: " + id + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		OrdineJSON carico = dao.trovaDaID(idCarico);
+		OrdineJSON carico = dao.trovaDaID(id);
 		HttpStatus status = carico == null ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 		ResponseEntity<OrdineJSON> response = new ResponseEntity<OrdineJSON>(carico, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
-	public ResponseEntity<OrdineJSON> dettaglioDaRiferimento(@RequestBody UscitaJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di ricerca ordine tramite riferimento");
+	public ResponseEntity<OrdineJSON> dettaglioDaRiferimento(@RequestBody UscitaJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		String riferimento = ordine != null ? ordine.getRiferimentoOrdine() : null;
+		logger.info("Nuova richiesta di ricerca ordine tramite riferimento: '"  + riferimento + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		OrdineJSON carico = dao.trovaDaRiferimento(ingresso.getRiferimentoOrdine(), true);
+		OrdineJSON carico = dao.trovaDaRiferimento(riferimento, true);
 		HttpStatus status = carico == null ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 		ResponseEntity<OrdineJSON> response = new ResponseEntity<OrdineJSON>(carico, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/assegna")
-	public ResponseEntity<Void> assegnaOrdinePerRiferimento(@RequestBody UscitaJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di assegnazione ordine tramite riferimento");
+	public ResponseEntity<Void> assegnaOrdinePerRiferimento(@RequestBody UscitaJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		String riferimento = ordine != null ? ordine.getRiferimentoOrdine() : null;
+		logger.info("Nuova richiesta di assegnazione ordine tramite riferimento: '"  + riferimento + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		boolean assegna = dao.assegna(ingresso.getRiferimentoOrdine());
+		boolean assegna = dao.assegna(riferimento);
 		HttpStatus status = assegna ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/assegna/{id}")
-	public ResponseEntity<Void> assegnaOrdinePerID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int idCarico) {
-		logger.info("Nuova richiesta di assegnazione ordine tramite ID.");
+	public ResponseEntity<Void> assegnaOrdinePerID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int id) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di assegnazione ordine tramite ID: " + id + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		boolean assegna = dao.assegna(idCarico);
+		boolean assegna = dao.assegna(id);
 		HttpStatus status = assegna ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<Void> response = new ResponseEntity<Void>(status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/imballo")
-	public ResponseEntity<OrdineImballatoJSON> ottieniImballoOrdineDaRiferimento(@RequestBody UscitaJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di dettagli dell'imballo tramite riferimento");
+	public ResponseEntity<OrdineImballatoJSON> ottieniImballoOrdineDaRiferimento(@RequestBody UscitaJSON ordine, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		String riferimento = ordine != null ? ordine.getRiferimentoOrdine() : null;
+		logger.info("Nuova richiesta di dettagli dell'imballo tramite riferimento '" + riferimento + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		OrdineImballatoJSON imballo = dao.ottieniDettagliImballo(ingresso.getRiferimentoOrdine());
+		OrdineImballatoJSON imballo = dao.ottieniDettagliImballo(riferimento);
 		HttpStatus status = imballo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<OrdineImballatoJSON> response = new ResponseEntity<OrdineImballatoJSON>(imballo, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/imballo/{id}")
-	public ResponseEntity<OrdineImballatoJSON>  ottieniImballoOrdineDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int idOrdine) {
-		logger.info("Nuova richiesta di dettagli dell'imballo tramite ID.");
+	public ResponseEntity<OrdineImballatoJSON>  ottieniImballoOrdineDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int id) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di dettagli dell'imballo tramite ID: " + id + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		OrdineImballatoJSON imballo = dao.ottieniDettagliImballo(idOrdine);
+		OrdineImballatoJSON imballo = dao.ottieniDettagliImballo(id);
 		HttpStatus status = imballo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<OrdineImballatoJSON> response = new ResponseEntity<OrdineImballatoJSON>(imballo, status);
 		return response;
@@ -233,9 +223,8 @@ public class OrdineController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/spedisci")
 	public ResponseEntity<Void> spedisci(@Valid @RequestBody SpedizioneJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di spedizione.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di spedizione dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
 		boolean assegna = dao.spedisci(ingresso);
 		HttpStatus status = assegna ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -244,12 +233,11 @@ public class OrdineController extends RestController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "text/plain", value="/ddtraw/{id}")
-	public ResponseEntity<String> getDocumentoRawDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int idCarico) {
-		logger.info("Nuova richiesta di recupero documento di trasporto tramite ID.");
+	public ResponseEntity<String> getDocumentoRawDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int id) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di recupero documento di trasporto grezzo tramite ID: " + id + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		SpedizioneJSON info = dao.getDocumentoDiTrasporto(idCarico);
+		SpedizioneJSON info = dao.getDocumentoDiTrasporto(id);
 		String documento = info != null ? new String(info.getDocumentoFiscale().getDocumentoBase64()) : null;
 		HttpStatus status = documento != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<String> response = new ResponseEntity<String>(documento, status);
@@ -257,12 +245,11 @@ public class OrdineController extends RestController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/ddt/{id}")
-	public ResponseEntity<SpedizioneJSON> getDocumentoDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int idCarico) {
-		logger.info("Nuova richiesta di recupero documento di trasporto tramite ID.");
+	public ResponseEntity<SpedizioneJSON> getDocumentoDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") int id) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di recupero documento di trasporto grezzo tramite ID: " + id + " dall'utente: " + user.getUsername());
 		OrdineDAO<?,?> dao = factory.getDao(user, commessa);
-		SpedizioneJSON documento = dao.getDocumentoDiTrasporto(idCarico);
+		SpedizioneJSON documento = dao.getDocumentoDiTrasporto(id);
 		HttpStatus status = documento != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<SpedizioneJSON> response = new ResponseEntity<SpedizioneJSON>(documento, status);
 		return response;

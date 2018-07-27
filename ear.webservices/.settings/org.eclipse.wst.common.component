@@ -1,40 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="ear.webservices">
         <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
-        <dependent-module archiveName="spring-aop-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-aop-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-security-config-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-config-3.2.5.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-webmvc-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-webmvc-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-security-web-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-web-3.2.5.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-web-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-web-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-beans-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-beans-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="xml-apis-1.3.04.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/xml-apis-1.3.04.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-expression-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-expression-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-context-support-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-support-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-core-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-core-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-security-core-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-core-3.2.5.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-tx-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-tx-4.1.4.RELEASE.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="standard-1.1.2.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/standard-1.1.2.jar">
@@ -47,24 +14,6 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="aopalliance-1.0.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/aopalliance-1.0.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="commons-logging-1.1.1.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/commons-logging-1.1.1.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-context-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="jackson-core-2.4.3.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-core-2.4.3.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="spring-orm-4.1.4.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-orm-4.1.4.RELEASE.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="jackson-databind-2.4.3.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-databind-2.4.3.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="jackson-annotations-2.8.6.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-annotations-2.8.6.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="hibernate-commons-annotations-5.0.1.Final.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Database/hibernate-release-5.2.10.Final/lib/required/hibernate-commons-annotations-5.0.1.Final.jar">
@@ -173,6 +122,82 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="it.ltc.model.shared.jar" deploy-path="/lib" handle="module:/resource/it.ltc.model.shared/it.ltc.model.shared">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.dao.shared.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.dao.shared/it.ltc.database.dao.shared">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.model.validation.jar" deploy-path="/lib" handle="module:/resource/it.ltc.model.validation/it.ltc.model.validation">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ws.clara.war" deploy-path="/" handle="module:/resource/ws.clara/ws.clara">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-core-2.9.6.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-core-2.9.6.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-databind-2.9.6.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-databind-2.9.6.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-context-support-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-support-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-jcl-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-jcl-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-core-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-core-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="httpclient-4.5.5.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/httpclient-4.5.5.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-annotations-2.9.6.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/jackson-annotations-2.9.6.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-orm-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-orm-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-beans-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-beans-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-expression-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-expression-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-web-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-web-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-webmvc-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-webmvc-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-context-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-context-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-logging-1.2.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/commons-logging-1.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-codec-1.10.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/commons-codec-1.10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-tx-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-tx-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="httpcore-4.4.9.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/httpcore-4.4.9.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-aop-5.0.7.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-aop-5.0.7.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-config-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-config-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-web-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-web-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-core-3.2.5.RELEASE.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/ear/spring-security-core-3.2.5.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="log4j-1.2.17.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Logging/log4j-1.2.17.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
     </wb-module>

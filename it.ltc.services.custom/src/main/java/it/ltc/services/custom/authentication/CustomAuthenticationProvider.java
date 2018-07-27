@@ -39,7 +39,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     	if (user == null)
     		throw new BadCredentialsException(INVALID_CREDENTIALS);
     		//throw new CustomException(INVALID_CREDENTIALS, 401);
-    	return new UsernamePasswordAuthenticationToken(username, password, getAuthorities());
+    	UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password, getAuthorities());
+    	return token;
     }
 
 	@Override

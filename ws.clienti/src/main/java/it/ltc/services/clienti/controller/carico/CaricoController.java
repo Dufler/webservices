@@ -67,9 +67,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<CaricoJSON> inserisci(@Valid @RequestBody CaricoJSON carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di inserimento carico: " + carico);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di inserimento carico dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		CaricoJSON entity = dao.inserisci(carico);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -79,9 +78,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<IngressoDettaglioJSON> inserisciDettaglio(@Valid @RequestBody IngressoDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di inserimento dettaglio di carico: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di inserimento dettaglio di carico dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		IngressoDettaglioJSON entity = dao.inserisciDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -91,9 +89,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<IngressoJSON> modifica(@Valid @RequestBody IngressoJSON carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica carico: " + carico);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di modifica testata di carico dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		IngressoJSON entity = dao.aggiorna(carico);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -103,9 +100,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<IngressoDettaglioJSON> modificaDettaglio(@Valid @RequestBody IngressoDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica dettaglio carico: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di modifica di un dettaglio del carico dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		IngressoDettaglioJSON entity = dao.aggiornaDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -115,9 +111,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<IngressoJSON> elimina(@RequestBody IngressoJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di eliminazione carico: " + ingresso);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di eliminazione carico: " + ingresso + " dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		IngressoJSON entity = dao.elimina(ingresso);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -127,9 +122,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json", value="/dettaglio")
 	public ResponseEntity<IngressoDettaglioJSON> eliminaDettaglio(@RequestBody IngressoDettaglioJSON dettaglio, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di eliminazione dettaglio carico: " + dettaglio);
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di eliminazione dettaglio carico: " + dettaglio + "dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		IngressoDettaglioJSON entity = dao.eliminaDettaglio(dettaglio);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -139,9 +133,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<IngressoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di elenco carichi");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di elenco carichi dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		List<IngressoJSON> carichi = dao.trovaTutti();
 		HttpStatus status = carichi.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -152,9 +145,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<CaricoJSON> dettaglioDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
-		logger.info("Nuova richiesta di dettaglio carico");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di dettaglio carico ID: " + idCarico + " dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		CaricoJSON carico = dao.trovaDaID(idCarico, true);
 		HttpStatus status = (carico == null || carico.getIngresso() == null) ? HttpStatus.BAD_REQUEST : HttpStatus.OK;
@@ -164,11 +156,11 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<CaricoJSON> dettaglioDaRiferimento(@RequestBody IngressoJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di ricerca carico tramite riferimento");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		String riferimento = ingresso != null ? ingresso.getRiferimentoCliente() : null;
+		logger.info("Nuova richiesta di ricerca carico tramite riferimento: '" + riferimento + "' dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
-		CaricoJSON carico = dao.trovaDaRiferimento(ingresso.getRiferimentoCliente(), true);
+		CaricoJSON carico = dao.trovaDaRiferimento(riferimento, true);
 		HttpStatus status = (carico == null || carico.getIngresso() == null) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 		ResponseEntity<CaricoJSON> response = new ResponseEntity<CaricoJSON>(carico, status);
 		return response;
@@ -176,9 +168,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/semplice/{id}")
 	public ResponseEntity<CaricoJSON> dettaglioSempliceDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
-		logger.info("Nuova richiesta di dettaglio carico");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di dettaglio carico semplificato con ID: " + idCarico + " dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		CaricoJSON carico = dao.trovaDaID(idCarico, false);
 		HttpStatus status = (carico == null || carico.getIngresso() == null) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -188,9 +179,9 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/semplice/cerca")
 	public ResponseEntity<CaricoJSON> dettaglioSempliceDaRiferimento(@RequestBody IngressoJSON ingresso, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di ricerca carico tramite riferimento");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		String riferimento = ingresso != null ? ingresso.getRiferimentoCliente() : null;
+		logger.info("Nuova richiesta di ricerca carico tramite riferimento '" + riferimento + "' dall'utente: " + user.getUsername());
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);
 		CaricoJSON carico = dao.trovaDaRiferimento(ingresso.getRiferimentoCliente(), false);
 		HttpStatus status = (carico == null || carico.getIngresso() == null) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -200,9 +191,8 @@ public class CaricoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/modificacaricoditest")
 	public ResponseEntity<CaricoJSON> modificaCaricoDiTest(@Valid @RequestBody ModificaCaricoJSON modifiche, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di modifica per un carico di test.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_TEST);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di modifica per un carico di test dall'utente: " + user.getUsername());
 		HttpStatus status;
 		CaricoJSON carico;
 		CaricoDAO<?,?> dao = factory.getDao(user, commessa);

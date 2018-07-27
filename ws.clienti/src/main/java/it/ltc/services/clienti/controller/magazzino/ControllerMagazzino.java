@@ -34,9 +34,8 @@ public class ControllerMagazzino {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/tutti")
 	public ResponseEntity<List<InfoProdotto>> getGiacenza(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Nuova richiesta di sincronizzazione dell'intero magazzino.");
 		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
-		logger.info("Utente: '" + user.getUsername() + "'");
+		logger.info("Nuova richiesta di sincronizzazione dell'intero magazzino dall'utente: '" + user.getUsername() + "'");
 		HttpStatus status;
 		List<InfoProdotto> info;
 		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
@@ -57,9 +56,8 @@ public class ControllerMagazzino {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{magazzino}/tutti")
 	public ResponseEntity<List<InfoProdotto>> getGiacenzaPerMagazzino(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="magazzino") String magazzino) {
-		logger.info("Nuova richiesta di sincronizzazione magazzino per il magazzino '" + magazzino + "'.");
 		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
-		logger.info("Utente: '" + user.getUsername() + "'");
+		logger.info("Nuova richiesta di sincronizzazione magazzino per il magazzino '" + magazzino + "' dall'utente: '" + user.getUsername() + "'");
 		HttpStatus status;
 		List<InfoProdotto> info;
 		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {

@@ -1,5 +1,6 @@
 package it.ltc.services.sede.data.carico;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -7,6 +8,7 @@ import javax.persistence.EntityTransaction;
 
 import org.jboss.logging.Logger;
 
+import it.ltc.database.dao.CondizioneWhere;
 import it.ltc.database.dao.legacy.ColliCaricoDao;
 import it.ltc.database.dao.legacy.ColliPackDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
@@ -66,19 +68,12 @@ public class RiscontroColliLegacyDAOImpl extends ColliCaricoDao implements Risco
 		checkCarico(collo.getCarico());
 		checkMagazzino(collo.getMagazzino());
 		//Preparo le info necessarie
-		ColliCarico nuovoCollo = new ColliCarico();
-		nuovoCollo.setId_Box(collo.getBarcodeCliente());
-		nuovoCollo.setIdDocumento(collo.getCarico());
-		nuovoCollo.setMagazzino(collo.getMagazzino());
+		ColliCarico nuovoCollo = deserializza(collo);
+		//Trovo il progressivo
 		nuovoCollo.setNrCollo(getProgressivoNrCollo());
 		//Inserisco il collo a sistema
 		nuovoCollo = inserisci(nuovoCollo);
-		if (nuovoCollo != null) {
-			collo.setId(nuovoCollo.getIdCollo());
-			collo.setEtichetta("Etichetta ZPL");
-		} else {
-			collo = null;
-		}
+		collo = serializza(nuovoCollo);
 		return collo;
 	}
 
@@ -149,6 +144,66 @@ public class RiscontroColliLegacyDAOImpl extends ColliCaricoDao implements Risco
 			em.close();
 		}
 		return collo;
+	}
+
+	@Override
+	public List<ColloCaricoJSON> trovaColli(ColloCaricoJSON filtro) {
+		List<CondizioneWhere> condizioni = new LinkedList<>();
+		int carico = filtro.getCarico();
+		if (carico > 0) {
+			CondizioneWhere condizione = new CondizioneWhere("idDocumento", carico);
+			condizioni.add(condizione);
+		}
+		String operatoreCreazione = filtro.getOperatoreCreazione();
+		if (operatoreCreazione != null && !operatoreCreazione.isEmpty()) {
+			CondizioneWhere condizione = new CondizioneWhere("utente", operatoreCreazione);
+			condizioni.add(condizione);
+		}
+		String stato = filtro.getStato();
+		if (stato != null && !stato.isEmpty()) {
+			CondizioneWhere condizione = new CondizioneWhere("stato", stato);
+			condizioni.add(condizione);
+		}
+		List<ColliCarico> entities = findAll(condizioni, 100);
+		List<ColloCaricoJSON> colli = new LinkedList<>();
+		for (ColliCarico entity : entities) {
+			ColloCaricoJSON collo = serializza(entity);
+			colli.add(collo);
+		}
+		return colli;
+	}
+	
+	protected ColliCarico deserializza(ColloCaricoJSON json) {
+		ColliCarico nuovoCollo = new ColliCarico();
+		nuovoCollo.setId_Box(json.getBarcodeCliente());
+		nuovoCollo.setIdDocumento(json.getCarico());
+		nuovoCollo.setMagazzino(json.getMagazzino());
+		nuovoCollo.setUtente(json.getOperatoreCreazione());
+		nuovoCollo.setIdCollo(json.getId()); //In realtà non viene usato in quanto l'aggiornamento non sfrutta questo metodo ma fa considerazioni particolari.
+		nuovoCollo.setStato(json.getStato());
+		Integer opeUbica;
+		try { opeUbica = Integer.parseInt(json.getOperatoreUbicazione());} catch (Exception e) {opeUbica = -1;}
+		nuovoCollo.setOpeUbica(opeUbica);
+		return nuovoCollo;
+	}
+
+	protected ColloCaricoJSON serializza(ColliCarico entity) {
+		ColloCaricoJSON json;
+		if (entity != null) {
+			json = new ColloCaricoJSON();
+			json.setBarcodeCliente(entity.getId_Box());
+			json.setCarico(entity.getIdDocumento());
+			json.setEtichetta("Etichetta ZPL");
+			json.setId(entity.getIdCollo());
+			json.setCollo(entity.getKeyColloCar());
+			json.setMagazzino(entity.getMagazzino());
+			json.setOperatoreCreazione(entity.getUtente());
+			json.setOperatoreUbicazione(entity.getOpeUbica() != null ? entity.getOpeUbica().toString() : null);
+			json.setUbicazione(entity.getKeyUbicaCar());
+		} else {
+			json = null;
+		}
+		return json;
 	}
 
 }

@@ -93,13 +93,13 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 	protected void updateValues(Contatto oldEntity, Contatto entity) {
 		oldEntity.setCognome(entity.getCognome());
 		//oldEntity.setDataDiNascita(entity.getDataDiNascita());
-		oldEntity.setEmail(entity.getEmail());
+		//oldEntity.setEmail(entity.getEmail());
 		oldEntity.setIndirizzo(entity.getIndirizzo());
 		oldEntity.setNome(entity.getNome());
 		oldEntity.setRuolo(entity.getRuolo());
-		oldEntity.setTelefono(entity.getTelefono());
-		oldEntity.setTitolo(entity.getTitolo());
-		
+		//oldEntity.setTelefono(entity.getTelefono());
+		//oldEntity.setTitolo(entity.getTitolo());
+		oldEntity.setDescrizione(entity.getDescrizione());
 	}
 
 }

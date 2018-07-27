@@ -1,5 +1,7 @@
 package it.ltc.services.sede.controller.carico;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.jboss.logging.Logger;
@@ -39,10 +41,23 @@ public class RiscontroColliController extends RestController {
 	    binder.setValidator(validator);
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
+	public ResponseEntity<List<ColloCaricoJSON>> cerca(@RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
+		logger.info("Ricerca colli nel carico.");
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		RiscontroColliDAO dao = getDao(user, commessa);
+		List<ColloCaricoJSON> colli = dao.trovaColli(collo);
+		HttpStatus status = colli.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		ResponseEntity<List<ColloCaricoJSON>> response = new ResponseEntity<List<ColloCaricoJSON>>(colli, status);
+		return response;
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<ColloCaricoJSON> inserisci(@Valid @RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo collo nel carico.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		//Inserisco l'utente che ha fatto la chiamata nel collo come creatore.
+		collo.setOperatoreCreazione(user.getUsername());
 		RiscontroColliDAO dao = getDao(user, commessa);
 		collo = dao.nuovoCollo(collo);
 		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;

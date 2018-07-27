@@ -19,6 +19,9 @@
 		<project>it.ltc.database.model.legacyltc</project>
 		<project>it.ltc.database.dao.legacy</project>
 		<project>it.ltc.model.shared</project>
+		<project>it.ltc.database.dao.shared</project>
+		<project>it.ltc.model.validation</project>
+		<project>ws.clara</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
