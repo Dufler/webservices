@@ -118,6 +118,11 @@ public enum Permessi {
 	UFFICIO_INGRESSI(22),
 	
 	/**
+	 * Permette di eliminare completamente un carico.
+	 */
+	UFFICIO_INGRESSI_ELIMINA(56),
+	
+	/**
 	 * Permette di eseguire operazioni sulle uscite di merce.
 	 */
 	UFFICIO_USCITE(23),

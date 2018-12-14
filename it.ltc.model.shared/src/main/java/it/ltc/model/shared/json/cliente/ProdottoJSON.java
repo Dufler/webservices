@@ -32,6 +32,7 @@ public class ProdottoJSON {
 	private String skuFornitore;
 	private String barcodeFornitore;
 	private String note;
+	private int pezziEffettivi;
 	
 	@JsonInclude(Include.NON_NULL) //Solo alcuni clienti hanno questa feature.
 	private String particolarita;
@@ -250,6 +251,14 @@ public class ProdottoJSON {
 
 	public void setDataUltimaModifica(Date dataUltimaModifica) {
 		this.dataUltimaModifica = dataUltimaModifica;
+	}
+
+	public int getPezziEffettivi() {
+		return pezziEffettivi;
+	}
+
+	public void setPezziEffettivi(int pezziEffettivi) {
+		this.pezziEffettivi = pezziEffettivi;
 	}
 
 	@Override

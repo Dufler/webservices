@@ -25,6 +25,12 @@ public class IngressoDettaglioJSON {
 	@JsonInclude(value=Include.NON_NULL)
 	private String note;
 	
+	/**
+	 *Osservazioni fatte da ltc, (campo note in pakiarticolo) ci andiamo a mettere qualche nota per noi (es. taglia diversa, pezzo con difetto, ...) 
+	 */
+	@JsonInclude(value=Include.NON_NULL)
+	private String osservazioni;
+	
 	@JsonInclude(value=Include.NON_EMPTY)
 	private List<String> seriali;
 	
@@ -100,6 +106,14 @@ public class IngressoDettaglioJSON {
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public String getOsservazioni() {
+		return osservazioni;
+	}
+
+	public void setOsservazioni(String osservazioni) {
+		this.osservazioni = osservazioni;
 	}
 
 	public String getMadeIn() {

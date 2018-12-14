@@ -285,7 +285,7 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 			if (articolo != null)
 				condizioni.add(new CondizioneWhere("codArtStr", articolo.getCodArtStr()));
 		}
-		List<ColliPack> entities = findAll(condizioni, 100);
+		List<ColliPack> entities = findAll(condizioni);
 		List<ProdottoCaricoJSON> prodotti = new LinkedList<>();
 		for (ColliPack entity : entities) {
 			ProdottoCaricoJSON collo = serializza(entity);
@@ -303,7 +303,7 @@ public class RiscontroProdottiLegacyDAOImpl extends ColliPackDao implements Risc
 			json.setCollo(collo != null ? collo.getIdCollo() : 0);
 			json.setId(entity.getIdColliPack());
 			json.setOperatoreCreazione(entity.getOperatore());
-			Articoli articolo = daoArticoli.trovaDaSKU(entity.getCodArtStr());
+			Articoli articolo = daoArticoli.trovaDaIDUnivoco(entity.getCodiceArticolo());
 			json.setProdotto(articolo != null ? articolo.getIdArticolo() : 0);
 			json.setQuantita(entity.getQta());
 			json.setRiga(entity.getIdPakiarticolo());

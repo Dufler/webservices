@@ -45,7 +45,7 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 		spedizione.setDataConsegna(dataConsegna);
 		String note = infoSpedizione.getNote() != null ? infoSpedizione.getNote() : "";
 		String note1 = note.length() > 35 ? note.substring(0, 35) : note;
-		String note2 = note.length() > 35 ? note.substring(35, note.length()) : "";
+		String note2 = note.length() > 35 ? note.substring(35, note.length() > 70 ? 70 : note.length()) : "";
 		spedizione.setNote1(note1);
 		spedizione.setNote2(note2);
 		spedizione.setServizio(infoSpedizione.getServizioCorriere());
@@ -152,7 +152,7 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 		spedizione.setCap(destinatario.getCap());
 		spedizione.setIndirizzo(destinatario.getIndirizzo());
 		spedizione.setLocalita(destinatario.getLocalita());
-		spedizione.setNazione(destinatario.getNazione());
+		spedizione.setNazione(destinatario.getCodIso());
 		spedizione.setProvincia(destinatario.getProvincia());
 		spedizione.setRagSocDest(destinatario.getRagSoc1());
 		spedizione.setRagSocEst(destinatario.getRagSoc2());
@@ -168,7 +168,6 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 			spedizione.setNrLista(ordine.getNrLista());
 			//Aggiorno le info dell'ordine necessarie
 			ordine.setStato("INSP");
-			ordine.setCodCorriere(infoSpedizione.getCorriere());
 			ordine.setCodCorriere(infoSpedizione.getCorriere());
 			ordine.setCodiceClienteCorriere(infoSpedizione.getCodiceCorriere());
 			if (infoContrassegno != null) {

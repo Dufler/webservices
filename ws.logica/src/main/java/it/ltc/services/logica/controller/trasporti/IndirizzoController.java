@@ -78,7 +78,7 @@ public class IndirizzoController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	public ResponseEntity<Indirizzo> nuovoIndirizzo(@RequestHeader("authorization") String authenticationString, @Valid @RequestBody Indirizzo nuovoIndirizzo) {
 		checkCredentialsAndPermission(authenticationString, PERMESSO_GESTIONE);
-		Indirizzo indirizzo = daoIndirizzi.inserisci(nuovoIndirizzo);
+		Indirizzo indirizzo = daoIndirizzi.salvaIndirizzo(nuovoIndirizzo);
 		HttpStatus status = indirizzo != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
 		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(indirizzo, status);
 		return response;
@@ -87,7 +87,7 @@ public class IndirizzoController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", consumes = "application/json")
 	public ResponseEntity<Indirizzo> modificaIndirizzo(@RequestHeader("authorization") String authenticationString, @Valid @RequestBody Indirizzo indirizzo) {
 		checkCredentialsAndPermission(authenticationString, PERMESSO_GESTIONE);
-		Indirizzo entity = daoIndirizzi.aggiorna(indirizzo);
+		Indirizzo entity = daoIndirizzi.salvaIndirizzo(indirizzo);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
 		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(entity, status);
 		return response;

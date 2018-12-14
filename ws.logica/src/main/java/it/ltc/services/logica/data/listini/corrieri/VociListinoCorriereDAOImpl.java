@@ -121,7 +121,8 @@ public class VociListinoCorriereDAOImpl extends CRUDDao<ListinoCorriereVoce> imp
 			json.setIdVoce(voce.getId());
 			ListinoCorriereVoceScaglioni scaglione = deserializza(json);
 			ListinoCorriereVoceScaglioni dettaglio = daoScaglioni.inserisci(scaglione);
-			inseriti.add(serializza(dettaglio));
+			if (dettaglio != null)
+				inseriti.add(serializza(dettaglio));
 		}
 		entity.setScaglioni(inseriti);
 	}
@@ -185,7 +186,8 @@ public class VociListinoCorriereDAOImpl extends CRUDDao<ListinoCorriereVoce> imp
 			json.setIdVoce(voce.getId());
 			ListinoCorriereVoceScaglioni scaglione = deserializza(json);
 			ListinoCorriereVoceScaglioni dettaglio = daoScaglioni.inserisci(scaglione);
-			aggiornati.add(serializza(dettaglio));
+			if (dettaglio != null)
+				aggiornati.add(serializza(dettaglio));
 		}
 		entity.setScaglioni(aggiornati);
 	}

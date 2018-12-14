@@ -3,6 +3,7 @@ package it.ltc.services.clienti.data.ordine;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -22,6 +23,7 @@ import it.ltc.database.dao.Dao;
 import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.dao.legacy.ColliImballoDao;
 import it.ltc.database.dao.legacy.ImballoDao;
+import it.ltc.database.dao.legacy.MagaMovDao;
 import it.ltc.database.dao.legacy.MagaSdDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
 import it.ltc.database.dao.legacy.RighiOrdineDao;
@@ -43,6 +45,7 @@ import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.TestaCorr;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.TestataOrdiniTipo;
+import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.database.model.legacy.model.StatoOrdine;
 import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
 import it.ltc.model.shared.json.cliente.DocumentoJSON;
@@ -71,6 +74,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	protected final RighiOrdineDao daoRigheOrdine;
 	protected final TestataOrdiniTipoDao daoTipiOrdine;
 	protected final MagaSdDao daoSaldi;
+	protected final MagaMovDao daoMovimenti;
 	protected final ColliImballoDao daoColliImballati;
 	
 	private final Set<String> tipiRiga;
@@ -91,6 +95,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		daoRigheOrdine = new RighiOrdineDao(persistenceUnit);
 		daoTipiOrdine = new TestataOrdiniTipoDao(persistenceUnit);
 		daoSaldi = new MagaSdDao(persistenceUnit);
+		daoMovimenti = new MagaMovDao(persistenceUnit);
 		daoColliImballati = new ColliImballoDao(persistenceUnit);
 		tipiRiga = new HashSet<>();
 		magazzini = new HashMap<>();
@@ -548,7 +553,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			// - altrimenti aggiorno la disponibilita' e l'impegno e genero il movimento di magazzino.
 			if (saldo == null || saldo.getDisponibile() < prodotto.getQtaSpedizione()) {
 				String message = "La riga " + prodotto.getNrRigo() + " non e' valida. (SKU: '" + prodotto.getCodiceArticolo() + "')";
-				String reason = saldo != null ? "la quantita' disponibile è insufficiente (saldo disponibile: " + saldo.getDisponibile() + ", quantità richiesta: " + prodotto.getQtaSpedizione() + ")" : "Non esiste a magazzino.";
+				String reason = saldo != null ? "la quantita' disponibile è insufficiente (saldo disponibile: " + saldo.getDisponibile() + ", quantità richiesta: " + prodotto.getQtaSpedizione() + ")" : "Non è disponibile a magazzino.";
 				CustomErrorCause cause = new CustomErrorCause(message, reason);
 				righeNonValide.add(cause);
 				logger.warn(message + reason);
@@ -558,7 +563,8 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				saldo.setDisponibile(disponibile);
 				saldo.setImpegnato(impegnato);
 				//saldi.add(saldo);
-				MagaMov movimento = getMovimento(saldo, prodotto);
+				//MagaMov movimento = getMovimento(saldo, prodotto);
+				MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
 				movimenti.add(movimento);
 			}
 		}
@@ -608,28 +614,28 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		return finalizza;
 	}
 
-	private MagaMov getMovimento(MagaSd saldo, RighiOrdine prodotto) {
-		MagaMov movimento = new MagaMov();
-		movimento.setCausale("IOS");
-		movimento.setDocNr(prodotto.getNrLista());
-		movimento.setDocData(prodotto.getDataOrdine());
-		movimento.setDocCat("O");
-		movimento.setDocNote("Impegnato da ordine cliente.");
-		movimento.setDocTipo("ORD");
-		movimento.setCodMaga(prodotto.getMagazzino());
-		movimento.setDisponibilemov(saldo.getDisponibile());
-		movimento.setEsistenzamov(saldo.getEsistenza());
-		movimento.setImpegnatomov(saldo.getImpegnato());
-		movimento.setSegno("+");
-		movimento.setSegnoDis("-");
-		movimento.setSegnoEsi("N");
-		movimento.setSegnoImp("+");
-		movimento.setIdUniArticolo(prodotto.getIdUnicoArt());
-		movimento.setIncTotali("NO");
-		movimento.setTipo("IP");
-		movimento.setQuantita(prodotto.getQtaSpedizione());
-		return movimento;
-	}
+//	private MagaMov getMovimento(MagaSd saldo, RighiOrdine prodotto) {
+//		MagaMov movimento = new MagaMov();
+//		movimento.setCausale("IOS");
+//		movimento.setDocNr(prodotto.getNrLista());
+//		movimento.setDocData(prodotto.getDataOrdine());
+//		movimento.setDocCat("O");
+//		movimento.setDocNote("Impegnato da ordine cliente.");
+//		movimento.setDocTipo("ORD");
+//		movimento.setCodMaga(prodotto.getMagazzino());
+//		movimento.setDisponibilemov(saldo.getDisponibile());
+//		movimento.setEsistenzamov(saldo.getEsistenza());
+//		movimento.setImpegnatomov(saldo.getImpegnato());
+//		movimento.setSegno("+");
+//		movimento.setSegnoDis("-");
+//		movimento.setSegnoEsi("N");
+//		movimento.setSegnoImp("+");
+//		movimento.setIdUniArticolo(prodotto.getIdUnicoArt());
+//		movimento.setIncTotali("NO");
+//		movimento.setTipo("IP");
+//		movimento.setQuantita(prodotto.getQtaSpedizione());
+//		return movimento;
+//	}
 
 	@Override
 	public TestataOrdini deserializzaUscita(OrdineJSON jsonOrdine) {
@@ -638,6 +644,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Riferimento
 		ordine.setRifOrdineCli(json.getRiferimentoOrdine());
 		ordine.setNrOrdine(json.getRiferimentoOrdine());
+		ordine.setRagioneSocialeDestinatario(json.getDestinatario() != null ? json.getDestinatario().getRagioneSociale() : "");
 		// Dati sull'ordine
 		ordine.setQtaTotaleSpedire(json.getPezziOrdinati());
 		ordine.setTipoOrdine(json.getTipo());
@@ -667,6 +674,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		if (!isMagazzinoEsistente(json.getMagazzino()))
 			throw new CustomException("Il magazzino indicato non esiste. ( " + json.getMagazzino() + " )");
 		RighiOrdine dettaglio = new RighiOrdine();
+		dettaglio.setIdArticolo(prodotto.getIdArticolo());
 		dettaglio.setCodBarre(prodotto.getCodBarre());
 		dettaglio.setBarraEAN(prodotto.getBarraEAN());
 		dettaglio.setBarraUPC(prodotto.getBarraUPC());
@@ -1102,7 +1110,6 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			//Aggiorno le info dell'ordine necessarie
 			ordine.setStato("INSP");
 			ordine.setCodCorriere(infoSpedizione.getCorriere());
-			ordine.setCodCorriere(infoSpedizione.getCorriere());
 			ordine.setCodiceClienteCorriere(infoSpedizione.getCodiceCorriere());
 			if (infoContrassegno != null) {
 				ordine.setTipoIncasso(infoContrassegno.getTipo());
@@ -1212,7 +1219,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				problemiRiscontrati.add(problema);
 			}
 			// Controllo che il destinatario sia lo stesso per tutti
-			if (spedizione.isForzaAccoppiamentoDestinatari()) {
+			if (!spedizione.isForzaAccoppiamentoDestinatari()) {
 				if (idDestina == -1) {
 					idDestina = ordine.getIdDestina();
 				} else if (idDestina != ordine.getIdDestina()) {

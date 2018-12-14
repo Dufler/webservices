@@ -18,18 +18,19 @@ import javax.persistence.criteria.Root;
 import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.legacy.ArticoliDao;
-import it.ltc.database.dao.legacy.ColliPackSerialiDao;
+import it.ltc.database.dao.legacy.ColliCaricoDao;
+import it.ltc.database.dao.legacy.ColliPackDao;
 import it.ltc.database.dao.legacy.FornitoreDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
 import it.ltc.database.dao.legacy.PakiArticoloDao;
 import it.ltc.database.dao.legacy.PakiTestaDao;
 import it.ltc.database.dao.legacy.PakiTestaTipoDao;
 import it.ltc.database.model.legacy.Articoli;
+import it.ltc.database.model.legacy.ColliPack;
 import it.ltc.database.model.legacy.Fornitori;
 import it.ltc.database.model.legacy.Magazzini;
 import it.ltc.database.model.legacy.PakiArticolo;
 import it.ltc.database.model.legacy.PakiTesta;
-import it.ltc.database.model.legacy.seriale.ColliPackConSeriale;
 import it.ltc.model.shared.json.cliente.CaricoJSON;
 import it.ltc.model.shared.json.cliente.DocumentoJSON;
 import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
@@ -44,13 +45,15 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 
 	private static final Logger logger = Logger.getLogger("CaricoLegacyDAOImpl");
 
-	private final PakiTestaTipoDao daoTipo;
-	private final FornitoreDao daoFornitore;
-	private final PakiArticoloDao daoPakiArticolo;
-	private final ArticoliDao daoProdotti;
-	private final ColliPackSerialiDao daoColliPack;
-	private final MagazzinoDao daoMagazzini;
-	private final HashMap<String, Magazzini> mappaMagazzini;
+	protected final PakiTestaTipoDao daoTipo;
+	protected final FornitoreDao daoFornitore;
+	protected final PakiArticoloDao daoPakiArticolo;
+	protected final ArticoliDao daoProdotti;
+	protected final ColliPackDao daoColliPack;
+	protected final ColliCaricoDao daoColliCarico;
+	//protected final ColliPackSerialiDao daoColliPack;
+	protected final MagazzinoDao daoMagazzini;
+	protected final HashMap<String, Magazzini> mappaMagazzini;
 
 	public CaricoLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
@@ -58,7 +61,9 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		daoFornitore = new FornitoreDao(persistenceUnit);
 		daoPakiArticolo = new PakiArticoloDao(persistenceUnit);
 		daoProdotti = new ArticoliDao(persistenceUnit);
-		daoColliPack = new ColliPackSerialiDao(persistenceUnit);
+		daoColliPack = new ColliPackDao(persistenceUnit);
+		daoColliCarico = new ColliCaricoDao(persistenceUnit);
+		//daoColliPack = new ColliPackSerialiDao(persistenceUnit);
 		daoMagazzini = new MagazzinoDao(persistenceUnit);
 		mappaMagazzini = new HashMap<>();
 	}
@@ -70,9 +75,9 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		if (carico != null && dettagliato) {
 			dettagli = daoPakiArticolo.trovaRigheDaCarico(idCarico);
 			//Recupero i seriali e ne faccio una mappa
-			List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
+			List<ColliPack> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
 			HashMap<Integer, List<String>> mappaSerialiPerRiga = new HashMap<>();
-			for (ColliPackConSeriale seriale : seriali) {
+			for (ColliPack seriale : seriali) {
 				//Controllo che il seriale sia stato effettivamente inserito a sistema, se non c'è lo salto.
 				String rfid = seriale.getSeriale();
 				if (rfid == null || rfid.isEmpty())
@@ -107,9 +112,9 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 			if (dettagliato && statoOk) {
 				dettagli = daoPakiArticolo.trovaRigheDaCarico(carico.getIdTestaPaki());
 				//Recupero i seriali e ne faccio una mappa
-				List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
+				List<ColliPack> seriali = daoColliPack.trovaProdottiNelCarico(carico.getIdTestaPaki());
 				HashMap<Integer, List<String>> mappaSerialiPerRiga = new HashMap<>();
-				for (ColliPackConSeriale seriale : seriali) {
+				for (ColliPack seriale : seriali) {
 					//Controllo che il seriale sia stato effettivamente inserito a sistema, se non c'è lo salto.
 					String rfid = seriale.getSeriale();
 					if (rfid == null || rfid.isEmpty())
@@ -199,7 +204,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 	 */
 	private boolean generaSerialiPerCaricoDiTest(int idCarico) {
 		boolean generazione;
-		List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
+		List<ColliPack> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
 		if (seriali.isEmpty()) {
 			//Preparo le informazioni necessarie alla generazione dei seriali
 			Date now = new Date();
@@ -214,7 +219,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 				for (int i=0; i < quantita; i++) {
 					String stringaSeriale = df.format(seriale);
 					seriale += 1;
-					ColliPackConSeriale nuovoSeriale = new ColliPackConSeriale();
+					ColliPack nuovoSeriale = new ColliPack();
 					nuovoSeriale.setCodArtStr(dettaglio.getCodArtStr());
 					nuovoSeriale.setCodiceArticolo(dettaglio.getCodUnicoArt());
 					nuovoSeriale.setNrIdColloPk(dettaglio.getBarcodeCollo());
@@ -242,7 +247,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 	
 	private boolean eliminaSerialiPerCaricoDiTest(int idCarico) {
 		logger.info("eliminazione seriali randomici");
-		List<ColliPackConSeriale> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
+		List<ColliPack> seriali = daoColliPack.trovaProdottiNelCarico(idCarico);
 		seriali = daoColliPack.elimina(seriali);
 		boolean delete = seriali != null; 
 		return delete;
@@ -492,26 +497,32 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		}
 		return json;
 	}
+	
+	protected PakiTesta checkEliminazioneCarico(IngressoJSON json) {
+		// Controllo l'esistenza del riferimento al carico
+		PakiTesta carico = trovaDaRiferimento(json.getRiferimentoCliente());
+		if (carico == null)
+			throw new CustomException("Non esiste nessun carico con questo riferimento. (" + json.getRiferimentoCliente() + ")");
+		// Controllo lo stato, deve essere 'INSERITO'
+		if (!"INSERITO".equals(carico.getStato()))
+			throw new CustomException("Il carico richiesto non è più eliminabile.");
+		return carico;
+	}
 
 	@Override
 	public IngressoJSON elimina(IngressoJSON json) {
-		// Controllo l'esistenza del riferimento al carico
-		PakiTesta esistente = trovaDaRiferimento(json.getRiferimentoCliente());
-		if (esistente == null)
-			throw new CustomException("Non esiste nessun carico con questo riferimento. (" + json.getRiferimentoCliente() + ")");
-		// Controllo lo stato, deve essere 'INSERITO'
-		if (!"INSERITO".equals(esistente.getStato()))
-			throw new CustomException("Il carico richiesto non è più eliminabile.");
-		// Delete
+		//Eseguo i controlli necessari
+		PakiTesta carico = checkEliminazioneCarico(json);
+		// Delete - Imposto lo stato ad annullato ed elimino i collipack e collicarico collegati.
 		EntityManager em = getManager();
-		esistente = em.find(PakiTesta.class, esistente.getIdTestaPaki());
+		carico = em.find(PakiTesta.class, carico.getIdTestaPaki());
 		EntityTransaction t = em.getTransaction();
 		try {
 			t.begin();
-			em.remove(esistente);
+			em.remove(carico);			
 			t.commit();
-			json = serializzaIngresso(esistente);
-			logger.info("Carico eliminato!");
+			json = serializzaIngresso(carico);
+			logger.info("Carico annullato!");
 		} catch (Exception e) {
 			logger.error(e);
 			json = null;
@@ -588,6 +599,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 			Date dataArrivo = ingresso.getDataArrivo() != null ? ingresso.getDataArrivo() : new Date();
 			carico.setDataArrivo(new Timestamp(dataArrivo.getTime()));
 			carico.setNrPaki(ingresso.getRiferimentoCliente());
+			carico.setTipoCarico(ingresso.getTipo());
 			carico.setTipodocumento(ingresso.getTipo());
 			carico.setQtaTotAto(ingresso.getPezziStimati());
 			carico.setNote(ingresso.getNote());
@@ -637,13 +649,13 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		if (magazzino == null)
 			throw new CustomException("Il magazzino indicato non esiste. ( " + item.getMagazzino() + " )");
 		PakiArticolo dettaglio = new PakiArticolo();
+		dettaglio.setIdArticolo(prodotto.getIdArticolo());
 		dettaglio.setRigaPacki(item.getRiga());
 		dettaglio.setBarcodeCollo(item.getCollo());
-		dettaglio.setCodBarre(prodotto.getIdUniArticolo());
+		dettaglio.setCodBarre(prodotto.getCodBarre());
 		dettaglio.setCodUnicoArt(prodotto.getIdUniArticolo());
 		dettaglio.setCodArtStr(prodotto.getCodArtStr());
 		dettaglio.setMagazzino(item.getMagazzino());
-		//dettaglio.setMagazzinoltc(item.getMagazzino());
 		dettaglio.setMagazzinoltc(magazzino.getCodiceMag());
 		dettaglio.setQtaPaki(item.getQuantitaPrevista());
 		dettaglio.setNrDispo(item.getNote());
@@ -709,6 +721,7 @@ public class CaricoLegacyDAOImpl extends PakiTestaDao implements CaricoDAO<PakiT
 		item.setQuantitaVerificata(dettaglio.getQtaVerificata());
 		item.setQuantitaPrevista(dettaglio.getQtaPaki());
 		item.setNote(dettaglio.getNrDispo());
+		item.setOsservazioni(dettaglio.getNote());
 		item.setMadeIn(dettaglio.getMadeIn());
 		//Aggiungo i seriali, se presenti
 		List<String> seriali = dettaglio.getSeriali();

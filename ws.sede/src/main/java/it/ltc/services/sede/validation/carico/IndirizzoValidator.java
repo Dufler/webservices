@@ -87,7 +87,7 @@ public class IndirizzoValidator implements Validator {
 			errors.reject("telefono.lunghezza", "Il numero telefonico specificato e' troppo lungo (MAX 20 Caratteri).");
 		
 		String email = indirizzo.getEmail();
-		if (email != null) {
+		if (email != null && !email.isEmpty()) {
 			if (!email.matches(REGEX_EMAIL))
 				errors.reject("email.valida", "L'indirizzo email indicato non e' valido.");
 			if (email.length() > 100)

@@ -74,7 +74,7 @@ public class IndirizzoValidator implements Validator {
 		else {
 			Provincia p = daoProvince.trovaDaSigla(provincia);
 			if (p == null)
-				errors.reject("provincia.valida", "E' necessario specificare una provincia esistente per l'indirizzo.");
+				errors.reject("provincia.valida", "E' necessario specificare una provincia esistente per l'indirizzo. (" + provincia + ")");
 		}
 		
 		String nazione = indirizzo.getNazione();
@@ -85,7 +85,7 @@ public class IndirizzoValidator implements Validator {
 		} else {
 			n = daoNazioni.trovaDaCodiceISO3(nazione);
 			if (n == null)
-				errors.reject("nazione.valida", "E' necessario specificare una nazione esistente per l'indirizzo.");
+				errors.reject("nazione.valida", "E' necessario specificare una nazione esistente per l'indirizzo. (" + nazione + ")");
 		}
 		
 		String cap = indirizzo.getCap();
@@ -110,7 +110,7 @@ public class IndirizzoValidator implements Validator {
 		String email = indirizzo.getEmail();
 		if (email != null) {
 			if (!email.matches(REGEX_EMAIL))
-				errors.reject("email.valida", "L'indirizzo email indicato non e' valido.");
+				errors.reject("email.valida", "L'indirizzo email indicato non e' valido. (" + email + ")");
 			if (email.length() > 100)
 				errors.reject("email.lunghezza", "L'indirizzo email specificato e' troppo lungo (MAX 100 Caratteri).");
 		}

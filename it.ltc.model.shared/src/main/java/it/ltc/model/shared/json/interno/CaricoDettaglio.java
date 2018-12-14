@@ -2,6 +2,9 @@ package it.ltc.model.shared.json.interno;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Classe che modella il flusso dati per una riga del dichiarato di un carico.
  * @author Damiano
@@ -23,6 +26,7 @@ public class CaricoDettaglio {
 	private String madeIn;
 	private String colloCliente;
 	
+	@JsonInclude(value=Include.NON_EMPTY)
 	private List<String> seriali;
 	
 	public CaricoDettaglio() {}

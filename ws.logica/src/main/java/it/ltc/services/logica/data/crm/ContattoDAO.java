@@ -3,6 +3,7 @@ package it.ltc.services.logica.data.crm;
 import java.util.List;
 
 import it.ltc.database.model.centrale.Contatto;
+import it.ltc.database.model.centrale.Indirizzo;
 
 public interface ContattoDAO {
 	
@@ -19,5 +20,9 @@ public interface ContattoDAO {
 	public Contatto aggiorna(Contatto contatto);
 	
 	public Contatto elimina(Contatto contatto);
+
+	public Indirizzo trovaIndirizzo(int idContatto);
+
+	public Indirizzo salvaIndirizzo(int idContatto, Indirizzo indirizzo);
 
 }

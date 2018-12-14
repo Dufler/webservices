@@ -85,7 +85,7 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 						CriteriaBuilder cb = em.getCriteriaBuilder();
 				        CriteriaQuery<CdgPezzoEvento> criteria = cb.createQuery(CdgPezzoEvento.class);
 				        Root<CdgPezzoEvento> member = criteria.from(CdgPezzoEvento.class);
-				        criteria.select(member).where(cb.equal(member.get("id").get("pezzo"), oldEntity.getId()));
+				        criteria.select(member).where(cb.equal(member.get("pezzo"), oldEntity.getId()));
 						List<CdgPezzoEvento> lista = em.createQuery(criteria).getResultList();
 						for (CdgPezzoEvento abbinamento : lista) {
 							em.remove(abbinamento);
@@ -137,7 +137,7 @@ public class PezzoDAOImpl extends CRUDDao<CdgPezzo> implements PezzoDAO {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<CdgPezzoEvento> criteria = cb.createQuery(CdgPezzoEvento.class);
         Root<CdgPezzoEvento> member = criteria.from(CdgPezzoEvento.class);
-        criteria.select(member).where(cb.equal(member.get("id").get("pezzo"), pezzo.getId()));
+        criteria.select(member).where(cb.equal(member.get("pezzo"), pezzo.getId()));
 		List<CdgPezzoEvento> lista = em.createQuery(criteria).getResultList();
 		em.close();
         return lista;

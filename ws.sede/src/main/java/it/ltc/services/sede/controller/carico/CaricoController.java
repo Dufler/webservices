@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.model.utente.Utente;
 import it.ltc.model.shared.dao.ICaricoDao;
+import it.ltc.model.shared.json.interno.CaricoStato;
 import it.ltc.model.shared.json.interno.CaricoTestata;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.permission.Permessi;
@@ -30,7 +31,8 @@ import it.ltc.services.sede.validation.carico.CaricoTestataValidator;
 public class CaricoController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
-	public static final int ID_CRUD_CARICHI = Permessi.UFFICIO_INGRESSI.getID();
+	public static final int ID_CRU_CARICHI = Permessi.UFFICIO_INGRESSI.getID();
+	public static final int ID_D_CARICHI = Permessi.UFFICIO_INGRESSI_ELIMINA.getID();
 	
 	private static final Logger logger = Logger.getLogger("CaricoController");
 	
@@ -70,10 +72,22 @@ public class CaricoController extends RestController {
 		return response;
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/stati/{id}")
+	public ResponseEntity<List<CaricoStato>> statiDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
+		logger.info("Nuova richiesta di stati del carico");
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Utente: " + user.getUsername());
+		ICaricoDao dao = factory.getDao(user, commessa);
+		List<CaricoStato> stati = dao.trovaStati(idCarico);
+		HttpStatus status = stati.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		ResponseEntity<List<CaricoStato>> response = new ResponseEntity<List<CaricoStato>>(stati, status);
+		return response;
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<CaricoTestata> inserisci(@Valid @RequestBody CaricoTestata carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRU_CARICHI);
 		ICaricoDao dao = factory.getDao(user, commessa);
 		carico = dao.inserisci(carico);
 		HttpStatus status = carico != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -84,7 +98,7 @@ public class CaricoController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<CaricoTestata> aggiorna(@Valid @RequestBody CaricoTestata carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Aggiornamento del carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRU_CARICHI);
 		ICaricoDao dao = factory.getDao(user, commessa);
 		carico = dao.aggiorna(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -95,7 +109,7 @@ public class CaricoController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", value="/modificastato")
 	public ResponseEntity<CaricoTestata> modificaStato(@Valid @RequestBody CaricoTestata carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Modifico lo stato del carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRU_CARICHI);
 		ICaricoDao dao = factory.getDao(user, commessa);
 		carico = dao.modificaStato(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -106,7 +120,7 @@ public class CaricoController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<CaricoTestata> elimina(@RequestBody CaricoTestata carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Eliminazione del carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_D_CARICHI);
 		ICaricoDao dao = factory.getDao(user, commessa);
 		carico = dao.elimina(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;

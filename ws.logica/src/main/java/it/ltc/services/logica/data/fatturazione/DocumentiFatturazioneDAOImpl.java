@@ -49,12 +49,6 @@ public class DocumentiFatturazioneDAOImpl extends CRUDDao<FatturaDocumento> impl
 		FatturaDocumento entity = update(documento, documento.getId());
 		return entity;
 	}
-
-//	@Override
-//	public FatturaDocumento elimina(FatturaDocumento documento) {
-//		FatturaDocumento entity = delete(documento.getId());
-//		return entity;
-//	}
 	
 	@Override
 	public FatturaDocumento elimina(FatturaDocumento documento) {

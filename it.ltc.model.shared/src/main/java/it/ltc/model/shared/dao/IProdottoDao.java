@@ -7,6 +7,12 @@ import it.ltc.model.shared.json.cliente.ProdottoJSON;
 
 public interface IProdottoDao {
 	
+	/**
+	 * Imposta l'utente che ha richiesto i servizi del dao.
+	 * @param utente
+	 */
+	public void setUtente(String utente);
+	
 	public ProdottoJSON trovaPerID(int id);
 	
 	public ProdottoJSON trovaPerSKU(String sku);

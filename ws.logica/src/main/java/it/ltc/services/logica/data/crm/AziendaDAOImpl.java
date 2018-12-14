@@ -8,16 +8,24 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.IndirizzoDao;
 import it.ltc.database.model.centrale.Azienda;
 import it.ltc.database.model.centrale.AziendaBrand;
 import it.ltc.database.model.centrale.AziendaContatti;
+import it.ltc.database.model.centrale.Indirizzo;
 
 @Repository
 public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
+	
+	private static final Logger logger = Logger.getLogger("AziendaDAOImpl");
+	
+	@Autowired
+	private IndirizzoDao daoIndirizzi;
 	
 	@Autowired
 	private AssociazioneAziendaBrandDAO aziendaBrandDao;
@@ -108,6 +116,29 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 		oldEntity.setTipoLogistica(entity.getTipoLogistica());
 		oldEntity.setValutazione(entity.getValutazione());
 		oldEntity.setDescrizione(entity.getDescrizione());
+	}
+
+	@Override
+	public Indirizzo trovaIndirizzo(int idAzienda) {
+		Azienda azienda = trova(idAzienda);
+		Indirizzo indirizzo = azienda != null && azienda.getIndirizzo() != null ? daoIndirizzi.trovaDaID(azienda.getIndirizzo()) : null;
+		return indirizzo;
+	}
+
+	@Override
+	public Indirizzo salvaIndirizzo(int idAzienda, Indirizzo indirizzo) {
+		Indirizzo entity = daoIndirizzi.salvaIndirizzo(indirizzo);
+		Azienda azienda = trova(idAzienda);
+		if (entity != null && azienda != null) {
+			azienda.setIndirizzo(entity.getId());
+			azienda = aggiorna(azienda);
+			//Se l'aggiornamento non riesce imposto l'indirizzo a null per comunicare l'errore.
+			if (azienda == null) {
+				logger.warn("L'aggiornamento dell'indirizzo dell'azienda non è riuscito.");
+				entity = null;
+			}
+		}
+		return entity;
 	}
 
 }

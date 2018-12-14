@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.model.centrale.Contatto;
+import it.ltc.database.model.centrale.Indirizzo;
 import it.ltc.services.logica.data.crm.ContattoDAO;
 import it.ltc.services.logica.model.crm.FiltroTesto;
 import it.ltc.services.logica.validation.crm.ContattoValidator;
@@ -73,6 +74,24 @@ public class ContattiController {
 		logger.info("Trovo tutti i contatti con un dato nome.");
 		List<Contatto> entities = dao.trovaDaNome(filtro.getTesto());
 		ResponseEntity<List<Contatto>> response = new ResponseEntity<List<Contatto>>(entities, HttpStatus.OK);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/indirizzo/{id}")
+	public ResponseEntity<Indirizzo> trovaIndirizzo(@RequestHeader("authorization") String authenticationString, @PathVariable("id") int id) {
+		logger.info("Trovo l'indirizzo dell'azienda specificata.");
+		Indirizzo entity = dao.trovaIndirizzo(id);
+		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(entity, status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/indirizzo/{id}")
+	public ResponseEntity<Indirizzo> salvaIndirizzo(@Valid @RequestBody Indirizzo indirizzo, @RequestHeader("authorization") String authenticationString, @PathVariable("id") int id) {
+		logger.info("Salvo l'indirizzo dell'azienda specificata.");
+		Indirizzo entity = dao.salvaIndirizzo(id, indirizzo);
+		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(entity, status);
 		return response;
 	}
 	

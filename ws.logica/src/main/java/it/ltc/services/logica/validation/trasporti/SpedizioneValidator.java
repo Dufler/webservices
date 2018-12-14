@@ -57,10 +57,11 @@ public class SpedizioneValidator implements Validator {
 			JoinCommessaCorriere entity = daoCodice.trovaDaCodice(codiceCliente);
 			if (entity == null)
 				errors.reject("codiceCliente", "Il codice cliente indicato non esiste. (" + codiceCliente + ")");
-			else if (entity.getCommessa() != commessa)
-				errors.reject("codiceCliente", "Il codice cliente indicato non appartiene alla commessa specificata. (" + codiceCliente + ")");
-			else if (entity.getCorriere() != corriere)
-				errors.reject("codiceCliente", "Il codice cliente indicato non appartiene al corriere specificato. (" + codiceCliente + ")");
+			//I seguenti controlli sono stati eliminati per semplificare la vita di Sonia che doveva cambiare la commessa in caso di errore.
+//			else if (entity.getCommessa() != commessa)
+//				errors.reject("codiceCliente", "Il codice cliente indicato non appartiene alla commessa specificata. (" + codiceCliente + ")");
+//			else if (entity.getCorriere() != corriere)
+//				errors.reject("codiceCliente", "Il codice cliente indicato non appartiene al corriere specificato. (" + codiceCliente + ")");
 		}
 		
 		

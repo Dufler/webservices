@@ -19,13 +19,15 @@ import it.ltc.database.model.utente.Utente;
 import it.ltc.model.shared.dao.ICaricoDettaglioDao;
 import it.ltc.model.shared.json.interno.CaricoDettaglio;
 import it.ltc.services.custom.controller.RestController;
+import it.ltc.services.custom.permission.Permessi;
 import it.ltc.services.sede.data.carico.FactoryDaoCarichiDettagli;
 
 @Controller
-@RequestMapping("/caricodettaglio")
+@RequestMapping("/carico/dettaglio")
 public class CaricoDettaglioController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
+	public static final int ID_CRUD_CARICHI = Permessi.UFFICIO_INGRESSI.getID();
 	
 	private static final Logger logger = Logger.getLogger("CaricoController");
 	
@@ -47,7 +49,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> inserisci(@Valid @RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.inserisci(carico);
 		HttpStatus status = carico != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -58,7 +60,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> aggiorna(@Valid @RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.aggiorna(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -69,7 +71,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> elimina(@RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.elimina(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;

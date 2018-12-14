@@ -18,14 +18,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.model.centrale.Azienda;
+import it.ltc.database.model.centrale.Indirizzo;
+import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.logica.data.crm.AziendaDAO;
 import it.ltc.services.logica.model.crm.FiltroTesto;
 import it.ltc.services.logica.validation.crm.AziendaValidator;
 import it.ltc.services.logica.validation.crm.FiltroTestoValidator;
+import it.ltc.services.logica.validation.trasporti.IndirizzoValidator;
 
 @Controller
 @RequestMapping("/crm/azienda")
-public class AziendeController {
+public class AziendeController extends RestController {
 	
 	private static final Logger logger = Logger.getLogger("AziendeController");
 	
@@ -38,6 +41,9 @@ public class AziendeController {
 	@Autowired
 	private FiltroTestoValidator validatorFiltro;
 	
+	@Autowired
+	private IndirizzoValidator validatorIndirizzo;
+	
 	@InitBinder("azienda")
 	protected void initAziendaBinder(WebDataBinder binder) {
 	    binder.setValidator(validatorAzienda);
@@ -46,6 +52,11 @@ public class AziendeController {
 	@InitBinder("filtroTesto")
 	protected void initFiltroBinder(WebDataBinder binder) {
 	    binder.setValidator(validatorFiltro);
+	}
+	
+	@InitBinder("indirizzo")
+	protected void initIndirizzoBinder(WebDataBinder binder) {
+	    binder.setValidator(validatorIndirizzo);
 	}
 	
 	public AziendeController() {}
@@ -73,6 +84,24 @@ public class AziendeController {
 		logger.info("Trovo tutte le aziende afferenti al dato brand.");
 		List<Azienda> entities = dao.trovaDaBrand(id);
 		ResponseEntity<List<Azienda>> response = new ResponseEntity<List<Azienda>>(entities, HttpStatus.OK);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/indirizzo/{id}")
+	public ResponseEntity<Indirizzo> trovaIndirizzo(@RequestHeader("authorization") String authenticationString, @PathVariable("id") int id) {
+		logger.info("Trovo l'indirizzo dell'azienda specificata.");
+		Indirizzo entity = dao.trovaIndirizzo(id);
+		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(entity, status);
+		return response;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/indirizzo/{id}")
+	public ResponseEntity<Indirizzo> salvaIndirizzo(@Valid @RequestBody Indirizzo indirizzo, @RequestHeader("authorization") String authenticationString, @PathVariable("id") int id) {
+		logger.info("Salvo l'indirizzo dell'azienda specificata.");
+		Indirizzo entity = dao.salvaIndirizzo(id, indirizzo);
+		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+		ResponseEntity<Indirizzo> response = new ResponseEntity<Indirizzo>(entity, status);
 		return response;
 	}
 	

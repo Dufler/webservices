@@ -44,7 +44,7 @@ public class RiscontroColliLegacyDAOImpl extends ColliCaricoDao implements Risco
 		PakiTesta carico = daoCarichi.trovaDaID(idCarico);
 		if (carico == null)
 			throw new CustomException("Il carico indicato non esiste (ID: " + idCarico + ")");
-		else if (!carico.getStato().equals(StatoCarico.IN_LAVORAZIONE.getNome()))
+		else if (!carico.getStato().equals(StatoCarico.IN_LAVORAZIONE.getNome()) && !carico.getStato().equals(StatoCarico.ARRIVATO.getNome()))
 			throw new CustomException("Il carico specificato non e' lavorabile. (Stato: " + carico.getStato() + ")");
 		return carico;
 	}
@@ -65,7 +65,7 @@ public class RiscontroColliLegacyDAOImpl extends ColliCaricoDao implements Risco
 	@Override
 	public ColloCaricoJSON nuovoCollo(ColloCaricoJSON collo) {
 		//eseguo i controlli
-		checkCarico(collo.getCarico());
+		PakiTesta carico = checkCarico(collo.getCarico());
 		checkMagazzino(collo.getMagazzino());
 		//Preparo le info necessarie
 		ColliCarico nuovoCollo = deserializza(collo);

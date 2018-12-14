@@ -1,22 +1,68 @@
 package it.ltc.services.logica.data.crm;
 
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.CondizioneWhere;
+import it.ltc.database.dao.CondizioneWhere.Condizione;
+import it.ltc.database.dao.CondizioneWhere.Operatore;
+import it.ltc.database.model.centrale.Azienda;
 import it.ltc.database.model.centrale.AziendaNote;
+import it.ltc.database.model.centrale.Contatto;
 
 @Repository
 public class AziendeNoteDAOImpl extends CRUDDao<AziendaNote> implements AziendeNoteDAO {
 
+	@Autowired
+	private ContattoDAO daoContatti;
+	
+	@Autowired
+	private AziendaDAO daoAziende;
+	
+	private final SimpleDateFormat sdf;
+	private final HashMap<Integer, Azienda> aziende;
+	private final HashMap<Integer, Contatto> contatti;
+	
 	public AziendeNoteDAOImpl() {
 		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, AziendaNote.class);
+		sdf = new SimpleDateFormat("dd/MM/yy HH:mm");
+		aziende = new HashMap<>();
+		contatti = new HashMap<>();
+	}
+	
+	protected void aggiungiInfoAggiuntiveNota(AziendaNote nota) {
+		if (nota != null) {
+			String dataNota = nota.getDataNota() != null ? sdf.format(nota.getDataNota()) : "";
+			nota.setDataFormattata(dataNota);
+			Contatto contatto = trovaContatto(nota.getContatto());
+			String nomeContatto = contatto != null ? contatto.toString() : "nessuno";
+			nota.setNomeContatto(nomeContatto);
+			Azienda azienda = trovaAzienda(nota.getAzienda());
+			String nomeAzienda = azienda != null ? azienda.getRagioneSociale() : "";
+			nota.setNomeAzienda(nomeAzienda);
+		}
+	}
+	
+	protected Contatto trovaContatto(Integer id) {
+		if (!contatti.containsKey(id)) {
+			Contatto contatto = daoContatti.trova(id == null ? 0 : id);
+			contatti.put(id, contatto);
+		}
+		return contatti.get(id);
+	}
+	
+	protected Azienda trovaAzienda(int id) {
+		if (!aziende.containsKey(id)) {
+			Azienda azienda = daoAziende.trova(id);
+			aziende.put(id, azienda);
+		}
+		return aziende.get(id);
 	}
 
 	@Override
@@ -27,55 +73,49 @@ public class AziendeNoteDAOImpl extends CRUDDao<AziendaNote> implements AziendeN
 
 	@Override
 	public List<AziendaNote> trovaDaAzienda(int idAzienda) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<AziendaNote> criteria = cb.createQuery(AziendaNote.class);
-        Root<AziendaNote> member = criteria.from(AziendaNote.class);
-        criteria.select(member).where(cb.equal(member.get("azienda"), idAzienda));
-		List<AziendaNote> lista = em.createQuery(criteria).getResultList();
-		em.close();
+		List<AziendaNote> lista = findAllEqualTo("azienda", idAzienda);
+		for (AziendaNote nota : lista)
+			aggiungiInfoAggiuntiveNota(nota);
         return lista;
 	}
 
 	@Override
 	public List<AziendaNote> trovaDaContatto(int idContatto) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<AziendaNote> criteria = cb.createQuery(AziendaNote.class);
-        Root<AziendaNote> member = criteria.from(AziendaNote.class);
-        criteria.select(member).where(cb.equal(member.get("contatto"), idContatto));
-		List<AziendaNote> lista = em.createQuery(criteria).getResultList();
-		em.close();
+		List<AziendaNote> lista = findAllEqualTo("contatto", idContatto);
+		for (AziendaNote nota : lista)
+			aggiungiInfoAggiuntiveNota(nota);
         return lista;
 	}
 	
 	@Override
 	public List<AziendaNote> trovaDaParola(String parola) {
-		EntityManager em = getManager();
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<AziendaNote> criteria = cb.createQuery(AziendaNote.class);
-        Root<AziendaNote> member = criteria.from(AziendaNote.class);
-        criteria.select(member).where(cb.like(member.get("note"), "%" + parola + "%"));
-		List<AziendaNote> lista = em.createQuery(criteria).getResultList();
-		em.close();
+		CondizioneWhere likeNote = new CondizioneWhere("note", parola, Operatore.LIKE, Condizione.AND);
+		List<CondizioneWhere> conditions = new LinkedList<>();
+		conditions.add(likeNote);
+		List<AziendaNote> lista = findAll(conditions, 100);
+		for (AziendaNote nota : lista)
+			aggiungiInfoAggiuntiveNota(nota);
         return lista;
 	}
 
 	@Override
 	public AziendaNote trova(int id) {
 		AziendaNote entity = findByID(id);
+		aggiungiInfoAggiuntiveNota(entity);
 		return entity;
 	}
 
 	@Override
 	public AziendaNote inserisci(AziendaNote note) {
 		AziendaNote entity = insert(note);
+		aggiungiInfoAggiuntiveNota(entity);
 		return entity;
 	}
 
 	@Override
 	public AziendaNote aggiorna(AziendaNote note) {
 		AziendaNote entity = update(note, note.getId());
+		aggiungiInfoAggiuntiveNota(entity);
 		return entity;
 	}
 

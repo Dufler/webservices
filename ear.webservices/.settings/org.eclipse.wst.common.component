@@ -200,5 +200,8 @@
         <dependent-module archiveName="log4j-1.2.17.jar" deploy-path="/lib" handle="module:/classpath/lib/F:/backup/Java/Librerie/Logging/log4j-1.2.17.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="it.ltc.utility.zpl.jar" deploy-path="/lib" handle="module:/resource/it.ltc.utility.zpl/it.ltc.utility.zpl">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>

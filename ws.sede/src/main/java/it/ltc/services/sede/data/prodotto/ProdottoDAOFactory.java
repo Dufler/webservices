@@ -7,6 +7,7 @@ import it.ltc.database.dao.shared.prodotti.ProdottoColtortiDAOImpl;
 import it.ltc.database.dao.shared.prodotti.ProdottoDAOImpl;
 import it.ltc.database.dao.shared.prodotti.ProdottoLegacyDAOImpl;
 import it.ltc.database.model.centrale.Commessa;
+import it.ltc.database.model.utente.Utente;
 import it.ltc.model.shared.dao.IProdottoDao;
 import it.ltc.services.custom.dao.FactoryDao;
 
@@ -24,18 +25,19 @@ public class ProdottoDAOFactory extends FactoryDao<IProdottoDao> {
 	public static final String PU_LEGACY_TEST = "legacy-test";
 
 	@Override
-	protected IProdottoDao findDao(Commessa commessa) {
+	protected IProdottoDao findDao(Utente user, Commessa commessa) {
 		String persistenceUnitName = commessa.getNomeRisorsa();
 		logger.info("Nuova istanza dao per: " + commessa + ", PU: " + persistenceUnitName);
 		IProdottoDao dao;
 		if (commessa.isLegacy()) {
 			switch (persistenceUnitName) {
-				case PU_COLTORTI : case PU_LEGACY_TEST : dao = new ProdottoColtortiDAOImpl(persistenceUnitName, commessa.getId()); break;
+				case PU_COLTORTI : dao = new ProdottoColtortiDAOImpl(persistenceUnitName, commessa.getId()); break;
 				default : dao = new ProdottoLegacyDAOImpl(persistenceUnitName, commessa.getId());
 			}
 		} else {
 			dao = new ProdottoDAOImpl(persistenceUnitName);
 		}
+		dao.setUtente(user.getUsername());
 		return dao;
 	}
 

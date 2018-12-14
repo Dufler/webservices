@@ -37,7 +37,7 @@ public abstract class FactoryDao<T> {
 	public T getDao(Utente user, String risorsaCommessa) {
 		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null)
-			return findDao(commessa);
+			return findDao(user, commessa);
 		else {
 			logger.warn(NESSUNA_COMMESSA);
 			throw new CustomException(NESSUNA_COMMESSA);
@@ -46,8 +46,7 @@ public abstract class FactoryDao<T> {
 
 	/**
 	 * Metodo da implementare, qui viene istanziato e restituito il dao.
-	 * @param commessa La commessa di cui gestire i dati.
 	 * @return L'oggetto DAO capace di gestire i dati.
 	 */
-	protected abstract T findDao(Commessa commessa);
+	protected abstract T findDao(Utente user, Commessa commessa);
 }

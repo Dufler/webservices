@@ -13,11 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.IndirizzoDao;
 import it.ltc.database.model.centrale.AziendaContatti;
 import it.ltc.database.model.centrale.Contatto;
+import it.ltc.database.model.centrale.Indirizzo;
 
 @Repository
 public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
+	
+	@Autowired
+	private IndirizzoDao daoIndirizzi;
 	
 	@Autowired
 	private AssociazioneAziendaContattiDAO aziendaContattiDao;
@@ -34,13 +39,6 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 
 	@Override
 	public List<Contatto> trovaDaAzienda(int idAzienda) {
-//		EntityManager em = getManager();
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//        CriteriaQuery<AziendaContatti> criteria = cb.createQuery(AziendaContatti.class);
-//        Root<AziendaContatti> member = criteria.from(AziendaContatti.class);
-//        criteria.select(member).where(cb.equal(member.get("azienda"), idAzienda));
-//		List<AziendaContatti> lista = em.createQuery(criteria).getResultList();
-//		em.close();
 		List<AziendaContatti> lista = aziendaContattiDao.trovaDaAzienda(idAzienda);
 		List<Contatto> contatti = new LinkedList<Contatto>();
 		for (AziendaContatti match : lista) {
@@ -58,7 +56,7 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
         CriteriaQuery<Contatto> criteria = cb.createQuery(Contatto.class);
         Root<Contatto> member = criteria.from(Contatto.class);
         Predicate condizioneNome = cb.like(member.get("nome"), nome + "%");
-        Predicate condizioneCognome = cb.like(member.get("cognome"), nome + "%");
+        Predicate condizioneCognome = cb.like(member.get("cognome"), "%" + nome + "%");
         criteria.select(member).where(cb.or(condizioneNome, condizioneCognome));
 		List<Contatto> lista = em.createQuery(criteria).getResultList();
 		em.close();
@@ -100,6 +98,27 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 		//oldEntity.setTelefono(entity.getTelefono());
 		//oldEntity.setTitolo(entity.getTitolo());
 		oldEntity.setDescrizione(entity.getDescrizione());
+	}
+
+	@Override
+	public Indirizzo trovaIndirizzo(int idContatto) {
+		Contatto contatto = trova(idContatto);
+		Indirizzo indirizzo = contatto != null && contatto.getIndirizzo() != null ? daoIndirizzi.trovaDaID(contatto.getIndirizzo()) : null;
+		return indirizzo;
+	}
+
+	@Override
+	public Indirizzo salvaIndirizzo(int idContatto, Indirizzo indirizzo) {
+		Indirizzo entity = daoIndirizzi.salvaIndirizzo(indirizzo);
+		Contatto contatto = trova(idContatto);
+		if (entity != null && contatto != null) {
+			contatto.setIndirizzo(entity.getId());
+			contatto = aggiorna(contatto);
+			if (contatto == null) {
+				entity = null;
+			}
+		}
+		return entity;
 	}
 
 }

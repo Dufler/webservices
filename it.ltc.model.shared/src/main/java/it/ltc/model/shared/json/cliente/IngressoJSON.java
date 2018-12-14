@@ -72,6 +72,8 @@ public class IngressoJSON {
 	}
 
 	public void setStato(String stato) {
+		//FIXME - Ho introdotto questa modifica perchè nel vecchio esiste ancora un transitorio con questo stato "legacy"
+		if (stato != null && stato.equals("ATTESA")) stato = "INSERITO";
 		this.stato = stato;
 	}
 

@@ -9,11 +9,11 @@ import java.util.Date;
  */
 public class CaricoTestata {
 	
+	private int id;
+	
 	private Date documentoData;
 	private String documentoRiferimento;
-	private String documentoTipo;
-	
-	private int id;
+	private String documentoTipo;	
 	
 	private String riferimento;
 	private int fornitore;
@@ -31,6 +31,14 @@ public class CaricoTestata {
 	private Date dataArrivoPresunto;
 	private boolean prodottiEccedenti;
 	private boolean prodottiNonDichiarati;
+	
+	//Vengono usati solo come criteri di filtraggio durante la ricerca.
+	private Date da;
+	private Date a;
+	
+	//Possono essere recuperati con una chiamata a parte, spesso non servono.
+//	@JsonInclude(value=Include.NON_EMPTY)
+//	private List<CaricoStato> stati;
 	
 	public CaricoTestata() {}
 
@@ -95,6 +103,8 @@ public class CaricoTestata {
 	}
 
 	public void setStato(String stato) {
+		//FIXME - Ho introdotto questa modifica perchè nel vecchio esiste ancora un transitorio con questo stato "legacy"
+		if (stato != null && stato.equals("ATTESA")) stato = "INSERITO";
 		this.stato = stato;
 	}
 
@@ -161,5 +171,29 @@ public class CaricoTestata {
 	public void setProdottiNonDichiarati(boolean prodottiNonDichiarati) {
 		this.prodottiNonDichiarati = prodottiNonDichiarati;
 	}
+
+	public Date getDa() {
+		return da;
+	}
+
+	public void setDa(Date da) {
+		this.da = da;
+	}
+
+	public Date getA() {
+		return a;
+	}
+
+	public void setA(Date a) {
+		this.a = a;
+	}
+
+//	public List<CaricoStato> getStati() {
+//		return stati;
+//	}
+//
+//	public void setStati(List<CaricoStato> stati) {
+//		this.stati = stati;
+//	}
 
 }

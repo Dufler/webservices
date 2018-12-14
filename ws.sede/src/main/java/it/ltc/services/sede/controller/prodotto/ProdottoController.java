@@ -129,7 +129,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<ProdottoJSON>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Trovo tutte le spedizioni modificate recentemente.");
+		logger.info("Trovo tutti i prodotti modificati recentemente.");
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> prodotti = dao.trovaDaUltimaModifica(criteri.getDataUltimaModifica());
 		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;

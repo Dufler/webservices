@@ -1,6 +1,8 @@
 package it.ltc.model.shared.json.cliente;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class IndirizzoJSON {
@@ -14,6 +16,13 @@ public class IndirizzoJSON {
 	private String nazione;
 	private String telefono;
 	private String email;
+	
+	/**
+	 * Viene usato solo per gli indirizzi dei destinatari e mittenti ordini nei sistemi legacy.<br>
+	 * Non è valorizzato da altre parti e quindi non viene incluso se non è necesarrio.
+	 */
+	@JsonInclude(value=Include.NON_NULL)
+	private String codice;
 	
 	public IndirizzoJSON() {}
 
@@ -87,6 +96,14 @@ public class IndirizzoJSON {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getCodice() {
+		return codice;
+	}
+
+	public void setCodice(String codice) {
+		this.codice = codice;
 	}
 
 	@Override
