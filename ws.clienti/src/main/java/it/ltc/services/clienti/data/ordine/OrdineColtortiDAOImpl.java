@@ -85,7 +85,8 @@ public class OrdineColtortiDAOImpl extends OrdineLegacyDAOImpl {
 			aggiornamento = true;
 		} catch (Exception e) {
 			logger.error(e);
-			transaction.rollback();
+			if (transaction != null && transaction.isActive())
+				transaction.rollback();
 			aggiornamento = false;
 		} finally {
 			em.close();

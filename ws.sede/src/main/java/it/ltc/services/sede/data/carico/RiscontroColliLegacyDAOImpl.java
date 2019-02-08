@@ -65,7 +65,7 @@ public class RiscontroColliLegacyDAOImpl extends ColliCaricoDao implements Risco
 	@Override
 	public ColloCaricoJSON nuovoCollo(ColloCaricoJSON collo) {
 		//eseguo i controlli
-		PakiTesta carico = checkCarico(collo.getCarico());
+		checkCarico(collo.getCarico());
 		checkMagazzino(collo.getMagazzino());
 		//Preparo le info necessarie
 		ColliCarico nuovoCollo = deserializza(collo);

@@ -17,7 +17,7 @@ public class SpedizioneValidator implements Validator {
 	
 	private static final Logger logger = Logger.getLogger("SpedizioneValidator");
 	
-	public enum CodiceCorriere { BRT, TNT, GLS, DHL, UPS, LTC, ALTRO }
+	public enum CodiceCorriere { BRT, TNT, GLS, DHL, UPS, LTC, FED, ALTRO }
 	
 	public enum ServizioCorriere { DEF, AER, O10, O12, PRI }
 
@@ -53,7 +53,10 @@ public class SpedizioneValidator implements Validator {
 			if (codiceSpecifico != null && codiceSpecifico.length() > 30)
 				errors.reject("corriere.lunghezza", "Il codice specificato per il corriere è troppo lungo. (MAX 30 caratteri)");
 		} catch (Exception e) {
-			errors.reject("corriere.valido", "E' necessario indicare un corriere valido. I possibili valori sono: " + CodiceCorriere.values());
+			String errorMessage = "E' necessario indicare un corriere valido. I possibili valori sono: ";
+			for (CodiceCorriere codice : CodiceCorriere.values())
+				errorMessage += codice.name() + " ";
+			errors.reject("corriere.valido", errorMessage);
 		}
 
 		String servizioCorriere = ordine.getServizioCorriere();

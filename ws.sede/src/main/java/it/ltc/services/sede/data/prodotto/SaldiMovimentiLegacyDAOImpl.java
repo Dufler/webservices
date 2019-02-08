@@ -165,7 +165,8 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		} catch (Exception e) {
 			movimento = null;
 			logger.error(e);
-			t.rollback();
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}
@@ -198,7 +199,8 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		} catch (Exception e) {
 			movimento = null;
 			logger.error(e);
-			t.rollback();
+			if (t != null && t.isActive())
+				t.rollback();
 		} finally {
 			em.close();
 		}

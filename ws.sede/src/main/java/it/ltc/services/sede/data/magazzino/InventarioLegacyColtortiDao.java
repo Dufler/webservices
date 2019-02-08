@@ -14,22 +14,24 @@ import org.jboss.logging.Logger;
 
 import it.ltc.database.dao.Dao;
 import it.ltc.database.dao.legacy.ColliCaricoDao;
-import it.ltc.database.dao.legacy.ColliPackSerialiDao;
+import it.ltc.database.dao.legacy.ColliPackDao;
 import it.ltc.database.dao.legacy.MagaMovDao;
 import it.ltc.database.dao.legacy.MagaSdDao;
 import it.ltc.database.dao.legacy.MagazzinoDao;
 import it.ltc.database.dao.legacy.PakiArticoloDao;
 import it.ltc.database.dao.legacy.PakiTestaDao;
+import it.ltc.database.dao.legacy.TestataOrdiniDao;
 import it.ltc.database.dao.legacy.UbicazioniDao;
 import it.ltc.database.model.legacy.ColliCarico;
+import it.ltc.database.model.legacy.ColliPack;
 import it.ltc.database.model.legacy.MagaMov;
 import it.ltc.database.model.legacy.MagaSd;
 import it.ltc.database.model.legacy.Magazzini;
 import it.ltc.database.model.legacy.PakiArticolo;
 import it.ltc.database.model.legacy.PakiTesta;
+import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.Ubicazioni;
 import it.ltc.database.model.legacy.model.CausaliMovimento;
-import it.ltc.database.model.legacy.seriale.ColliPackConSeriale;
 import it.ltc.services.custom.exception.CustomException;
 import it.ltc.services.sede.model.magazzino.ColloInventarioConSeriali;
 import it.ltc.services.sede.model.magazzino.ControlloSeriale;
@@ -46,26 +48,30 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 	public static final String NOME_CLIENTE = "Ikonic";
 	
 	protected final ColliCaricoDao daoColli;
-	protected final ColliPackSerialiDao daoProdotti;
+	//protected final ColliPackSerialiDao daoProdotti;
+	protected final ColliPackDao daoProdotti;
 	protected final PakiTestaDao daoCarichi;
 	protected final PakiArticoloDao daoRighe;
 	protected final MagaSdDao daoSaldi;
 	protected final MagaMovDao daoMovimenti;
 	protected final MagazzinoDao daoMagazzini;
 	protected final UbicazioniDao daoUbicazioni;
+	protected final TestataOrdiniDao daoOrdini;
 	
 	protected HashMap<String, PakiArticolo> mappaRighe;
 
 	public InventarioLegacyColtortiDao(String persistenceUnit) {
 		super(persistenceUnit);
 		daoColli = new ColliCaricoDao(persistenceUnit);
-		daoProdotti = new ColliPackSerialiDao(persistenceUnit);
+		//daoProdotti = new ColliPackSerialiDao(persistenceUnit);
+		daoProdotti = new ColliPackDao(persistenceUnit);
 		daoCarichi = new PakiTestaDao(persistenceUnit);
 		daoRighe = new PakiArticoloDao(persistenceUnit);
 		daoSaldi = new MagaSdDao(persistenceUnit);
 		daoMovimenti = new MagaMovDao(persistenceUnit);
 		daoMagazzini = new MagazzinoDao(persistenceUnit);
 		daoUbicazioni = new UbicazioniDao(persistenceUnit);
+		daoOrdini = new TestataOrdiniDao(persistenceUnit);
 	}
 	
 	protected Ubicazioni checkUbicazione(ColloInventarioConSeriali colloConSeriali) {
@@ -87,10 +93,10 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return collo;
 	}
 	
-	protected List<ColliPackConSeriale> trovaProdotti(ColloInventarioConSeriali collo) {
-		List<ColliPackConSeriale> prodotti = new LinkedList<>();
+	protected List<ColliPack> trovaProdotti(ColloInventarioConSeriali collo) {
+		List<ColliPack> prodotti = new LinkedList<>();
 		for (String seriale : collo.getSeriali()) {
-			ColliPackConSeriale prodotto = ricercaSeriale(seriale);
+			ColliPack prodotto = ricercaSeriale(seriale);
 			//Controllo se il prodotto sia già stato generato nel carico. EDIT 08/10/2018: Antonio ha chiesto di rimuover questo controllo.
 //			if (prodotto.getFlagtc() == 0)
 //				throw new CustomException("Il seriale indicato non è ancora stato caricato a sistema. (" + seriale  + ")");
@@ -99,10 +105,10 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return prodotti;
 	}
 	
-	protected List<ColliPackConSeriale> copiaProdotti(List<ColliPackConSeriale> prodotti) {
-		List<ColliPackConSeriale> prodottiCopia = new LinkedList<>();
-		for (ColliPackConSeriale prodotto : prodotti) {
-			ColliPackConSeriale prodottoCopia = new ColliPackConSeriale();
+	protected List<ColliPack> copiaProdotti(List<ColliPack> prodotti) {
+		List<ColliPack> prodottiCopia = new LinkedList<>();
+		for (ColliPack prodotto : prodotti) {
+			ColliPack prodottoCopia = new ColliPack();
 			prodottoCopia.setCodArtStr(prodotto.getCodArtStr());
 			prodottoCopia.setCodiceArticolo(prodotto.getCodiceArticolo());
 			prodottoCopia.setDescrizione(prodotto.getDescrizione());
@@ -132,9 +138,9 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return carico;
 	}
 	
-	protected Collection<PakiArticolo> trovaRighe(PakiTesta carico, ColloInventarioConSeriali collo, List<ColliPackConSeriale> prodotti) {
+	protected Collection<PakiArticolo> trovaRighe(PakiTesta carico, ColloInventarioConSeriali collo, List<ColliPack> prodotti) {
 		mappaRighe = new HashMap<>();
-		for (ColliPackConSeriale prodotto : prodotti) {
+		for (ColliPack prodotto : prodotti) {
 			if (!mappaRighe.containsKey(prodotto.getCodiceArticolo())) {
 				List<PakiArticolo> righe = daoRighe.trovaRigheDaCaricoEProdotto(collo.getCarico(), prodotto.getCodiceArticolo());
 				PakiArticolo riga = righe.isEmpty() ? nuovaRiga(carico, collo, prodotto) : righe.get(0);
@@ -149,7 +155,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return mappaRighe.values();
 	}
 	
-	protected PakiArticolo nuovaRiga(PakiTesta carico, ColloInventarioConSeriali collo, ColliPackConSeriale prodotto) {
+	protected PakiArticolo nuovaRiga(PakiTesta carico, ColloInventarioConSeriali collo, ColliPack prodotto) {
 		//Recupero i dati necessari
 		Magazzini magazzino = daoMagazzini.trovaDaCodiceLTC(collo.getMagazzino());
 		if (magazzino == null)
@@ -169,7 +175,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return riga;
 	}
 	
-	protected void generaCodiceEtichettaZPL(ColloInventarioConSeriali collo, PakiTesta carico, ColliCarico nuovoCollo, List<ColliPackConSeriale> prodottiCopia) {
+	protected void generaCodiceEtichettaZPL(ColloInventarioConSeriali collo, PakiTesta carico, ColliCarico nuovoCollo, List<ColliPack> prodottiCopia) {
 		StringBuilder etichetta = new StringBuilder();
 		int indexEtichetta = 0;
 		int indexProdotto = 0;
@@ -177,7 +183,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		ProdottoEtichetta[][] prodotti = new ProdottoEtichetta[numeroEtichette][6];
 		//Riempo l'array con le info
 		for (int index = 0; index < prodottiCopia.size(); index++) {
-			ColliPackConSeriale prodotto = prodottiCopia.get(index);
+			ColliPack prodotto = prodottiCopia.get(index);
 			prodotti[indexEtichetta][indexProdotto] = new ProdottoEtichetta(prodotto.getCodArtStr(), prodotto.getTaglia(), prodotto.getDescrizione(), prodotto.getQta());			
 			//Aggiorno gli indici
 			indexProdotto++;
@@ -194,9 +200,9 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		collo.setEtichetta(etichetta.toString());
 	}
 	
-	public HashMap<String, MagaSd> aggiornaSaldi(List<ColliPackConSeriale> prodotti) {
+	public HashMap<String, MagaSd> aggiornaSaldi(List<ColliPack> prodotti) {
 		HashMap<String, MagaSd> saldiDaAggiornare = new HashMap<>();
-		for (ColliPackConSeriale prodotto : prodotti) {
+		for (ColliPack prodotto : prodotti) {
 			String key = prodotto.getCodiceArticolo() + prodotto.getMagazzino();
 			if (!saldiDaAggiornare.containsKey(key)) {
 				//trovo il saldo del magazzino di origine, controllo che la disponibilità sia maggiore dell'impegno e abbasso disponibilità e esistenza
@@ -214,9 +220,9 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return saldiDaAggiornare;
 	}
 	
-	public List<MagaMov> creaMovimenti(PakiTesta carico, List<ColliPackConSeriale> prodotti, HashMap<String, MagaSd> saldi) {
+	public List<MagaMov> creaMovimenti(PakiTesta carico, List<ColliPack> prodotti, HashMap<String, MagaSd> saldi) {
 		List<MagaMov> movimenti = new LinkedList<>();
-		for (ColliPackConSeriale prodotto : prodotti) {
+		for (ColliPack prodotto : prodotti) {
 			String key = prodotto.getCodiceArticolo() + prodotto.getMagazzino();
 			MagaSd saldo = saldi.get(key);
 			MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.SPE, carico.getNrPaki(), carico.getIdTestaPaki(), carico.getCreazione(), saldo, prodotto.getCodiceArticolo(), prodotto.getMagazzino(), 1);
@@ -232,9 +238,9 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		//nuovo collicarico
 		ColliCarico nuovoCollo = creaNuovoCollo(collo);
 		//update dei collipack
-		List<ColliPackConSeriale> prodotti = trovaProdotti(collo);
+		List<ColliPack> prodotti = trovaProdotti(collo);
 		//Creo dei collipack copia
-		List<ColliPackConSeriale> prodottiCopia = copiaProdotti(prodotti);
+		List<ColliPack> prodottiCopia = copiaProdotti(prodotti);
 		//update pakitesta
 		PakiTesta carico = trovaCarico(collo);
 		//update/insert pakiarticolo
@@ -256,7 +262,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 			//Salvo il nuovo collo
 			em.persist(nuovoCollo);
 			//Aggiorno i collipack
-			for (ColliPackConSeriale prodotto : prodotti) {
+			for (ColliPack prodotto : prodotti) {
 				//Lo segno come non più disponibile
 				prodotto.setFlagimp("I");
 				//Cambio leggermente il seriale
@@ -264,7 +270,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 				em.merge(prodotto);
 			}
 			//Inserisco i collipack copia
-			for (ColliPackConSeriale prodotto : prodottiCopia) {
+			for (ColliPack prodotto : prodottiCopia) {
 				prodotto.setIdTestaPaki(carico.getIdTestaPaki());
 				prodotto.setIdPakiarticolo(mappaRighe.get(prodotto.getCodiceArticolo()).getIdPakiArticolo());
 				prodotto.setLotto(carico.getNrPaki());
@@ -295,9 +301,9 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		//nuovo collicarico
 		ColliCarico nuovoCollo = creaNuovoCollo(collo);
 		//update dei collipack
-		List<ColliPackConSeriale> prodotti = trovaProdotti(collo);
+		List<ColliPack> prodotti = trovaProdotti(collo);
 		//Creo dei collipack copia
-		List<ColliPackConSeriale> prodottiCopia = copiaProdotti(prodotti);
+		List<ColliPack> prodottiCopia = copiaProdotti(prodotti);
 		//update pakitesta
 		PakiTesta carico = trovaCarico(collo);
 		//update/insert pakiarticolo
@@ -323,7 +329,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 			//Salvo il nuovo collo
 			em.persist(nuovoCollo);
 			//Aggiorno i collipack
-			for (ColliPackConSeriale prodotto : prodotti) {
+			for (ColliPack prodotto : prodotti) {
 				//Per quelli da escludere vado a controllare e modificare lo stato di impegno
 				String impegno = "N".equals(prodotto.getFlagimp()) ? "I" : "A"; //Se era già impegnato ma me lo trovo comunque li lo segno come anomalo.
 				prodotto.setFlagimp(impegno);
@@ -331,7 +337,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 				prodotto.setSeriale(prodotto.getSeriale() + "_INV");
 				em.merge(prodotto);
 			}
-			for (ColliPackConSeriale prodotto : prodottiCopia) {
+			for (ColliPack prodotto : prodottiCopia) {
 				prodotto.setIdTestaPaki(carico.getIdTestaPaki());
 				prodotto.setIdPakiarticolo(mappaRighe.get(prodotto.getCodiceArticolo()).getIdPakiArticolo());
 				prodotto.setLotto(carico.getNrPaki());
@@ -363,8 +369,8 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		return collo;
 	}
 	
-	protected ColliPackConSeriale ricercaSeriale(String seriale) {
-		ColliPackConSeriale prodotto = daoProdotti.trovaSeriale(seriale);
+	protected ColliPack ricercaSeriale(String seriale) {
+		ColliPack prodotto = daoProdotti.trovaSeriale(seriale);
 		if (prodotto == null) {
 			//eseguo un secondo controllo sostituendo gli ultimi 2 caratteri con degli 0
 			String serialeIncompleto = seriale.length() > 2 ? seriale.substring(0, seriale.length() - 2) : "";
@@ -379,9 +385,19 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 	@Override
 	public boolean checkImpegnoSeriale(ControlloSeriale seriale) {
 		//controllo che il seriale indicato esista in collipack, se ne esiste più di uno prendo il più recente.
-		ColliPackConSeriale prodotto = ricercaSeriale(seriale.getSeriale());		
+		ColliPack prodotto = ricercaSeriale(seriale.getSeriale());		
 		if (prodotto.getFlagtc() == 0)
 			throw new CustomException("Il seriale indicato non è ancora stato caricato a sistema. Inserirlo tra le anomalie. (" + seriale.getSeriale()  + ")", 409);
+		
+		//Controllo inserito per il ricompattamento il 03/01//2019
+		if (prodotto.getFlagimp().equals("S")) {
+			//Vado a controllare lo stato della lista che lo impegna, se è IMPO o INIB significa che è un ordine in fase di prelievo e non posso spostarlo.
+			TestataOrdini ordine = daoOrdini.trovaDaNumeroLista(prodotto.getListaimp());
+			String stato = ordine != null ? ordine.getStato() : "";
+			if (stato.equals("IMPO") || stato.equals("INIB"))
+				throw new CustomException("Il seriale indicato è un prodotto che è stato impegnato. Lasciarlo dove sta.");
+		}
+		
 		//Se mi viene richiesto controllo l'impegno
 		if (seriale.isCheckImpegno()) {
 			MagaSd saldi = daoSaldi.trovaDaArticoloEMagazzino(prodotto.getCodiceArticolo(), seriale.getMagazzino());
@@ -406,16 +422,16 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		//Se il collo appartiene al carico che mi viene indicato lo blocco subito
 		if (collo.getIdDocumento() == colloDaDistruggere.getCarico())
 			throw new CustomException("Questo collo appartiene al carico attualmente in uso.");
-		List<ColliPackConSeriale> prodotti = daoProdotti.trovaProdottiNelCollo(collo.getKeyColloCar());
+		List<ColliPack> prodotti = daoProdotti.trovaProdottiNelCollo(collo.getKeyColloCar());
 		if (colloDaDistruggere.isForzaDistruzione()) {
 			//Aggiorno lo stato d'impegno dei colli a "D"
-			for (ColliPackConSeriale prodotto : prodotti) {
+			for (ColliPack prodotto : prodotti) {
 				prodotto.setFlagimp("D");
 				daoProdotti.aggiorna(prodotto);//FIXME: sarebbe meglio fare una sola transazione.
 			}
 		} else {
 			boolean prodottoPresente = false;
-			for (ColliPackConSeriale prodotto : prodotti) {
+			for (ColliPack prodotto : prodotti) {
 				if ("N".equals(prodotto.getFlagimp())) {
 					prodottoPresente = true;
 				}

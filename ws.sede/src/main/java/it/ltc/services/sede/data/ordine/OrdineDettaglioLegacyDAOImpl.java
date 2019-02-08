@@ -34,7 +34,7 @@ public class OrdineDettaglioLegacyDAOImpl extends RighiOrdineDao implements IOrd
 	protected TestataOrdini checkTestata(OrdineDettaglio json) {
 		TestataOrdini ordine = daoOrdini.trovaDaID(json.getOrdine());
 		if (ordine == null) throw new CustomException("L'ID indicato per l'ordine non esiste. (" + json.getOrdine() + ")");
-		if (!ordine.getStato().equals("INSE")) throw new CustomException("L'ordine indicato non può essere modificato. (Stato = " + ordine.getStato() + ")");
+		if (!(ordine.getStato().equals("INSE") || ordine.getStato().equals("ERRO"))) throw new CustomException("L'ordine indicato non può essere modificato. (Stato = " + ordine.getStato() + ")");
 		return ordine;
 	}
 	
@@ -70,6 +70,8 @@ public class OrdineDettaglioLegacyDAOImpl extends RighiOrdineDao implements IOrd
 		TestataOrdini ordine = checkTestata(json);	
 		RighiOrdine rigaEsistente = checkRiga(json);
 		RighiOrdine riga = deserializza(json, ordine, rigaEsistente);
+		//Forzo le quantità ad essere uguali siccome lo stato dell'ordine è ancora a "INSE" o "ERRO".
+		riga.setQtadaubicare(riga.getQtaSpedizione());
 		RighiOrdine entity = aggiorna(riga);
 		if (entity != null) {
 			aggiornaTotaliOrdine(ordine);

@@ -43,7 +43,7 @@ public class RiscontroProdottiController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<ProdottoCaricoJSON>> cerca(@RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		logger.info("Ricerca prodotti nel carico.");
+		logger.info("Ricerca prodotti nel collo.");
 		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
 		List<ProdottoCaricoJSON> prodotti = dao.trovaProdotti(collo);

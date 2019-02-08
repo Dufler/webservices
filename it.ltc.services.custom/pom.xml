@@ -15,8 +15,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>it.ltc.database.dao</groupId>
-			<artifactId>common</artifactId>
+			<groupId>it.ltc.database</groupId>
+			<artifactId>dao-common</artifactId>
 			<version>1.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->

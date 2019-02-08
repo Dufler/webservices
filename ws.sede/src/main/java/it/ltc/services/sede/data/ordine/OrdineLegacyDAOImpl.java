@@ -8,36 +8,64 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+import org.apache.log4j.Logger;
+
 import it.ltc.database.dao.CondizioneWhere;
 import it.ltc.database.dao.CondizioneWhere.Condizione;
 import it.ltc.database.dao.CondizioneWhere.Operatore;
 import it.ltc.database.dao.legacy.DestinatariDao;
+import it.ltc.database.dao.legacy.MagaMovDao;
+import it.ltc.database.dao.legacy.MagaSdDao;
 import it.ltc.database.dao.legacy.MittentiOrdineDao;
 import it.ltc.database.dao.legacy.RighiImballoDao;
+import it.ltc.database.dao.legacy.RighiOrdineDao;
 import it.ltc.database.dao.legacy.RighiPrelievoDao;
+import it.ltc.database.dao.legacy.RighiUbicPreDao;
 import it.ltc.database.dao.legacy.TestataOrdiniDao;
 import it.ltc.database.dao.legacy.TestataOrdiniLogStatoDao;
+import it.ltc.database.dao.ordini.AssegnazioneOrdine;
+import it.ltc.database.dao.ordini.ManagerAssegnazione;
 import it.ltc.database.model.legacy.Destinatari;
+import it.ltc.database.model.legacy.MagaMov;
+import it.ltc.database.model.legacy.MagaSd;
 import it.ltc.database.model.legacy.MittentiOrdine;
 import it.ltc.database.model.legacy.RighiImballo;
+import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.RighiPrelievo;
+import it.ltc.database.model.legacy.Righiubicpre;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.TestataOrdiniLogStato;
+import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.model.shared.dao.IOrdineDao;
 import it.ltc.model.shared.json.interno.OperatoreOrdine;
 import it.ltc.model.shared.json.interno.OrdineStato;
 import it.ltc.model.shared.json.interno.OrdineTestata;
+import it.ltc.model.shared.json.interno.ProblemaFinalizzazioneOrdine;
+import it.ltc.model.shared.json.interno.RisultatoAssegnazioneOrdine;
+import it.ltc.model.shared.json.interno.RisultatoAssegnazioneOrdine.StatoAssegnazione;
+import it.ltc.model.shared.json.interno.RisultatoAssegnazioneRigaOrdine;
+import it.ltc.model.shared.json.interno.RisultatoAssegnazioneRigaOrdine.StatoAssegnazioneRiga;
+import it.ltc.model.shared.json.interno.RisultatoFinalizzazioneOrdine;
 import it.ltc.services.custom.exception.CustomException;
 
 public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao {
 	
-	//private static final Logger logger = Logger.getLogger("OrdineLegacyDAOImpl");
+	private static final Logger logger = Logger.getLogger("OrdineLegacyDAOImpl");
 	
 	protected final DestinatariDao daoDestinatari;
 	protected final MittentiOrdineDao daoMittenti;
 	protected final TestataOrdiniLogStatoDao daoStati;
 	protected final RighiImballoDao daoImballo;
 	protected final RighiPrelievoDao daoPrelievo;
+	protected final RighiOrdineDao daoRighe;
+	protected final RighiUbicPreDao daoAssegnazioni;
+	protected final MagaSdDao daoSaldi;
+	protected final MagaMovDao daoMovimenti;
+	
+	protected final ManagerAssegnazione managerAssegnazione;
 
 	public OrdineLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
@@ -47,6 +75,12 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		daoStati = new TestataOrdiniLogStatoDao(persistenceUnit);
 		daoImballo = new RighiImballoDao(persistenceUnit);
 		daoPrelievo = new RighiPrelievoDao(persistenceUnit);
+		daoRighe = new RighiOrdineDao(persistenceUnit);
+		daoAssegnazioni = new RighiUbicPreDao(persistenceUnit);
+		daoSaldi = new MagaSdDao(persistenceUnit);
+		daoMovimenti = new MagaMovDao(persistenceUnit);
+		
+		managerAssegnazione = new ManagerAssegnazione(persistenceUnit);
 	}
 	
 	protected TestataOrdini checkInserimento(OrdineTestata json) {
@@ -85,7 +119,9 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		TestataOrdini esistente = trovaDaID(json.getId());
 		if (esistente == null)
 			throw new CustomException("L'ID indicato per l'ordine non esiste. (" + json.getId() + ")");
-		//Controllo sullo stato etc.
+		//Controllo sullo stato
+		if (!esistente.getStato().equals("INSE"))
+			throw new CustomException("L'ordine non può più essere eliminato. (ID: " + json.getId() + ", stato: " + esistente.getStato() + ")");
 		return esistente;
 	}
 
@@ -106,6 +142,145 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	public OrdineTestata trovaPerID(int id) {
 		TestataOrdini entity = findByID(id);
 		return serializza(entity);
+	}
+	
+	protected TestataOrdini checkAssegnazione(int idOrdine) {
+		TestataOrdini esistente = trovaDaID(idOrdine);
+		if (esistente == null)
+			throw new CustomException("L'ID indicato per l'ordine non esiste. (" + idOrdine + ")");
+		String stato = esistente.getStato();
+		if (!("IMPO".equals(stato) || "ASSE".equals(stato)))
+			throw new CustomException("L'ordine non può essere assegnato. (ID: " + idOrdine + ", stato: " + esistente.getStato() + ")");
+		return esistente;
+	}
+	
+	protected TestataOrdini checkFinalizzazione(int idOrdine) {
+		TestataOrdini esistente = trovaDaID(idOrdine);
+		if (esistente == null)
+			throw new CustomException("L'ID indicato per l'ordine non esiste. (" + idOrdine + ")");
+		String stato = esistente.getStato();
+		if (!("INSE".equals(stato) || "ERRO".equals(stato)))
+				throw new CustomException("L'ordine non può essere finalizzato. (ID: " + idOrdine + ", stato: " + esistente.getStato() + ")");
+		return esistente;
+	}
+	
+	@Override
+	public RisultatoFinalizzazioneOrdine finalizza(int idOrdine) {
+		TestataOrdini testata = checkFinalizzazione(idOrdine);
+		List<ProblemaFinalizzazioneOrdine> problemi = finalizza(testata);
+		RisultatoFinalizzazioneOrdine risultato = new RisultatoFinalizzazioneOrdine();
+		risultato.setOrdine(serializza(testata)); //FIXME - Forse va ricaricata .
+		risultato.setProblemi(problemi);
+		return risultato;
+	}
+	
+	protected List<ProblemaFinalizzazioneOrdine> finalizza(TestataOrdini ordine) {
+		// Recupero la lista di prodotti richiesti e controllo la disponibilita'
+		List<RighiOrdine> prodotti = daoRighe.trovaRigheDaIDOrdine(ordine.getIdTestaSped());
+		logger.info("Verranno ora verificate " + prodotti.size() + " righe.");
+		//EntityManager em = getManager();
+		List<ProblemaFinalizzazioneOrdine> problemi = new LinkedList<>();
+//		List<CustomErrorCause> righeNonValide = new LinkedList<>();
+		HashMap<String, MagaSd> saldi = new HashMap<>();
+		//List<MagaSd> saldi = new LinkedList<>();
+		List<MagaMov> movimenti = new LinkedList<>();
+		for (RighiOrdine prodotto : prodotti) {
+			String keySaldo = prodotto.getIdUnicoArt() + "-" +  prodotto.getMagazzino();
+			if (!saldi.containsKey(keySaldo)) {
+				MagaSd saldo = daoSaldi.trovaDaArticoloEMagazzino(prodotto.getIdUnicoArt(), prodotto.getMagazzino());
+				saldi.put(keySaldo, saldo);
+			}
+			MagaSd saldo = saldi.get(keySaldo);
+			// Controllo ciò che ho trovato:
+			// - se la lista è vuota oppure se non ho disponibilita' aggiungo il numero di riga a quelle non valide e boccio la transazione.
+			// - altrimenti aggiorno la disponibilita' e l'impegno e genero il movimento di magazzino.
+			if (saldo == null || saldo.getDisponibile() < prodotto.getQtaSpedizione()) {
+				String message = "La riga " + prodotto.getNrRigo() + " non e' valida. (SKU: '" + prodotto.getCodiceArticolo() + "')";
+				String reason = saldo != null ? "la quantita' disponibile è insufficiente (saldo disponibile: " + saldo.getDisponibile() + ", quantità richiesta: " + prodotto.getQtaSpedizione() + ")" : "Non è disponibile a magazzino.";
+				logger.warn(message + reason);
+//				CustomErrorCause cause = new CustomErrorCause(message, reason);
+//				righeNonValide.add(cause);
+				ProblemaFinalizzazioneOrdine rigaNonValida = new ProblemaFinalizzazioneOrdine();
+				rigaNonValida.setIdOrdine(ordine.getIdTestaSped());
+				rigaNonValida.setIdRiga(prodotto.getIdRigoOrdine());
+				rigaNonValida.setNumeroRiga(prodotto.getNrRigo());
+				rigaNonValida.setIdProdotto(prodotto.getIdArticolo());
+				rigaNonValida.setSku(prodotto.getCodiceArticolo());
+				rigaNonValida.setTaglia(prodotto.getTaglia());
+				rigaNonValida.setDescrizione(prodotto.getDescrizione());
+				rigaNonValida.setQuantitaDisponibile(saldo == null ? 0 : saldo.getDisponibile());
+				rigaNonValida.setQuantitaRichiesta(prodotto.getQtaSpedizione());
+				problemi.add(rigaNonValida);
+				
+			} else {
+				int disponibile = saldo.getDisponibile() - prodotto.getQtaSpedizione();
+				int impegnato = saldo.getImpegnato() + prodotto.getQtaSpedizione();
+				saldo.setDisponibile(disponibile);
+				saldo.setImpegnato(impegnato);
+				//saldi.add(saldo);
+				//MagaMov movimento = getMovimento(saldo, prodotto);
+				MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
+				movimenti.add(movimento);
+			}
+		}
+		// Se non ho trovato problemi aggiorno tutti i saldi e inserisco i movimenti di magazzino
+		// Altrimenti chiudo l'entity manager e restituisco la lista delle righe non valide.
+		if (!problemi.isEmpty()) {
+			EntityManager em = getManager();
+			ordine = em.find(TestataOrdini.class, ordine.getIdTestaSped());
+			EntityTransaction t = em.getTransaction();
+			try {
+				t.begin();
+				ordine.setStato("ERRO");
+				em.merge(ordine);
+				t.commit();
+			} catch (Exception e) {
+				logger.error(e);
+				if (t != null && t.isActive())
+					t.rollback();
+			} finally {
+				em.close();
+			}
+		} else {
+			EntityManager em = getManager();
+			ordine = em.find(TestataOrdini.class, ordine.getIdTestaSped());
+			EntityTransaction t = em.getTransaction();
+			try {
+				t.begin();
+				ordine.setStato("IMPO");
+				em.merge(ordine);
+				for (MagaSd saldo : saldi.values()) {
+					em.merge(saldo);
+				}
+				for (MagaMov movimento : movimenti) {
+					em.persist(movimento);
+				}
+				t.commit();
+			} catch (Exception e) {
+				logger.error(e);
+				if (t != null && t.isActive())
+					t.rollback();
+			} finally {
+				em.close();
+			}
+		}
+		return problemi;
+	}
+	
+	@Override
+	public RisultatoAssegnazioneOrdine assegna(int idOrdine) {
+		TestataOrdini testata = checkAssegnazione(idOrdine);
+		AssegnazioneOrdine assegnazione = managerAssegnazione.preparaAssegnazioneOrdine(testata);
+		boolean ok = managerAssegnazione.assegnaOrdine(assegnazione);
+		RisultatoAssegnazioneOrdine json = ok ? serializzaAssegnazione(idOrdine) : null;
+		return json;
+	}
+	
+	@Override
+	public RisultatoAssegnazioneOrdine recuperaAssegnazione(int idOrdine) {
+		checkAssegnazione(idOrdine);
+		RisultatoAssegnazioneOrdine json = serializzaAssegnazione(idOrdine);
+		return json;
 	}
 
 	@Override
@@ -166,6 +341,47 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			stati.add(stato);
 		}
 		return stati;
+	}
+	
+	protected RisultatoAssegnazioneOrdine serializzaAssegnazione(int idOrdine) {
+		RisultatoAssegnazioneOrdine risultato = new RisultatoAssegnazioneOrdine();
+		//Recupero le info aggiornate sulla testata
+		TestataOrdini testata = trovaDaID(idOrdine);
+		risultato.setOrdine(serializza(testata));
+		//Imposto il risultato dell'assegnazione
+		StatoAssegnazione statoAssegnazione;
+		switch (testata.getStatoUbicazione()) {
+			case "UP" : statoAssegnazione = StatoAssegnazione.PARZIALE; break; 
+			case "UT" : statoAssegnazione = StatoAssegnazione.OK; break;
+			default : statoAssegnazione = StatoAssegnazione.NONDEFINITA;
+		}
+		risultato.setStato(statoAssegnazione);
+		//Recupero le info su righiubicpre e le inserisco nel risultato
+		List<RisultatoAssegnazioneRigaOrdine> assegnazioni = new LinkedList<>();
+		List<Righiubicpre> righe = daoAssegnazioni.trovaDaLista(testata.getNrLista());
+		for (Righiubicpre riga : righe) {
+			//Recupero la riga d'ordine associata
+			RighiOrdine rigaOrdine = daoRighe.trovaDaID(riga.getIdRigoOrdine());
+			RisultatoAssegnazioneRigaOrdine assegnazione = new RisultatoAssegnazioneRigaOrdine();
+			assegnazione.setIdRigaOrdine(riga.getIdRigoOrdine());
+			assegnazione.setNumeroRiga(rigaOrdine.getNrRigo());
+			assegnazione.setQuantitaAssegnata(rigaOrdine.getQtaAssegnata());
+			assegnazione.setQuantitaRichiesta(rigaOrdine.getQtaSpedizione());
+			assegnazione.setSku(rigaOrdine.getCodiceArticolo());
+			assegnazione.setTaglia(rigaOrdine.getTaglia());
+			assegnazione.setDescrizione(rigaOrdine.getDescrizione());			
+			assegnazione.setCollo(riga.getNrcollo());
+			assegnazione.setIdProdotto(riga.getIdArticolo());
+			assegnazione.setIdRigaAssegnazione(riga.getIdubica());
+			assegnazione.setQuantita(riga.getQuantita());
+			assegnazione.setTotalePezzi(riga.getQuantita()); //FIXME - Qui andrebbe moltiplicato per il numero di pezzi della cassa.
+			assegnazione.setUbicazione(riga.getUbicazione());
+			assegnazione.setStato(StatoAssegnazioneRiga.valueOf(riga.getTipoAssegnazione()));
+			assegnazione.setAnomalie(riga.getAnomalie());
+			assegnazioni.add(assegnazione);
+		}
+		risultato.setAssegnazioni(assegnazioni);
+		return risultato;
 	}
 	
 	protected OrdineTestata serializza(TestataOrdini testata) {

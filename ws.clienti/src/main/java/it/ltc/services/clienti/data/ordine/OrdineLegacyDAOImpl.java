@@ -124,7 +124,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		if (ordine != null) {
 			List<RighiOrdine> dettagli;
 			// Se hanno richiesto nel dettaglio e l'ordine è in uno stato congruo allora aggiungo info.
-			StatoOrdine stato = getStatoOrdine(ordine);
+			StatoOrdine stato = ordine.getStatoOrdine();
 			boolean statoOk = (stato == StatoOrdine.DIIB || stato == StatoOrdine.COIB || stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP || stato == StatoOrdine.SPED);
 			if (dettagliato && statoOk) {
 				dettagli = daoRigheOrdine.trovaRigheDaIDOrdine(ordine.getIdTestaSped());
@@ -581,7 +581,8 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				t.commit();
 			} catch (Exception e) {
 				logger.error(e);
-				t.rollback();
+				if (t != null && t.isActive())
+					t.rollback();
 			} finally {
 				em.close();
 			}
@@ -613,29 +614,6 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		}
 		return finalizza;
 	}
-
-//	private MagaMov getMovimento(MagaSd saldo, RighiOrdine prodotto) {
-//		MagaMov movimento = new MagaMov();
-//		movimento.setCausale("IOS");
-//		movimento.setDocNr(prodotto.getNrLista());
-//		movimento.setDocData(prodotto.getDataOrdine());
-//		movimento.setDocCat("O");
-//		movimento.setDocNote("Impegnato da ordine cliente.");
-//		movimento.setDocTipo("ORD");
-//		movimento.setCodMaga(prodotto.getMagazzino());
-//		movimento.setDisponibilemov(saldo.getDisponibile());
-//		movimento.setEsistenzamov(saldo.getEsistenza());
-//		movimento.setImpegnatomov(saldo.getImpegnato());
-//		movimento.setSegno("+");
-//		movimento.setSegnoDis("-");
-//		movimento.setSegnoEsi("N");
-//		movimento.setSegnoImp("+");
-//		movimento.setIdUniArticolo(prodotto.getIdUnicoArt());
-//		movimento.setIncTotali("NO");
-//		movimento.setTipo("IP");
-//		movimento.setQuantita(prodotto.getQtaSpedizione());
-//		return movimento;
-//	}
 
 	@Override
 	public TestataOrdini deserializzaUscita(OrdineJSON jsonOrdine) {
@@ -758,7 +736,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		json.setCodiceTracking(uscita.getNrLetteraVettura());
 		// Dati ordine
 		json.setId(uscita.getIdTestaSped());
-		StatoOrdine statoOrdine = getStatoOrdine(uscita);
+		StatoOrdine statoOrdine = uscita.getStatoOrdine();
 		json.setStato(statoOrdine.getNome());
 		json.setTipo(uscita.getTipoOrdine());
 		json.setDataOrdine(uscita.getDataOrdine());
@@ -870,7 +848,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	
 	private OrdineImballatoJSON ottieniDettagliImballo(TestataOrdini ordine) {
 		//Controllo lo stato dell'ordine, se non va bene lancio un'eccezione
-		StatoOrdine stato = getStatoOrdine(ordine);
+		StatoOrdine stato = ordine.getStatoOrdine();
 		boolean statoOk = (stato == StatoOrdine.DIIB || stato == StatoOrdine.COIB || stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP || stato == StatoOrdine.SPED);
 		if (!statoOk)
 			throw new CustomException("L'ordine non è ancora stato finito di imballare.");
@@ -947,38 +925,8 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		}
 		return spedisci;
 	}
-
-	protected boolean aggiornaInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
-		boolean aggiornamento;
-		// Utility
-		SimpleDateFormat meseGiorno = new SimpleDateFormat("MMdd");
-		// Recupero la spedizione dal primo ordine, ho già controllato che siano tutti uguali
-		TestataOrdini primoOrdine = ordiniDaSpedire.get(0);
-		EntityManager em = getManager();
-		TestaCorr spedizione = em.find(TestaCorr.class, primoOrdine.getIdTestaCorr());
-		// Aggiorno i campi necessari
-		spedizione.setCorriere(infoSpedizione.getCorriere());
-		int dataConsegna = infoSpedizione.getDataConsegna() != null ? Integer.parseInt(meseGiorno.format(infoSpedizione.getDataConsegna())) : 0;
-		spedizione.setDataConsegna(dataConsegna);
-		String note = infoSpedizione.getNote() != null ? infoSpedizione.getNote() : "";
-		String note1 = note.length() > 35 ? note.substring(0, 35) : note;
-		String note2 = note.length() > 35 ? note.substring(35, note.length()) : "";
-		spedizione.setNote1(note1);
-		spedizione.setNote2(note2);
-		spedizione.setServizio(infoSpedizione.getServizioCorriere());
-		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
-		
-		//Documento - Non lo faccio nella versione base
-//		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-//		if (documento != null) {
-//			spedizione.setDocumentoBase64(documento.getDocumentoBase64());
-//			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
-//			documento.getData();
-//			documento.getRiferimento();
-//			documento.getTipo();
-//		}
-
-		// Contrassegno
+	
+	protected void setInfoContrassegno(TestaCorr spedizione, SpedizioneJSON infoSpedizione) {
 		ContrassegnoJSON infoContrassegno = infoSpedizione.getContrassegno();
 		if (infoContrassegno != null) {
 			spedizione.setCodBolla("4 ");
@@ -991,6 +939,50 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			spedizione.setTipoIncasso("  ");
 			spedizione.setValutaIncasso("EUR");
 		}
+	}
+	
+	protected void setInfoDocumento(TestaCorr spedizione, SpedizioneJSON infoSpedizione) {
+		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
+		if (documento != null) {
+			//FIXME - Salvare questi dati su TestaCorr o sulle TestataOrdini
+			documento.getData();
+			documento.getRiferimento();
+			documento.getTipo();
+		}
+	}
+	
+	protected void setInfoSpedizione(TestataOrdini ordine, TestaCorr spedizione, SpedizioneJSON infoSpedizione) {
+		// Aggiorno i campi necessari
+		spedizione.setCorriere(infoSpedizione.getCorriere());
+		spedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
+		int dataConsegna = infoSpedizione.getDataConsegna() != null ? Integer.parseInt(meseGiorno.format(infoSpedizione.getDataConsegna())) : 0;
+		spedizione.setDataConsegna(dataConsegna);
+		String note = infoSpedizione.getNote() != null ? infoSpedizione.getNote() : "";
+		String note1 = note.length() > 35 ? note.substring(0, 35) : note;
+		String note2 = note.length() > 35 ? note.substring(35, note.length()) : "";
+		spedizione.setNote1(note1);
+		spedizione.setNote2(note2);
+		spedizione.setServizio(infoSpedizione.getServizioCorriere());
+		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
+		spedizione.setMittenteAlfa(ordine.getNrOrdine());
+	}
+
+	protected boolean aggiornaInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
+		boolean aggiornamento;
+		
+		// Recupero la spedizione dal primo ordine, ho già controllato che siano tutti uguali o che abbiano forzato l'accoppiamento
+		TestataOrdini primoOrdine = ordiniDaSpedire.get(0);
+		EntityManager em = getManager();
+		TestaCorr spedizione = em.find(TestaCorr.class, primoOrdine.getIdTestaCorr());
+		
+		// Aggiorno i campi necessari
+		setInfoSpedizione(primoOrdine, spedizione, infoSpedizione);
+		
+		//Documento - Non lo faccio nella versione base
+		setInfoDocumento(spedizione, infoSpedizione);
+
+		// Contrassegno
+		setInfoContrassegno(spedizione, infoSpedizione);
 
 		// Vado in scrittura in maniera transazionale.
 		EntityTransaction transaction = em.getTransaction();
@@ -1000,8 +992,9 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			transaction.commit();
 			aggiornamento = true;
 		} catch (Exception e) {
-			logger.error(e);
-			transaction.rollback();
+			logger.error(e.getMessage(), e);
+			if (transaction != null && transaction.isActive())
+				transaction.rollback();
 			aggiornamento = false;
 		} finally {
 			em.close();
@@ -1035,6 +1028,28 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		rigaSpedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
 		return rigaSpedizione;
 	}
+	
+	protected void setInfoDestinatario(TestataOrdini ordine, TestaCorr spedizione) {
+		Destinatari destinatario = daoIndirizzi.trovaDestinatario(ordine.getIdDestina());
+		if (destinatario == null)
+			throw new CustomException("Il destinatario per la spedizione non è stato trovato!");
+		spedizione.setCap(destinatario.getCap());
+		spedizione.setIndirizzo(destinatario.getIndirizzo());
+		spedizione.setLocalita(destinatario.getLocalita());
+		spedizione.setNazione(destinatario.getNazione());
+		spedizione.setProvincia(destinatario.getProvincia());
+		spedizione.setRagSocDest(destinatario.getRagSoc1());
+		spedizione.setRagSocEst(destinatario.getRagSoc2());
+	}
+	
+	protected void setInfoMittente(TestataOrdini ordine, TestaCorr spedizione) {
+		MittentiOrdine mittente = daoIndirizzi.trovaMittente(ordine.getIdMittente());
+		if (mittente == null)
+			throw new CustomException("Il mittente per la spedizione non è stato trovato!");
+		spedizione.setCapMitt(mittente.getCap());
+		spedizione.setNazioneMitt(mittente.getNazione());
+		spedizione.setRagSocMitt(mittente.getRagioneSociale());
+	}
 
 	protected boolean inserisciInfoSpedizione(List<TestataOrdini> ordiniDaSpedire, SpedizioneJSON infoSpedizione) {
 		boolean inserimento;
@@ -1049,59 +1064,26 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 		// Recupero il mittente e il destinatario dal primo ordine, ho già
 		// controllato che siano tutti uguali
 		TestataOrdini primoOrdine = ordiniDaSpedire.get(0);
-		Destinatari destinatario = daoIndirizzi.trovaDestinatario(primoOrdine.getIdDestina());
-		MittentiOrdine mittente = daoIndirizzi.trovaMittente(primoOrdine.getIdMittente());
-		// Imposto alcune info di testacorr
-		spedizione.setCorriere(infoSpedizione.getCorriere());
-		spedizione.setCodMittente(infoSpedizione.getCodiceCorriere());
-		int dataConsegna = infoSpedizione.getDataConsegna() != null ? Integer.parseInt(meseGiorno.format(infoSpedizione.getDataConsegna())) : 0;
-		spedizione.setDataConsegna(dataConsegna);
-		spedizione.setMittenteAlfa(primoOrdine.getNrOrdine());
-		int progressivoSpedizione = daoTestaCorr.getProgressivoSpedizioneTestaCorr(); //getProgressivoSpedizioneTestaCorr();
-		spedizione.setMittenteNum(progressivoSpedizione);
-		String note = infoSpedizione.getNote() != null ? infoSpedizione.getNote() : ""; //Ho già verificato che sia <= 70 caratteri.
-		String note1 = note.length() > 35 ? note.substring(0, 35) : note;
-		String note2 = note.length() > 35 ? note.substring(35, note.length()) : "";
-		spedizione.setNote1(note1);
-		spedizione.setNote2(note2);
-		spedizione.setNrSpedi(progressivoSpedizione);
-		spedizione.setServizio(infoSpedizione.getServizioCorriere());
-		spedizione.setValoreMerce(infoSpedizione.getValoreDoganale());
 		
-		//Documento - Questa parte la faccio solo per quelli che hanno un documento da gestire.
-//		DocumentoJSON documento = infoSpedizione.getDocumentoFiscale();
-//		if (documento != null) {
-//			spedizione.setDocumentoData(new Timestamp(documento.getData().getTime()));
-//			spedizione.setDocumentoRiferimento(documento.getRiferimento());
-//			spedizione.setDocumentoTipo(documento.getTipo());
-//		}
+		// Imposto alcune info di testacorr (da fare solo all'inserimento)
+		int progressivoSpedizione = daoTestaCorr.getProgressivoSpedizioneTestaCorr();
+		spedizione.setMittenteNum(progressivoSpedizione);
+		spedizione.setNrSpedi(progressivoSpedizione);
+		
+		//Info spedizione
+		setInfoSpedizione(primoOrdine, spedizione, infoSpedizione);
+		
+		//Documento - Non lo faccio nella versione base
+		setInfoDocumento(spedizione, infoSpedizione);
 
 		// Contrassegno
-		ContrassegnoJSON infoContrassegno = infoSpedizione.getContrassegno();
-		if (infoContrassegno != null) {
-			spedizione.setCodBolla("4 ");
-			spedizione.setContrassegno(infoContrassegno.getValore());
-			spedizione.setTipoIncasso(infoContrassegno.getTipo());
-			spedizione.setValutaIncasso(infoContrassegno.getValuta());
-		} else {
-			spedizione.setCodBolla("1 ");
-			spedizione.setContrassegno(0.0);
-			spedizione.setTipoIncasso("  ");
-			spedizione.setValutaIncasso("EUR");
-		}
+		setInfoContrassegno(spedizione, infoSpedizione);
 
-		spedizione.setCap(destinatario.getCap());
-		spedizione.setIndirizzo(destinatario.getIndirizzo());
-		spedizione.setLocalita(destinatario.getLocalita());
-		spedizione.setNazione(destinatario.getNazione());
-		spedizione.setProvincia(destinatario.getProvincia());
-		spedizione.setRagSocDest(destinatario.getRagSoc1());
-		spedizione.setRagSocEst(destinatario.getRagSoc2());
-		//spedizione.setTelefono(destinatario.getTel());
+		//Destinatario
+		setInfoDestinatario(primoOrdine, spedizione);
 
-		spedizione.setCapMitt(mittente.getCap());
-		spedizione.setNazioneMitt(mittente.getNazione());
-		spedizione.setRagSocMitt(mittente.getRagioneSociale());
+		//Mittente
+		setInfoMittente(primoOrdine, spedizione);
 
 		// Recupero le info necessarie da ogni ordine e aggiorno quelle che dovranno essere salvate
 		for (TestataOrdini ordine : ordiniDaSpedire) {
@@ -1111,6 +1093,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			ordine.setStato("INSP");
 			ordine.setCodCorriere(infoSpedizione.getCorriere());
 			ordine.setCodiceClienteCorriere(infoSpedizione.getCodiceCorriere());
+			ContrassegnoJSON infoContrassegno = infoSpedizione.getContrassegno();
 			if (infoContrassegno != null) {
 				ordine.setTipoIncasso(infoContrassegno.getTipo());
 				ordine.setValContrassegno(infoContrassegno.getValore());
@@ -1157,8 +1140,9 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 			transaction.commit();
 			inserimento = true;
 		} catch (Exception e) {
-			logger.error(e);
-			transaction.rollback();
+			logger.error(e.getMessage(), e);
+			if (transaction != null && transaction.isActive())
+				transaction.rollback();
 			inserimento = false;
 		} finally {
 			em.close();
@@ -1169,22 +1153,6 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 	protected List<ColliImballo> recuperaImballiDaOrdine(TestataOrdini ordine) {
 		List<ColliImballo> dettagli = daoColliImballati.trovaDaNumeroLista(ordine.getNrLista());
 		return dettagli;
-	}
-	
-	/**
-	 * Controlla lo stato dell'ordine e lo converte in un valore della enum.<br>
-	 * Nel caso in cui qualcosa sia andato storto restituisce lo stato "NONE".
-	 * @param uscita la testata dell'ordine.
-	 * @return lo stato dell'ordine come enum.
-	 */
-	protected StatoOrdine getStatoOrdine(TestataOrdini uscita) {
-		StatoOrdine stato;
-		try {
-			stato = StatoOrdine.valueOf(uscita.getStato());
-		} catch (Exception e) {
-			stato = StatoOrdine.NONE;
-		}
-		return stato;
 	}
 
 	private List<TestataOrdini> checkOrdiniDaSpedire(SpedizioneJSON spedizione) {
@@ -1204,7 +1172,7 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				continue; //Passo al riferimento successivo.
 			} else {
 				ordiniDaSpedire.add(ordine);
-				StatoOrdine stato = getStatoOrdine(ordine);
+				StatoOrdine stato = ordine.getStatoOrdine();
 				if (!(stato == StatoOrdine.ELAB || stato == StatoOrdine.INSP)) {
 					CustomErrorCause problema = new CustomErrorCause("Non è possibile indicare informazioni per la spedizione dell'ordine indicato.", riferimento + " (Stato: " + stato.getNome() + ")");
 					problemiRiscontrati.add(problema);

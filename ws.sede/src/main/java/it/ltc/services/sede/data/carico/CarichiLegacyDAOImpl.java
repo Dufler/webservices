@@ -65,11 +65,22 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 	}
 	
 	protected PakiTesta checkInserimento(CaricoTestata json) {
-		PakiTesta testata = deserializza(json);
+		PakiTesta testata = deserializza(json, new PakiTesta());
 		//Controllo il riferimento
 		PakiTesta esistente = trovaDaRiferimento(testata.getNrPaki());
 		if (esistente != null)
 			throw new CustomException("Il riferimento indicato per il carico è già esistente. (" + testata.getNrPaki() + ")");
+		return testata;
+	}
+	
+	protected PakiTesta checkAggiornamento(CaricoTestata json) {
+		PakiTesta testata =	trovaDaID(json.getId());
+		//Controllo l'esistenza
+		if (testata == null)
+			throw new CustomException("Il riferimento indicato per il carico non esiste. (" + json.getId() + ")");
+		if (!"INSERITO".equals(testata.getStato()) && !"ARRIVATO".equals(testata.getStato()))
+			throw new CustomException("Il carico richiesto non è più modificabile.");
+		testata = deserializza(json, testata);
 		return testata;
 	}
 
@@ -82,7 +93,7 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 
 	@Override
 	public CaricoTestata aggiorna(CaricoTestata json) {
-		PakiTesta testata = deserializza(json);
+		PakiTesta testata = checkAggiornamento(json);
 		PakiTesta entity = update(testata, testata.getIdTestaPaki());
 		return serializza(entity);
 	}
@@ -182,10 +193,8 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 		return stati;
 	}
 	
-	protected PakiTesta deserializza(CaricoTestata json) {
-		PakiTesta testata;
+	protected PakiTesta deserializza(CaricoTestata json, PakiTesta testata) {
 		if (json != null) {
-			testata = new PakiTesta();
 			testata.setDataInizio(new Timestamp(json.getDataArrivo() != null ? json.getDataArrivo().getTime() : new Date().getTime()));
 			testata.setDataArrivo(new Timestamp(json.getDataArrivoPresunto() != null ? json.getDataArrivoPresunto().getTime() : new Date().getTime()));
 			testata.setDataPaki(new Timestamp(json.getDocumentoData() != null ? json.getDocumentoData().getTime() : new Date().getTime()));
