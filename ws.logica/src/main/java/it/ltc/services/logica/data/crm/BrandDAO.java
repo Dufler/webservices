@@ -10,7 +10,7 @@ public interface BrandDAO {
 	
 	public List<Brand> trovaDaAzienda(int idAzienda);
 	
-	public List<Brand> trovaDaNome(String nome);
+	public List<Brand> cercaDaNome(String nome);
 	
 	public Brand trova(int id);
 	

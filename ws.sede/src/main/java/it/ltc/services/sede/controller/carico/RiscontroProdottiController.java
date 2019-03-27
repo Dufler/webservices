@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.CommessaUtenti;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.exception.CustomException;
 import it.ltc.services.sede.data.carico.RiscontroProdottiDAO;
@@ -44,7 +44,7 @@ public class RiscontroProdottiController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<ProdottoCaricoJSON>> cerca(@RequestBody ProdottoCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Ricerca prodotti nel collo.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
 		List<ProdottoCaricoJSON> prodotti = dao.trovaProdotti(collo);
 		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -55,7 +55,7 @@ public class RiscontroProdottiController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<ProdottoCaricoJSON> inserisci(@Valid @RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo prodotto nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
 		prodotto.setOperatoreCreazione(user.getUsername());
 		prodotto = dao.nuovoProdotto(prodotto);
@@ -67,7 +67,7 @@ public class RiscontroProdottiController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<ProdottoCaricoJSON> aggiorna(@Valid @RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Modifica di un prodotto nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
 		prodotto = dao.aggiornaProdotto(prodotto);
 		HttpStatus status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -78,7 +78,7 @@ public class RiscontroProdottiController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<ProdottoCaricoJSON> elimina(@RequestBody ProdottoCaricoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Eliminazione di un prodotto nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroProdottiDAO dao = getDao(user, commessa);
 		prodotto = dao.eliminaProdotto(prodotto);
 		HttpStatus status = prodotto != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -86,9 +86,9 @@ public class RiscontroProdottiController extends RestController {
 		return response;
 	}
 	
-	private RiscontroProdottiDAO getDao(Utente user, String risorsaCommessa) {
+	private RiscontroProdottiDAO getDao(UtenteUtenti user, String risorsaCommessa) {
 		RiscontroProdottiDAO dao;
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
+		CommessaUtenti commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null) {
 			String persistenceUnitName = commessa.getNomeRisorsa();
 			dao = new RiscontroProdottiLegacyDAOImpl(persistenceUnitName);

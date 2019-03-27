@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.IDestinatarioDao;
 import it.ltc.model.shared.json.cliente.IndirizzoJSON;
 import it.ltc.services.custom.controller.RestController;
@@ -47,7 +47,7 @@ public class DestinatarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<IndirizzoJSON> inserisci(@Valid @RequestBody IndirizzoJSON destinatario, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di inserimento destinatario: " + destinatario + " Utente: " + user.getUsername());
 		IDestinatarioDao dao = factory.getDao(user, commessa);
 		IndirizzoJSON entity = dao.inserisci(destinatario);
@@ -59,7 +59,7 @@ public class DestinatarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<IndirizzoJSON> modifica(@Valid @RequestBody IndirizzoJSON destinatario, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di modifica destinatario: " + destinatario  + " Utente: " + user.getUsername());
 		IDestinatarioDao dao = factory.getDao(user, commessa);
 		IndirizzoJSON entity = dao.aggiorna(destinatario);
@@ -71,7 +71,7 @@ public class DestinatarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<IndirizzoJSON> elimina(@RequestBody IndirizzoJSON destinatario, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di eliminazione destinatario: " + destinatario  + " Utente: " + user.getUsername());
 		IDestinatarioDao dao = factory.getDao(user, commessa);
 		IndirizzoJSON entity = dao.elimina(destinatario);
@@ -83,7 +83,7 @@ public class DestinatarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/cerca")
 	public ResponseEntity<List<IndirizzoJSON>> cerca(@RequestBody IndirizzoJSON filtro, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di ricerca destinatari"  + " Utente: " + user.getUsername());		
 		IDestinatarioDao dao = factory.getDao(user, commessa);
 		List<IndirizzoJSON> destinatari = dao.cerca(filtro);
@@ -95,7 +95,7 @@ public class DestinatarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<IndirizzoJSON> trovaDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer id) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di destinatario da ID"  + " Utente: " + user.getUsername());		
 		IDestinatarioDao dao = factory.getDao(user, commessa);
 		IndirizzoJSON destinatario = dao.trovaPerID(id);

@@ -4,8 +4,10 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -34,8 +36,8 @@ import it.ltc.database.model.legacy.PakiTestaLogStato;
 import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.database.model.legacy.model.PakiTestaTotali;
 import it.ltc.model.shared.dao.ICaricoDao;
-import it.ltc.model.shared.json.interno.CaricoStato;
-import it.ltc.model.shared.json.interno.CaricoTestata;
+import it.ltc.model.shared.json.interno.carico.CaricoStato;
+import it.ltc.model.shared.json.interno.carico.CaricoTestata;
 import it.ltc.services.custom.exception.CustomErrorCause;
 import it.ltc.services.custom.exception.CustomException;
 
@@ -516,16 +518,22 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 		List<MagaMov> movimentiDaInserire = new LinkedList<>();
 		List<ColliPack> prodottiDisponibili = new LinkedList<>();
 		List<ColliCarico> colliDisponibili = new LinkedList<>();
+		Set<String> colliCancellati = new HashSet<>();
 		//Modifico i dati sul carico
 		entity.setDataOraGenerazione(new Timestamp(new Date().getTime()));
 		entity.setGeneratoMov("SI");
 		entity.setGeneratoFile("SI");
 		entity.setFlagTra("F");
 		HashMap<String, Integer> mappaProdotti = new HashMap<>();
-		//Trovo i colli nel carico e li flaggo come disponibili
-		colliDisponibili = daoColli.trovaColliNelCarico(entity.getIdTestaPaki());
-		for (ColliCarico collo : colliDisponibili) {
-			collo.setFlagtc("1");
+		//Trovo i colli nel carico, prendo quelli non eliminati e li flaggo come disponibili
+		List<ColliCarico> colliNelCarico = daoColli.trovaColliNelCarico(entity.getIdTestaPaki());
+		for (ColliCarico collo : colliNelCarico) {
+			if (collo.getCancellato().equals("NO")) {
+				collo.setFlagtc("1");
+				colliDisponibili.add(collo);
+			} else {
+				colliCancellati.add(collo.getKeyColloCar());
+			}
 		}
 		//Trovo i prodotti nel carico
 		List<ColliPack> prodottiCarico = daoProdotti.trovaProdottiNelCarico(entity.getIdTestaPaki());
@@ -533,6 +541,10 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 		checkPakiArticoloVsColliPackPerGenerazioneCarico(entity, prodottiCarico);
 		//Li rendo disponibili
 		for (ColliPack prodotto : prodottiCarico) {
+			//Controllo che non sia dentro uno dei colli cancellati
+			if (colliCancellati.contains(prodotto.getNrIdColloPk())) {
+				throw new CustomException("Dentro il collo " + prodotto.getNrIdColloPk() + " che è stato segnato come distrutto sono presenti dei prodotti, controllare e contattare il CED.");
+			}
 			prodotto.setFlagtc(1);
 			prodottiDisponibili.add(prodotto);
 			String key = prodotto.getCodiceArticolo() + SPLIT_CHAR + prodotto.getMagazzino();
@@ -595,7 +607,7 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 			t.commit();
 		} catch (Exception e) {
 			entity = null;
-			logger.error(e);
+			logger.error(e.getMessage(), e);
 			if (t != null && t.isActive())
 				t.rollback();
 		} finally {

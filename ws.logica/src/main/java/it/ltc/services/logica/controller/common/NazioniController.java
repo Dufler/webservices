@@ -2,24 +2,23 @@ package it.ltc.services.logica.controller.common;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import it.ltc.database.dao.common.NazioneDao;
-import it.ltc.database.model.centrale.Nazione;
+import it.ltc.database.dao.costanti.NazioneDao;
+import it.ltc.database.model.costanti.Nazione;
+
 
 @Controller
 @RequestMapping("/nazione")
 public class NazioniController {
 	
-	private final NazioneDao dao;
-    
-    public NazioniController() {
-    	dao = new NazioneDao();
-    }
+	@Autowired
+	private NazioneDao dao;
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Nazione> listAllMembers() {

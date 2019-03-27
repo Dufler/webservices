@@ -8,6 +8,6 @@ public interface SaldiMagazzinoDAO {
 
 	public List<InfoProdotto> getDisponibilita();
 	
-	public List<InfoProdotto> getDisponibilita(String codificaMagazzino);
+	public List<InfoProdotto> getDisponibilitaPerCodiceMagazzinoCliente(String codificaMagazzino);
 	
 }

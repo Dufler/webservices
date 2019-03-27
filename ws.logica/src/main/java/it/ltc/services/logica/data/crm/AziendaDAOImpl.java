@@ -12,15 +12,16 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.AziendaDao;
 import it.ltc.database.dao.common.IndirizzoDao;
 import it.ltc.database.model.centrale.Azienda;
 import it.ltc.database.model.centrale.AziendaBrand;
 import it.ltc.database.model.centrale.AziendaContatti;
 import it.ltc.database.model.centrale.Indirizzo;
+import it.ltc.services.custom.exception.CustomException;
 
 @Repository
-public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
+public class AziendaDAOImpl extends AziendaDao implements AziendaDAO {
 	
 	private static final Logger logger = Logger.getLogger("AziendaDAOImpl");
 	
@@ -34,7 +35,7 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 	private AssociazioneAziendaContattiDAO aziendaContattiDao;
 
 	public AziendaDAOImpl() {
-		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, Azienda.class);
+		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME);
 	}
 
 	@Override
@@ -48,7 +49,7 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 		List<AziendaContatti> lista = aziendaContattiDao.trovaDaContatto(idContatto);
 		List<Azienda> aziende = new LinkedList<Azienda>();
 		for (AziendaContatti match : lista) {
-			Azienda azienda = trova(match.getAzienda());
+			Azienda azienda = trovaDaID(match.getAzienda());
 			if (azienda != null)
 				aziende.add(azienda);
 		}
@@ -60,7 +61,7 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 		List<AziendaBrand> lista = aziendaBrandDao.trovaDaBrand(idBrand);
 		List<Azienda> aziende = new LinkedList<Azienda>();
 		for (AziendaBrand match : lista) {
-			Azienda azienda = trova(match.getAzienda());
+			Azienda azienda = trovaDaID(match.getAzienda());
 			if (azienda != null)
 				aziende.add(azienda);
 		}
@@ -80,47 +81,21 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 	}
 
 	@Override
-	public Azienda trova(int id) {
-		Azienda entity = findByID(id);
-		return entity;
-	}
-
-	@Override
 	public Azienda inserisci(Azienda azienda) {
+		//Controllo che non esista già un azienda con la stessa ragione sociale o p. iva
+		Azienda esistente = trovaDaRagioneSociale(azienda.getRagioneSociale());
+		if (esistente != null)
+			throw new CustomException("Esiste già un'azienda con la stessa ragione sociale. (Azienda: " + esistente.getRagioneSociale() + ", P.IVA/C.F. " + esistente.getPartitaIva() + ")");
+		esistente = trovaDaPIVA(azienda.getPartitaIva());
+		if (esistente != null)
+			throw new CustomException("Esiste già un'azienda con la stessa P. IVA/C.F. (Azienda: " + esistente.getRagioneSociale() + ", P.IVA/C.F. " + esistente.getPartitaIva() + ")");
 		Azienda entity = insert(azienda);
 		return entity;
 	}
 
 	@Override
-	public Azienda aggiorna(Azienda azienda) {
-		Azienda entity = update(azienda, azienda.getId());
-		return entity;
-	}
-
-	@Override
-	public Azienda elimina(Azienda azienda) {
-		Azienda entity = delete(azienda.getId());
-		return entity;
-	}
-
-	@Override
-	protected void updateValues(Azienda oldEntity, Azienda entity) {
-		oldEntity.setAppetibile(entity.getAppetibile());
-		oldEntity.setEmail(entity.getEmail());
-		oldEntity.setIndirizzo(entity.getIndirizzo());
-		oldEntity.setInTrattiva(entity.getInTrattiva());
-		oldEntity.setPartitaIva(entity.getPartitaIva());
-		oldEntity.setRagioneSociale(entity.getRagioneSociale());
-		oldEntity.setSitoWeb(entity.getSitoWeb());
-		oldEntity.setTelefono(entity.getTelefono());
-		oldEntity.setTipoLogistica(entity.getTipoLogistica());
-		oldEntity.setValutazione(entity.getValutazione());
-		oldEntity.setDescrizione(entity.getDescrizione());
-	}
-
-	@Override
 	public Indirizzo trovaIndirizzo(int idAzienda) {
-		Azienda azienda = trova(idAzienda);
+		Azienda azienda = trovaDaID(idAzienda);
 		Indirizzo indirizzo = azienda != null && azienda.getIndirizzo() != null ? daoIndirizzi.trovaDaID(azienda.getIndirizzo()) : null;
 		return indirizzo;
 	}
@@ -128,7 +103,7 @@ public class AziendaDAOImpl extends CRUDDao<Azienda> implements AziendaDAO {
 	@Override
 	public Indirizzo salvaIndirizzo(int idAzienda, Indirizzo indirizzo) {
 		Indirizzo entity = daoIndirizzi.salvaIndirizzo(indirizzo);
-		Azienda azienda = trova(idAzienda);
+		Azienda azienda = trovaDaID(idAzienda);
 		if (entity != null && azienda != null) {
 			azienda.setIndirizzo(entity.getId());
 			azienda = aggiorna(azienda);

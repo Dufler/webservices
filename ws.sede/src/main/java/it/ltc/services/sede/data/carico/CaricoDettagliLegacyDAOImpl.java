@@ -17,7 +17,7 @@ import it.ltc.database.model.legacy.PakiArticolo;
 import it.ltc.database.model.legacy.PakiTesta;
 import it.ltc.database.model.legacy.model.PakiTestaTotali;
 import it.ltc.model.shared.dao.ICaricoDettaglioDao;
-import it.ltc.model.shared.json.interno.CaricoDettaglio;
+import it.ltc.model.shared.json.interno.carico.CaricoDettaglio;
 import it.ltc.services.custom.exception.CustomException;
 
 public class CaricoDettagliLegacyDAOImpl extends PakiArticoloDao implements ICaricoDettaglioDao {

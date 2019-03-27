@@ -6,13 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.model.shared.json.interno.CaricoTestata;
+import it.ltc.model.shared.json.interno.carico.CaricoTestata;
 
 @Component
 public class CaricoTestataValidator implements Validator {
 	
-	public static final String regexStagione = "^(AU|IN|PR|ES|AI|PE|CO)\\d{2}"; //Qua volendo possiamo andare ad aggiungere una codifica per mese nel caso in cui servisse. (es. Gennaio -> GE etc.)
-
+	//public static final String regexStagione = "^(AU|IN|PR|ES|AI|PE|CO)\\d{2}"; //Qua volendo possiamo andare ad aggiungere una codifica per mese nel caso in cui servisse. (es. Gennaio -> GE etc.)
 
 	@Override
 	public boolean supports(Class<?> c) {
@@ -57,9 +56,9 @@ public class CaricoTestataValidator implements Validator {
 		if (note != null && note.length() > 250)
 			errors.reject("note", "Le note per il carico sono troppo lunghe. (MAX 250 Caratteri)");
 		
-		String stagione = testata.getStagione();
-		if (stagione != null && !stagione.matches(regexStagione))
-			errors.reject("stagione.formato", "Il valore indicato per la stagione è errato. I possibili valori sono: AU (Autunno), IN (Inverno), PR (Primavera), ES (Estate), AI (Autunno-Inverno), PE (Primavera-Estate), CO (Continuativo) seguiti da 2 cifre indicanti l'anno. Es: AI17.");
+//		String stagione = testata.getStagione();
+//		if (stagione != null && !stagione.matches(regexStagione))
+//			errors.reject("stagione.formato", "Il valore indicato per la stagione è errato. I possibili valori sono: AU (Autunno), IN (Inverno), PR (Primavera), ES (Estate), AI (Autunno-Inverno), PE (Primavera-Estate), CO (Continuativo) seguiti da 2 cifre indicanti l'anno. Es: AI17.");
 		
 	}
 

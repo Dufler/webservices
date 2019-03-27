@@ -4,11 +4,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.database.dao.common.ProvinciaDao;
-import it.ltc.database.dao.common.RegioneDao;
+import it.ltc.database.dao.costanti.ProvinciaDao;
+import it.ltc.database.dao.costanti.RegioneDao;
 import it.ltc.database.model.centrale.Cap;
-import it.ltc.database.model.centrale.Provincia;
-import it.ltc.database.model.centrale.Regione;
+import it.ltc.database.model.costanti.Provincia;
+import it.ltc.database.model.costanti.Regione;
 
 @Component
 public class CapValidator implements Validator {

@@ -12,14 +12,15 @@ import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.ContattoDao;
 import it.ltc.database.dao.common.IndirizzoDao;
 import it.ltc.database.model.centrale.AziendaContatti;
 import it.ltc.database.model.centrale.Contatto;
 import it.ltc.database.model.centrale.Indirizzo;
+import it.ltc.services.custom.exception.CustomException;
 
 @Repository
-public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
+public class ContattoDAOImpl extends ContattoDao implements ContattoDAO {
 	
 	@Autowired
 	private IndirizzoDao daoIndirizzi;
@@ -28,7 +29,7 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 	private AssociazioneAziendaContattiDAO aziendaContattiDao;
 
 	public ContattoDAOImpl() {
-		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, Contatto.class);
+		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME);
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 		List<AziendaContatti> lista = aziendaContattiDao.trovaDaAzienda(idAzienda);
 		List<Contatto> contatti = new LinkedList<Contatto>();
 		for (AziendaContatti match : lista) {
-			Contatto contatto = trova(match.getContatto());
+			Contatto contatto = trovaDaID(match.getContatto());
 			if (contatto != null)
 				contatti.add(contatto);
 		}
@@ -64,45 +65,17 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 	}
 
 	@Override
-	public Contatto trova(int id) {
-		Contatto entity = findByID(id);
-		return entity;
-	}
-
-	@Override
 	public Contatto inserisci(Contatto contatto) {
+		Contatto esistente = trovaDaNomeCognome(contatto.getNome(), contatto.getCognome());
+		if (esistente != null)
+			throw new CustomException("Esiste già un contatto che si chiama così (Nome: " + esistente.getNome() + ", Cognome: " + esistente.getCognome() + ", Ruolo: " + esistente.getRuolo() + ")");
 		Contatto entity = insert(contatto);
 		return entity;
 	}
 
 	@Override
-	public Contatto aggiorna(Contatto contatto) {
-		Contatto entity = update(contatto, contatto.getId());
-		return entity;
-	}
-
-	@Override
-	public Contatto elimina(Contatto contatto) {
-		Contatto entity = delete(contatto.getId());
-		return entity;
-	}
-
-	@Override
-	protected void updateValues(Contatto oldEntity, Contatto entity) {
-		oldEntity.setCognome(entity.getCognome());
-		//oldEntity.setDataDiNascita(entity.getDataDiNascita());
-		//oldEntity.setEmail(entity.getEmail());
-		oldEntity.setIndirizzo(entity.getIndirizzo());
-		oldEntity.setNome(entity.getNome());
-		oldEntity.setRuolo(entity.getRuolo());
-		//oldEntity.setTelefono(entity.getTelefono());
-		//oldEntity.setTitolo(entity.getTitolo());
-		oldEntity.setDescrizione(entity.getDescrizione());
-	}
-
-	@Override
 	public Indirizzo trovaIndirizzo(int idContatto) {
-		Contatto contatto = trova(idContatto);
+		Contatto contatto = trovaDaID(idContatto);
 		Indirizzo indirizzo = contatto != null && contatto.getIndirizzo() != null ? daoIndirizzi.trovaDaID(contatto.getIndirizzo()) : null;
 		return indirizzo;
 	}
@@ -110,7 +83,7 @@ public class ContattoDAOImpl extends CRUDDao<Contatto> implements ContattoDAO {
 	@Override
 	public Indirizzo salvaIndirizzo(int idContatto, Indirizzo indirizzo) {
 		Indirizzo entity = daoIndirizzi.salvaIndirizzo(indirizzo);
-		Contatto contatto = trova(idContatto);
+		Contatto contatto = trovaDaID(idContatto);
 		if (entity != null && contatto != null) {
 			contatto.setIndirizzo(entity.getId());
 			contatto = aggiorna(contatto);

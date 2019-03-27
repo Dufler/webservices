@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.dao.common.LoginController;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
+import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.sede.data.operatore.EventiDAO;
 import it.ltc.services.sede.model.operatore.EventoJSON;
 import it.ltc.services.sede.validation.operatore.EventoJSONValidator;
@@ -26,11 +26,11 @@ import it.ltc.services.sede.validation.operatore.EventoJSONValidator;
 
 @Controller
 @RequestMapping("/eventi")
-public class EventiController {
+public class EventiController extends RestController {
 
-private static final Logger logger = Logger.getLogger("EventiController");
+	private static final Logger logger = Logger.getLogger("EventiController");
 	
-	private final LoginController loginManager;
+	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
 	@SuppressWarnings("rawtypes")
 	@Autowired
@@ -44,16 +44,12 @@ private static final Logger logger = Logger.getLogger("EventiController");
 	    binder.setValidator(validator);
 	}
 	
-	public EventiController() {
-		loginManager = LoginController.getInstance();
-	}
-	
 	//TODO - check sui permessi
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = "application/json", produces = "application/json", value="/nuovo")
 	public ResponseEntity<EventoJSON> nuovoEvento(@Valid @RequestBody EventoJSON evento, @RequestHeader("authorization") String authenticationString) {
-		logger.info("Inserisco il nuovo evento.");
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Inserisco il nuovo evento per l'utente " + user.getUsername());
 		//Imposto le informazioni essenziali
 		evento.setOperatore(user.getUsername());
 		evento.setDataInizio(new Date());
@@ -67,8 +63,8 @@ private static final Logger logger = Logger.getLogger("EventiController");
 	
 	@RequestMapping(method = RequestMethod.PUT, consumes = "application/json", produces = "application/json", value="/aggiorna")
 	public ResponseEntity<EventoJSON> aggiornaEvento(@Valid @RequestBody EventoJSON evento, @RequestHeader("authorization") String authenticationString) {
-		logger.info("Aggiorno un evento.");
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Aggiorno l'evento per l'utente " + user.getUsername());
 		//Imposto le informazioni essenziali
 		evento.setOperatore(user.getUsername());
 		evento.setDataInizio(null);
@@ -82,8 +78,8 @@ private static final Logger logger = Logger.getLogger("EventiController");
 	
 	@RequestMapping(method = RequestMethod.PUT, consumes = "application/json", produces = "application/json", value="/chiudi")
 	public ResponseEntity<EventoJSON> chiudiEvento(@Valid @RequestBody EventoJSON evento, @RequestHeader("authorization") String authenticationString) {
-		logger.info("Chiudo un evento.");
-		Utente user = loginManager.getUserByAuthenticationString(authenticationString);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Chiudo l'evento per l'utente " + user.getUsername());
 		//Imposto le informazioni essenziali
 		evento.setOperatore(user.getUsername());
 		evento.setDataInizio(null);
@@ -98,8 +94,8 @@ private static final Logger logger = Logger.getLogger("EventiController");
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<EventoJSON>> trovaEventiPerOperatoreETempo(@RequestBody EventoJSON evento, @RequestHeader("authorization") String authenticationString) {
-		logger.info("Trovo tutte le attività della sede.");
-		//TODO : Sarà necessario un permesso particolare per vederle tutte.
+		checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE); //FIXME : Sarà necessario un permesso particolare per vederle tutte.
+		logger.info("Trovo tutte le attività della sede.");		
 		List<EventoJSON> entities = dao.trovaEventi(evento.getOperatore(), evento.getDataInizio(), evento.getDataFine());
 		ResponseEntity<List<EventoJSON>> response = new ResponseEntity<List<EventoJSON>>(entities, HttpStatus.OK);
 		return response;

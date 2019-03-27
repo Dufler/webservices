@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.ICaricoDettaglioDao;
-import it.ltc.model.shared.json.interno.CaricoDettaglio;
+import it.ltc.model.shared.json.interno.carico.CaricoDettaglio;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.permission.Permessi;
 import it.ltc.services.sede.data.carico.FactoryDaoCarichiDettagli;
@@ -37,7 +37,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<List<CaricoDettaglio>> dettagliDaIDCarico(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
 		logger.info("Nuova richiesta di dettaglio carico");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		List<CaricoDettaglio> carico = dao.trovaDettagli(idCarico);
@@ -49,7 +49,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> inserisci(@Valid @RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.inserisci(carico);
 		HttpStatus status = carico != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -60,7 +60,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> aggiorna(@Valid @RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.aggiorna(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -71,7 +71,7 @@ public class CaricoDettaglioController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<CaricoDettaglio> elimina(@RequestBody CaricoDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo riepilogo d'evento.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_CARICHI);
 		ICaricoDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.elimina(carico);
 		HttpStatus status = carico != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;

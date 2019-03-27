@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.IOrdineDettaglioDao;
-import it.ltc.model.shared.json.interno.OrdineDettaglio;
+import it.ltc.model.shared.json.interno.ordine.OrdineDettaglio;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.permission.Permessi;
 import it.ltc.services.sede.data.ordine.FactoryDaoOrdineDettagli;
@@ -36,7 +36,7 @@ public class OrdineDettaglioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<List<OrdineDettaglio>> dettagliDaIDCarico(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer idCarico) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di dettaglio carico, Utente: " + user.getUsername());		
 		IOrdineDettaglioDao dao = factory.getDao(user, commessa);
 		List<OrdineDettaglio> carico = dao.trovaDettagli(idCarico);
@@ -47,7 +47,7 @@ public class OrdineDettaglioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<OrdineDettaglio> inserisci(@Valid @RequestBody OrdineDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
 		logger.info("Nuova richiesta di inserimento dettaglio carico, Utente: " + user.getUsername());
 		IOrdineDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.inserisci(carico);
@@ -58,7 +58,7 @@ public class OrdineDettaglioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<OrdineDettaglio> aggiorna(@Valid @RequestBody OrdineDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
 		logger.info("Nuova richiesta di modifica dettaglio carico, Utente: " + user.getUsername());
 		IOrdineDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.aggiorna(carico);
@@ -69,7 +69,7 @@ public class OrdineDettaglioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<OrdineDettaglio> elimina(@RequestBody OrdineDettaglio carico, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_CRUD_ORDINI);
 		logger.info("Nuova richiesta di eliminazione dettaglio carico, Utente: " + user.getUsername());		
 		IOrdineDettaglioDao dao = factory.getDao(user, commessa);
 		carico = dao.elimina(carico);

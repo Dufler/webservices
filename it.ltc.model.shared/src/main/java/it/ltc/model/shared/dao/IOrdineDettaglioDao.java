@@ -2,7 +2,7 @@ package it.ltc.model.shared.dao;
 
 import java.util.List;
 
-import it.ltc.model.shared.json.interno.OrdineDettaglio;
+import it.ltc.model.shared.json.interno.ordine.OrdineDettaglio;
 
 /**
  * Definisce le operazioni che devono essere implementate dal DAO che gestisce le righe d'ordine.

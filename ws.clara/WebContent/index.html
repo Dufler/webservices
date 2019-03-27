@@ -14,13 +14,16 @@
 <script src="resources/js/three.js"></script>
 <script src="resources/js/Detector.js"></script>
 <script src="resources/js/stats.min.js"></script>
+<script src="resources/js/OrbitControls.js"></script>
+<script src="resources/js/WebGL.js"></script>
 <script src="resources/js/script.js"></script>
 </head>
 <body data-ng-controller="mainController">
 	<H1>Web Services per l'interfacciamento con clara.io</H1>
-	<p>Scena clara: {{idScena}}</p>
+	<p data-ng-show="calcoliterminati">Bounding box: x = {{boundingbox.x}} y = {{boundingbox.y}} z = {{boundingbox.z}}</p>
+	<p data-ng-show="calcoliterminati">Volume: {{volume}}</p>
 	<input type="file" id="file" name="file" accept=".stp,.step" />
 	<button data-ng-click="add()">Add</button>
-	<iframe id="embed" src="" width="800" height="600"></iframe>
+	<div id="canvas"><div id="replaceme"></div></div>
 </body>
 </html>

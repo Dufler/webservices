@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.json.interno.MovimentoProdotto;
 import it.ltc.model.shared.json.interno.SaldoProdotto;
 import it.ltc.services.custom.controller.RestController;
@@ -36,7 +36,7 @@ public class SaldiMovimentiController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<List<MovimentoProdotto>> trovaMovimentiDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa, @PathVariable(value="id") Integer idProdotto) {
 		logger.info("Nuova richiesta di movimenti prodotto");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		SaldiMovimentiDAO dao = factory.getDao(user, risorsaCommessa);
 		List<MovimentoProdotto> movimenti = dao.trovaMovimenti(idProdotto);
 		HttpStatus status = movimenti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -47,7 +47,7 @@ public class SaldiMovimentiController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/saldo/{id}")
 	public ResponseEntity<List<SaldoProdotto>> trovaSaldiDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa, @PathVariable(value="id") Integer idProdotto) {
 		logger.info("Nuova richiesta di saldi prodotto");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		SaldiMovimentiDAO dao = factory.getDao(user, risorsaCommessa);
 		List<SaldoProdotto> saldi = dao.trovaSaldi(idProdotto);
 		HttpStatus status = saldi.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -57,7 +57,7 @@ public class SaldiMovimentiController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<MovimentoProdotto> inserisci(@Valid @RequestBody MovimentoProdotto movimento, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di inserimento movimento: " + movimento + ", Utente: " + user.getUsername());
 		SaldiMovimentiDAO dao = factory.getDao(user, risorsaCommessa);
 		MovimentoProdotto entity = dao.inserisci(movimento);
@@ -68,7 +68,7 @@ public class SaldiMovimentiController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<MovimentoProdotto> elimina(@Valid @RequestBody MovimentoProdotto movimento, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di eliminazione movimento: " + movimento + ", Utente: " + user.getUsername());
 		SaldiMovimentiDAO dao = factory.getDao(user, risorsaCommessa);
 		MovimentoProdotto entity = dao.elimina(movimento);

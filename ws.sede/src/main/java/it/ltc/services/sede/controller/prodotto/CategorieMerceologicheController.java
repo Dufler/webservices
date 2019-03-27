@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.dao.shared.prodotti.CategoriaMerceologicaLegacyDaoImpl;
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.CommessaUtenti;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.ICategoriaMerceologicaDao;
 import it.ltc.model.shared.json.interno.CategoriaMerceologicaJSON;
 import it.ltc.services.custom.controller.RestController;
@@ -29,7 +29,7 @@ public class CategorieMerceologicheController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<CategoriaMerceologicaJSON>> trovaTutti(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Trovo tutti i tipi di carico per la commessa.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		ICategoriaMerceologicaDao dao = getDao(user, commessa);
 		List<CategoriaMerceologicaJSON> entities = dao.trovaTutte();
 		HttpStatus status = entities.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -37,9 +37,9 @@ public class CategorieMerceologicheController extends RestController {
 		return response;
 	}
 	
-	private ICategoriaMerceologicaDao getDao(Utente user, String risorsaCommessa) {
+	private ICategoriaMerceologicaDao getDao(UtenteUtenti user, String risorsaCommessa) {
 		ICategoriaMerceologicaDao dao;
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
+		CommessaUtenti commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null) {
 			String persistenceUnitName = commessa.getNomeRisorsa();
 			dao = new CategoriaMerceologicaLegacyDaoImpl(persistenceUnitName); //FIXME : Farne uno per il nuovo quando sarà necessario.

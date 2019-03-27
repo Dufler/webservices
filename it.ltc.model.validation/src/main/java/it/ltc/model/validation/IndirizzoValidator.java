@@ -4,10 +4,10 @@ import org.jboss.logging.Logger;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.database.dao.common.NazioneDao;
-import it.ltc.database.dao.common.ProvinciaDao;
-import it.ltc.database.model.centrale.Nazione;
-import it.ltc.database.model.centrale.Provincia;
+import it.ltc.database.dao.costanti.NazioneDao;
+import it.ltc.database.dao.costanti.ProvinciaDao;
+import it.ltc.database.model.costanti.Nazione;
+import it.ltc.database.model.costanti.Provincia;
 import it.ltc.model.shared.json.cliente.IndirizzoJSON;
 
 /**

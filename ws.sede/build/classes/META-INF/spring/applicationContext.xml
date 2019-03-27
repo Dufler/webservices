@@ -24,6 +24,14 @@
 
 	<!-- Aggiunto -->
 	<!-- <bean id="pabpp" class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/> -->
+	
+	<!-- Dao puri -->
+	<bean id="CommessaUtentiDao" class="it.ltc.database.dao.utente.CommessaUtentiDao"/>
+	<bean id="SedeUtentiDao" class="it.ltc.database.dao.utente.SedeUtentiDao"/>
+	
+	<!-- Controller Utenti -->
+	<bean id="LoginController" class="it.ltc.services.custom.controller.LoginController" scope="singleton" />
+	
 	<context:annotation-config />
 
 	<!-- fine -->

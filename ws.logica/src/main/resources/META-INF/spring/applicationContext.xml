@@ -27,6 +27,7 @@
 	
 	<!-- Bean utility --> <!-- <bean id="" class="it.ltc.database.dao.common." /> -->
 	<!-- Dao puri -->
+	<bean id="UtenteDao" class="it.ltc.database.dao.common.UtenteDao"/>
 	<bean id="CapDao" class="it.ltc.database.dao.common.CapDao" />
 	<bean id="CategoriaMerceologicaDao" class="it.ltc.database.dao.common.CategoriaMerceologicaDao" />
 	<bean id="ClienteDao" class="it.ltc.database.dao.common.ClienteDao" />
@@ -35,20 +36,24 @@
 	<bean id="CorriereDao" class="it.ltc.database.dao.common.CorriereDao" />
 	<bean id="CorriereServizioDao" class="it.ltc.database.dao.common.CorriereServizioDao" />
 	<bean id="IndirizzoDao" class="it.ltc.database.dao.common.IndirizzoDao" />
-	<bean id="NazioneDao" class="it.ltc.database.dao.common.NazioneDao" />
 	<bean id="OperatoreDao" class="it.ltc.database.dao.common.OperatoreDao" />
 	<bean id="FeatureDao" class="it.ltc.database.dao.common.FeatureDao" />
-	<bean id="PermessoDao" class="it.ltc.database.dao.common.PermessoDao" />
-	<bean id="ProvinciaDao" class="it.ltc.database.dao.common.ProvinciaDao" />
-	<bean id="RegioneDao" class="it.ltc.database.dao.common.RegioneDao" />
+	<bean id="PermessoDao" class="it.ltc.database.dao.common.PermessoDao" />	
 	<bean id="SedeDao" class="it.ltc.database.dao.common.SedeDao" />
 	<bean id="SpedizioneServizioDao" class="it.ltc.database.dao.common.SpedizioneServizioDao" />
 	<bean id="TipoContrassegnoDao" class="it.ltc.database.dao.common.TipoContrassegnoDao" />
 	<bean id="TrackingStatoDao" class="it.ltc.database.dao.common.TrackingStatoDao" />
-	<bean id="ValutaDao" class="it.ltc.database.dao.common.ValutaDao" />
 	<bean id="VersioneTabellaDao" class="it.ltc.database.dao.common.VersioneTabellaDao" />
+	<!-- Dao su costanti -->
+	<bean id="NazioneDao" class="it.ltc.database.dao.costanti.NazioneDao" />
+	<bean id="ProvinciaDao" class="it.ltc.database.dao.costanti.ProvinciaDao" />
+	<bean id="RegioneDao" class="it.ltc.database.dao.costanti.RegioneDao" />
+	<bean id="ValutaDao" class="it.ltc.database.dao.costanti.ValutaDao" />
 	<!-- Dao implementati da interfacce -->
 	<bean id="CategoriaMerceologicaDaoImpl" class="it.ltc.database.dao.shared.prodotti.CategoriaMerceologicaDaoImpl"/>
+	<!-- Controller Utenti -->
+	<bean id="UserController" class="it.ltc.services.logica.data.utente.UserController" scope="singleton" />
+	<bean id="LoginController" class="it.ltc.services.custom.controller.LoginController" scope="singleton" />
 	<!-- fine -->
 	
 	<context:annotation-config />

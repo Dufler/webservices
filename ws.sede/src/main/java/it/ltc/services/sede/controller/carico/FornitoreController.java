@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.IFornitoreDao;
 import it.ltc.model.shared.json.cliente.FornitoreJSON;
 import it.ltc.services.custom.controller.RestController;
@@ -46,7 +46,7 @@ public class FornitoreController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<FornitoreJSON> inserisci(@Valid @RequestBody FornitoreJSON fornitore, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Nuova richiesta di inserimento fornitore: " + fornitore);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		FornitoreJSON entity = dao.inserisci(fornitore);
@@ -59,7 +59,7 @@ public class FornitoreController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<FornitoreJSON> modifica(@Valid @RequestBody FornitoreJSON fornitore, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Nuova richiesta di modifica fornitore: " + fornitore);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		FornitoreJSON entity = dao.aggiorna(fornitore);
@@ -72,7 +72,7 @@ public class FornitoreController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<FornitoreJSON> elimina(@RequestBody FornitoreJSON fornitore, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Nuova richiesta di eliminazione fornitore: " + fornitore);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		FornitoreJSON entity = dao.elimina(fornitore);
@@ -85,7 +85,7 @@ public class FornitoreController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<FornitoreJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Nuova richiesta di elenco fornitori");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		List<FornitoreJSON> fornitori = dao.trovaTutti();
@@ -98,7 +98,7 @@ public class FornitoreController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<FornitoreJSON> trovaDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="id") Integer id) {
 		logger.info("Nuova richiesta di elenco fornitori");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IFornitoreDao dao = factory.getDao(user, commessa);
 		FornitoreJSON fornitore = dao.trovaDaID(id);

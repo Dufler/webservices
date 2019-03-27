@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.jboss.logging.Logger;
 import org.springframework.core.io.FileSystemResource;
@@ -15,6 +18,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
@@ -68,7 +73,18 @@ public class ClaraClient extends RestClient {
 		String response;
 		try {
 			logger.info("Chiamata su URL: " + url);
-	    	ResponseEntity<String> responseEntity = rest.exchange(url, HttpMethod.GET, null, String.class);
+			List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();        
+            //Add the Jackson Message converter
+			//MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+			StringHttpMessageConverter converter = new StringHttpMessageConverter();
+			// Note: here we are making this converter to process any kind of response, 
+			// not only application/*json, which is the default behaviour
+			MediaType[] types = {MediaType.ALL};
+			converter.setSupportedMediaTypes(Arrays.asList(types));         
+			messageConverters.add(converter);  
+			rest.setMessageConverters(messageConverters);  
+			HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(null, getHeadersPerForm());
+	    	ResponseEntity<String> responseEntity = rest.exchange(url, HttpMethod.GET, requestEntity, String.class);
 	    	httpStatus = responseEntity.getStatusCode();
 	    	response = responseEntity.getBody();
 		} catch (HttpStatusCodeException exception) {

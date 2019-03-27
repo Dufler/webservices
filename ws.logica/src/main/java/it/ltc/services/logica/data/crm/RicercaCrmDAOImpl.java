@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import it.ltc.database.model.centrale.Azienda;
 import it.ltc.database.model.centrale.AziendaNote;
+import it.ltc.database.model.centrale.Brand;
 import it.ltc.database.model.centrale.Contatto;
 import it.ltc.database.model.centrale.CrmTagCategoriaMerceologica;
 import it.ltc.database.model.centrale.CrmTagServiziRichiesti;
@@ -32,6 +33,9 @@ public class RicercaCrmDAOImpl implements RicercaCrmDAO {
 	
 	@Autowired
 	private TagCategorieDAO daoTagCategorie;
+	
+	@Autowired
+	private BrandDAO daoBrand;
 
 	@Override
 	public RisultatoRicercaCrm trovaParolaChiave(String parola) {
@@ -39,11 +43,11 @@ public class RicercaCrmDAOImpl implements RicercaCrmDAO {
 		aziende.addAll(daoAziende.trovaDaNome(parola));
 		List<CrmTagServiziRichiesti> tagServizi = daoTagServizi.trovaDaTag(parola);
 		for (CrmTagServiziRichiesti tag : tagServizi) {
-			aziende.add(daoAziende.trova(tag.getAzienda()));
+			aziende.add(daoAziende.trovaDaID(tag.getAzienda()));
 		}
 		List<CrmTagCategoriaMerceologica> tagCategorie = daoTagCategorie.trovaDaTag(parola);
 		for (CrmTagCategoriaMerceologica tag : tagCategorie) {
-			aziende.add(daoAziende.trova(tag.getAzienda()));
+			aziende.add(daoAziende.trovaDaID(tag.getAzienda()));
 		}
 		List<Azienda> listaAziende = new LinkedList<>();
 		for (Azienda azienda : aziende) {
@@ -51,10 +55,13 @@ public class RicercaCrmDAOImpl implements RicercaCrmDAO {
 		}
 		List<AziendaNote> note = daoNote.trovaDaParola(parola);
 		List<Contatto> contatti = daoContatti.trovaDaNome(parola);
+		List<Brand> brands = daoBrand.cercaDaNome(parola);
+		//Preparo il risultato della ricerca
 		RisultatoRicercaCrm risultati = new RisultatoRicercaCrm();
 		risultati.setAziende(listaAziende);
 		risultati.setContatti(contatti);
 		risultati.setNote(note);
+		risultati.setBrands(brands);
 		return risultati;
 	}
 

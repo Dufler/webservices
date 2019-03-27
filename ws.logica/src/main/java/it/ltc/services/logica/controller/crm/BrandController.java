@@ -71,7 +71,7 @@ public class BrandController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<Brand>> trovaDaNome(@Valid @RequestBody FiltroTesto filtro, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Trovo tutti i brand con un dato nome.");
-		List<Brand> entities = dao.trovaDaNome(filtro.getTesto());
+		List<Brand> entities = dao.cercaDaNome(filtro.getTesto());
 		ResponseEntity<List<Brand>> response = new ResponseEntity<List<Brand>>(entities, HttpStatus.OK);
 		return response;
 	}

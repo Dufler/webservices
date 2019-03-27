@@ -19,7 +19,7 @@ public interface AziendaDAO {
 	
 	public Indirizzo salvaIndirizzo(int idAzienda, Indirizzo indirizzo);
 	
-	public Azienda trova(int id);
+	public Azienda trovaDaID(int id);
 	
 	public Azienda inserisci(Azienda azienda);
 	

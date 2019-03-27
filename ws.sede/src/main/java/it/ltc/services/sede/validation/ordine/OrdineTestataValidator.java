@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.model.shared.json.interno.OrdineTestata;
+import it.ltc.model.shared.json.interno.ordine.OrdineTestata;
 
 @Component
 public class OrdineTestataValidator implements Validator {

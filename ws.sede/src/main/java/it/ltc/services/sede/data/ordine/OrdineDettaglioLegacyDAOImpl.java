@@ -13,7 +13,7 @@ import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.model.TestataOrdiniTotali;
 import it.ltc.model.shared.dao.IOrdineDettaglioDao;
-import it.ltc.model.shared.json.interno.OrdineDettaglio;
+import it.ltc.model.shared.json.interno.ordine.OrdineDettaglio;
 import it.ltc.services.custom.exception.CustomException;
 
 public class OrdineDettaglioLegacyDAOImpl extends RighiOrdineDao implements IOrdineDettaglioDao {

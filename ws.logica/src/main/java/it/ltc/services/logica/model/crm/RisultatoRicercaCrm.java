@@ -4,6 +4,7 @@ import java.util.List;
 
 import it.ltc.database.model.centrale.Azienda;
 import it.ltc.database.model.centrale.AziendaNote;
+import it.ltc.database.model.centrale.Brand;
 import it.ltc.database.model.centrale.Contatto;
 
 /**
@@ -16,6 +17,7 @@ public class RisultatoRicercaCrm {
 	private List<Azienda> aziende;
 	private List<Contatto> contatti;
 	private List<AziendaNote> note;
+	private List<Brand> brands;
 	
 	public RisultatoRicercaCrm() {}
 
@@ -41,6 +43,14 @@ public class RisultatoRicercaCrm {
 
 	public void setNote(List<AziendaNote> note) {
 		this.note = note;
+	}
+
+	public List<Brand> getBrands() {
+		return brands;
+	}
+
+	public void setBrands(List<Brand> brands) {
+		this.brands = brands;
 	}
 
 }

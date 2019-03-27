@@ -3,6 +3,7 @@ package it.ltc.services.custom.authentication;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,8 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import it.ltc.database.dao.common.LoginController;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
+import it.ltc.services.custom.controller.LoginController;
 
 /**
  * Classe atta all'autenticazione delle richieste fatte dagli utenti tramite BASIC AUTH su HTTP.
@@ -25,17 +26,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	
 	private static final String INVALID_CREDENTIALS = "Login fallito: username o password non validi.";
 	
-    private final LoginController loginManager;
+	@Autowired
+    private LoginController loginManager;
     
-    public CustomAuthenticationProvider() {
-    	loginManager = LoginController.getInstance();
-    }
+//    public CustomAuthenticationProvider() {
+//    	loginManager = LoginController.getInstance();
+//    }
     
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     	String username = authentication.getName();
     	String password = (String) authentication.getCredentials();
-    	Utente user = loginManager.getUserByUsernameAndPassword(username, password);
+    	UtenteUtenti user = loginManager.getUserByUsernameAndPassword(username, password);
     	if (user == null)
     		throw new BadCredentialsException(INVALID_CREDENTIALS);
     		//throw new CustomException(INVALID_CREDENTIALS, 401);

@@ -19,10 +19,10 @@ public class ClaraController /*extends RestController*/ {
 	
 	//public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("ClaraController"); 
+	private static final Logger logger = Logger.getLogger("ClaraController");
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<Scena> nuovaScena(@RequestBody FileStep file) {
+	public ResponseEntity<String> nuovaScena(@RequestBody FileStep file) {
 		logger.info("Nuova scena clara");
 		//logger.info(file.getContenuto());
 		ClaraClient client = new ClaraClient();
@@ -30,6 +30,7 @@ public class ClaraController /*extends RestController*/ {
 		boolean creazione = client.getStatus() == 200;
 		boolean caricamento = false;
 		boolean download = false;
+		String json = null;
 		logger.info("Esito creazione scena: " + creazione);
 		if (creazione) {
 			client.caricaFileTramiteForm(scena.getId(), file.getContenuto());
@@ -38,17 +39,46 @@ public class ClaraController /*extends RestController*/ {
 			if (!caricamento)
 				throw new CustomException("Impossibile caricare il file. Errore: " + client.getStatus() + ", " + client.getError());
 			else {
-				String json = client.scaricaJSON(scena.getId());
+				json = client.scaricaJSON(scena.getId());
 				download = client.getStatus() == 200;
-				if (download) {
-					//restituisco il json.
+				if (!download) {
+					logger.error("Impossibile scaricare l'oggetto JSON, http code: " + client.getStatus() + ", risposta ricevuta: '" + json + "'");
 				}
 			}
 		}
-		HttpStatus status = caricamento ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-		ResponseEntity<Scena> response = new ResponseEntity<Scena>(scena, status);
+		HttpStatus status = caricamento && download ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+		ResponseEntity<String> response = new ResponseEntity<String>(json, status);
 		return response;
 	}
+	
+//	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
+//	public ResponseEntity<Scena> nuovaScena(@RequestBody FileStep file) {
+//		logger.info("Nuova scena clara");
+//		//logger.info(file.getContenuto());
+//		ClaraClient client = new ClaraClient();
+//		Scena scena = client.nuovaScena();
+//		boolean creazione = client.getStatus() == 200;
+//		boolean caricamento = false;
+//		boolean download = false;
+//		logger.info("Esito creazione scena: " + creazione);
+//		if (creazione) {
+//			client.caricaFileTramiteForm(scena.getId(), file.getContenuto());
+//			caricamento = client.getStatus() == 202;
+//			logger.info("Esito caricamento scena: " + caricamento);
+//			if (!caricamento)
+//				throw new CustomException("Impossibile caricare il file. Errore: " + client.getStatus() + ", " + client.getError());
+//			else {
+//				String json = client.scaricaJSON(scena.getId());
+//				download = client.getStatus() == 200;
+//				if (download) {
+//					//restituisco il json.
+//				}
+//			}
+//		}
+//		HttpStatus status = caricamento ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+//		ResponseEntity<Scena> response = new ResponseEntity<Scena>(scena, status);
+//		return response;
+//	}
 	
 //	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 //	public ResponseEntity<Scena> nuovaScena(@RequestParam(value = "filedata", required = true) MultipartFile filedata, final HttpServletRequest request) {

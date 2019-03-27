@@ -13,7 +13,7 @@ public interface ContattoDAO {
 	
 	public List<Contatto> trovaDaNome(String nome);
 	
-	public Contatto trova(int id);
+	public Contatto trovaDaID(int id);
 	
 	public Contatto inserisci(Contatto contatto);
 	

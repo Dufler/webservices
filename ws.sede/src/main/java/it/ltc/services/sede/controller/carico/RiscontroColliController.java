@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.CommessaUtenti;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.exception.CustomException;
 import it.ltc.services.sede.data.carico.RiscontroColliDAO;
@@ -44,7 +44,7 @@ public class RiscontroColliController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<ColloCaricoJSON>> cerca(@RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Ricerca colli nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroColliDAO dao = getDao(user, commessa);
 		List<ColloCaricoJSON> colli = dao.trovaColli(collo);
 		HttpStatus status = colli.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -55,7 +55,7 @@ public class RiscontroColliController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<ColloCaricoJSON> inserisci(@Valid @RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Inserimento di un nuovo collo nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		//Inserisco l'utente che ha fatto la chiamata nel collo come creatore.
 		collo.setOperatoreCreazione(user.getUsername());
 		RiscontroColliDAO dao = getDao(user, commessa);
@@ -68,7 +68,7 @@ public class RiscontroColliController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<ColloCaricoJSON> aggiorna(@Valid @RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Modifica di un collo nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroColliDAO dao = getDao(user, commessa);
 		collo = dao.aggiornaCollo(collo);
 		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -79,7 +79,7 @@ public class RiscontroColliController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<ColloCaricoJSON> elimina(@RequestBody ColloCaricoJSON collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Eliminazione di un collo nel carico.");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		RiscontroColliDAO dao = getDao(user, commessa);
 		collo = dao.eliminaCollo(collo);
 		HttpStatus status = collo != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -87,9 +87,9 @@ public class RiscontroColliController extends RestController {
 		return response;
 	}
 	
-	private RiscontroColliDAO getDao(Utente user, String risorsaCommessa) {
+	private RiscontroColliDAO getDao(UtenteUtenti user, String risorsaCommessa) {
 		RiscontroColliDAO dao;
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
+		CommessaUtenti commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null) {
 			String persistenceUnitName = commessa.getNomeRisorsa();
 			dao = new RiscontroColliLegacyDAOImpl(persistenceUnitName);

@@ -51,7 +51,7 @@ public class AziendeNoteDAOImpl extends CRUDDao<AziendaNote> implements AziendeN
 	
 	protected Contatto trovaContatto(Integer id) {
 		if (!contatti.containsKey(id)) {
-			Contatto contatto = daoContatti.trova(id == null ? 0 : id);
+			Contatto contatto = daoContatti.trovaDaID(id == null ? 0 : id);
 			contatti.put(id, contatto);
 		}
 		return contatti.get(id);
@@ -59,7 +59,7 @@ public class AziendeNoteDAOImpl extends CRUDDao<AziendaNote> implements AziendeN
 	
 	protected Azienda trovaAzienda(int id) {
 		if (!aziende.containsKey(id)) {
-			Azienda azienda = daoAziende.trova(id);
+			Azienda azienda = daoAziende.trovaDaID(id);
 			aziende.put(id, azienda);
 		}
 		return aziende.get(id);

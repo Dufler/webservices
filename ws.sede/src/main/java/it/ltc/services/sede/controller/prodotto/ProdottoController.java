@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import it.ltc.database.dao.common.model.CriteriUltimaModifica;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.IProdottoDao;
 import it.ltc.model.shared.json.cliente.ProdottoJSON;
 import it.ltc.services.custom.controller.RestController;
@@ -32,7 +32,7 @@ public class ProdottoController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("ProdottoController");
+	private static final Logger logger = Logger.getLogger(ProdottoController.class);
 	
 	@Autowired
 	private ProdottoDAOFactory factory;
@@ -56,7 +56,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> inserisci(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di inserimento prodotto: " + prodotto);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.inserisci(prodotto);
@@ -69,7 +69,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<ProdottoJSON>> cerca(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di ricerca");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> entities = dao.trova(prodotto);
@@ -81,7 +81,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> modifica(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di modifica prodotto: " + prodotto);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.aggiorna(prodotto);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -93,7 +93,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> dismetti(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di dismissione prodotto: " + prodotto);
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.dismetti(prodotto);
@@ -106,7 +106,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<ProdottoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
 		logger.info("Nuova richiesta di elenco prodotti");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> prodotti = dao.trovaTutti();
 		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -118,7 +118,7 @@ public class ProdottoController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<ProdottoJSON> trovaDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa, @PathVariable(value="id") Integer idProdotto) {
 		logger.info("Nuova richiesta di dettaglio prodotto");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON prodotto = dao.trovaPerID(idProdotto);
 		HttpStatus status = prodotto == null ? HttpStatus.BAD_REQUEST : HttpStatus.OK;
@@ -128,7 +128,7 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/ultimamodifica")
 	public ResponseEntity<List<ProdottoJSON>> trovaRecenti(@Valid @RequestBody CriteriUltimaModifica criteri, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Trovo tutti i prodotti modificati recentemente.");
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> prodotti = dao.trovaDaUltimaModifica(criteri.getDataUltimaModifica());

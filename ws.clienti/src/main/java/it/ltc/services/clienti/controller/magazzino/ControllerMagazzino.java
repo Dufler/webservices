@@ -3,6 +3,7 @@ package it.ltc.services.clienti.controller.magazzino;
 import java.util.List;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,11 +12,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.json.cliente.InfoProdotto;
 import it.ltc.services.clienti.data.magazzino.SaldiMagazzinoDAO;
-import it.ltc.services.clienti.data.magazzino.SaldiMagazzinoDAOImpl;
+import it.ltc.services.clienti.data.magazzino.SaldiMagazzinoFactory;
 import it.ltc.services.custom.controller.RestController;
 
 @Controller
@@ -26,16 +26,19 @@ public class ControllerMagazzino extends RestController {
 	
 	private static final Logger logger = Logger.getLogger("ControllerMagazzino");
 	
+	@Autowired
+	private SaldiMagazzinoFactory factory;
+	
 	public ControllerMagazzino() {}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/tutti")
 	public ResponseEntity<List<InfoProdotto>> getGiacenza(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di sincronizzazione dell'intero magazzino dall'utente: '" + user.getUsername() + "'");
 		HttpStatus status;
 		List<InfoProdotto> info;
 		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			SaldiMagazzinoDAO dao = getDao(user, commessa);
+			SaldiMagazzinoDAO dao = factory.getDao(user, commessa);
 			info = dao.getDisponibilita();
 			status = info.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 			logger.info("Sono state restituite " + info.size() + " info su disponibilità.");
@@ -52,13 +55,13 @@ public class ControllerMagazzino extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{magazzino}/tutti")
 	public ResponseEntity<List<InfoProdotto>> getGiacenzaPerMagazzino(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa, @PathVariable(value="magazzino") String magazzino) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di sincronizzazione magazzino per il magazzino '" + magazzino + "' dall'utente: '" + user.getUsername() + "'");
 		HttpStatus status;
 		List<InfoProdotto> info;
 		if (user != null && user.isAllowedTo(ID_PERMESSO_WEB_SERVICE)) {
-			SaldiMagazzinoDAO dao = getDao(user, commessa);
-			info = dao.getDisponibilita(magazzino);
+			SaldiMagazzinoDAO dao = factory.getDao(user, commessa);
+			info = dao.getDisponibilitaPerCodiceMagazzinoCliente(magazzino);
 			status = info.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 			logger.info("Sono state restituite " + info.size() + " info su disponibilità.");
 		} else {
@@ -70,18 +73,6 @@ public class ControllerMagazzino extends RestController {
 		}
 		ResponseEntity<List<InfoProdotto>> response = new ResponseEntity<List<InfoProdotto>>(info, status);
 		return response;
-	}
-
-	private SaldiMagazzinoDAO getDao(Utente user, String risorsaCommessa) {
-		SaldiMagazzinoDAO dao;
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
-		if (commessa != null) {
-			String persistenceUnitName = commessa.getNomeRisorsa();
-			dao = commessa.isLegacy() ? new SaldiMagazzinoDAOImpl(persistenceUnitName) : new SaldiMagazzinoDAOImpl(persistenceUnitName); //FIXME - Quando ci sarà sul nuovo.
-		} else {
-			dao = null;
-		}
-		return dao;
 	}
 
 }

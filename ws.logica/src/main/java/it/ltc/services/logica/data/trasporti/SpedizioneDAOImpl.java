@@ -16,17 +16,17 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import it.ltc.database.dao.CRUDDao;
 import it.ltc.database.dao.common.CorriereDao;
-import it.ltc.database.dao.common.NazioneDao;
 import it.ltc.database.dao.common.SpedizioneServizioDao;
 import it.ltc.database.dao.common.TrackingStatoDao;
 import it.ltc.database.dao.common.model.CriteriUltimaModifica;
+import it.ltc.database.dao.costanti.NazioneDao;
 import it.ltc.database.model.centrale.Corriere;
 import it.ltc.database.model.centrale.Indirizzo;
-import it.ltc.database.model.centrale.Nazione;
 import it.ltc.database.model.centrale.Spedizione;
 import it.ltc.database.model.centrale.SpedizioneContrassegno;
 import it.ltc.database.model.centrale.SpedizioneLight;
@@ -35,6 +35,7 @@ import it.ltc.database.model.centrale.SpedizioneServizio;
 import it.ltc.database.model.centrale.Tracking;
 import it.ltc.database.model.centrale.TrackingStato;
 import it.ltc.database.model.centrale.enumcondivise.Fatturazione;
+import it.ltc.database.model.costanti.Nazione;
 import it.ltc.services.logica.model.trasporti.ContrassegnoJSON;
 import it.ltc.services.logica.model.trasporti.CriteriRicercaSpedizioniLight;
 import it.ltc.services.logica.model.trasporti.IndirizzoJSON;
@@ -46,7 +47,10 @@ public class SpedizioneDAOImpl extends CRUDDao<Spedizione> implements Spedizione
 	
 	private static final Logger logger = Logger.getLogger("SpedizioneDAOImpl");
 	
-	private final NazioneDao daoNazioni;
+	
+	@Autowired
+	private NazioneDao daoNazioni;
+	
 	private final SpedizioneServizioDao daoServizi;
 	private final TrackingStatoDao daoStatoTracking;
 	private final CorriereDao daoCorrieri;
@@ -56,7 +60,7 @@ public class SpedizioneDAOImpl extends CRUDDao<Spedizione> implements Spedizione
 	public SpedizioneDAOImpl() {
 		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, Spedizione.class);
 		
-		daoNazioni = new NazioneDao();
+		//daoNazioni = new NazioneDao();
 		daoServizi = new SpedizioneServizioDao();
 		daoStatoTracking = new TrackingStatoDao();
 		daoCorrieri = new CorriereDao();

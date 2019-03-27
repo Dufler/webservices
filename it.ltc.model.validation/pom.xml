@@ -29,5 +29,15 @@
 			<artifactId>dao-common</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>it.ltc.database</groupId>
+			<artifactId>dao-costanti</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>it.ltc.database</groupId>
+			<artifactId>model-costanti</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -11,18 +11,19 @@ import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import it.ltc.database.dao.CRUDDao;
+import it.ltc.database.dao.common.BrandDao;
 import it.ltc.database.model.centrale.AziendaBrand;
 import it.ltc.database.model.centrale.Brand;
+import it.ltc.services.custom.exception.CustomException;
 
 @Repository
-public class BrandDAOImpl extends CRUDDao<Brand> implements BrandDAO {
+public class BrandDAOImpl extends BrandDao implements BrandDAO {
 	
 	@Autowired
 	private AssociazioneAziendaBrandDAO aziendaBrandDao;
 
 	public BrandDAOImpl() {
-		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME, Brand.class);
+		super(LOCAL_CENTRALE_PERSISTENCE_UNIT_NAME);
 	}
 
 	@Override
@@ -44,12 +45,12 @@ public class BrandDAOImpl extends CRUDDao<Brand> implements BrandDAO {
 	}
 	
 	@Override
-	public List<Brand> trovaDaNome(String nome) {
+	public List<Brand> cercaDaNome(String nome) {
 		EntityManager em = getManager();
 		CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Brand> criteria = cb.createQuery(Brand.class);
         Root<Brand> member = criteria.from(Brand.class);
-        criteria.select(member).where(cb.like(member.get("nome"), nome + "%"));
+        criteria.select(member).where(cb.like(member.get("nome"), "%" + nome + "%"));
 		List<Brand> lista = em.createQuery(criteria).getResultList();
 		em.close();
 		return lista;
@@ -63,26 +64,12 @@ public class BrandDAOImpl extends CRUDDao<Brand> implements BrandDAO {
 
 	@Override
 	public Brand inserisci(Brand brand) {
+		//Verifico che non ci sia un brand con lo stesso nome
+		Brand esistente = trovaDaNome(brand.getNome());
+		if (esistente != null)
+			throw new CustomException("E' già stato inserito un brand con lo stesso nome.");
 		Brand entity = insert(brand);
 		return entity;
-	}
-
-	@Override
-	public Brand aggiorna(Brand brand) {
-		Brand entity = update(brand, brand.getId());
-		return entity;
-	}
-
-	@Override
-	public Brand elimina(Brand brand) {
-		Brand entity = delete(brand.getId());
-		return entity;
-	}
-
-	@Override
-	protected void updateValues(Brand oldEntity, Brand entity) {
-		oldEntity.setNome(entity.getNome());
-		oldEntity.setDescrizione(entity.getDescrizione());
 	}
 
 }

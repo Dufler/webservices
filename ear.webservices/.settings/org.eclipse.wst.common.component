@@ -203,5 +203,23 @@
         <dependent-module archiveName="it.ltc.utility.zpl.jar" deploy-path="/lib" handle="module:/resource/it.ltc.utility.zpl/it.ltc.utility.zpl">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="it.ltc.database.dao.costanti.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.dao.costanti/it.ltc.database.dao.costanti">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.dao.utente.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.dao.utente/it.ltc.database.dao.utente">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.database.model.costanti.jar" deploy-path="/lib" handle="module:/resource/it.ltc.database.model.costanti/it.ltc.database.model.costanti">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.utility.configuration.jar" deploy-path="/lib" handle="module:/resource/it.ltc.utility.configuration/it.ltc.utility.configuration">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.model.persistence.jar" deploy-path="/lib" handle="module:/resource/it.ltc.model.persistence/it.ltc.model.persistence">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="it.ltc.model.interfaces.jar" deploy-path="/lib" handle="module:/resource/it.ltc.model.interfaces/it.ltc.model.interfaces">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>

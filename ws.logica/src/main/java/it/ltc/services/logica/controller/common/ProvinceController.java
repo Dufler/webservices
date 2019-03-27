@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import it.ltc.database.dao.common.ProvinciaDao;
-import it.ltc.database.model.centrale.Provincia;
+import it.ltc.database.dao.costanti.ProvinciaDao;
+import it.ltc.database.model.costanti.Provincia;
 
 @Controller
 @RequestMapping("/provincia")

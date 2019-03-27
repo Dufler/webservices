@@ -16,7 +16,9 @@ import org.apache.log4j.Logger;
 import it.ltc.database.dao.CondizioneWhere;
 import it.ltc.database.dao.CondizioneWhere.Condizione;
 import it.ltc.database.dao.CondizioneWhere.Operatore;
+import it.ltc.database.dao.legacy.ColliImballoDao;
 import it.ltc.database.dao.legacy.DestinatariDao;
+import it.ltc.database.dao.legacy.ImballoDao;
 import it.ltc.database.dao.legacy.MagaMovDao;
 import it.ltc.database.dao.legacy.MagaSdDao;
 import it.ltc.database.dao.legacy.MittentiOrdineDao;
@@ -24,11 +26,20 @@ import it.ltc.database.dao.legacy.RighiImballoDao;
 import it.ltc.database.dao.legacy.RighiOrdineDao;
 import it.ltc.database.dao.legacy.RighiPrelievoDao;
 import it.ltc.database.dao.legacy.RighiUbicPreDao;
+import it.ltc.database.dao.legacy.TempCorrDao;
+import it.ltc.database.dao.legacy.TestaCorrDao;
 import it.ltc.database.dao.legacy.TestataOrdiniDao;
 import it.ltc.database.dao.legacy.TestataOrdiniLogStatoDao;
 import it.ltc.database.dao.ordini.AssegnazioneOrdine;
 import it.ltc.database.dao.ordini.ManagerAssegnazione;
+import it.ltc.database.dao.ordini.ManagerResetOrdine;
+import it.ltc.database.dao.ordini.ManagerResetOrdine.Reset;
+import it.ltc.database.dao.ordini.ResetOrdineException;
+import it.ltc.database.dao.ordini.uscita.ManagerMovimentiUscita;
+import it.ltc.database.dao.ordini.uscita.RisultatoGenerazioneMovimentiUscita;
+import it.ltc.database.model.legacy.ColliImballo;
 import it.ltc.database.model.legacy.Destinatari;
+import it.ltc.database.model.legacy.Imballi;
 import it.ltc.database.model.legacy.MagaMov;
 import it.ltc.database.model.legacy.MagaSd;
 import it.ltc.database.model.legacy.MittentiOrdine;
@@ -36,19 +47,29 @@ import it.ltc.database.model.legacy.RighiImballo;
 import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.RighiPrelievo;
 import it.ltc.database.model.legacy.Righiubicpre;
+import it.ltc.database.model.legacy.TempCorr;
+import it.ltc.database.model.legacy.TestaCorr;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.TestataOrdiniLogStato;
 import it.ltc.database.model.legacy.model.CausaliMovimento;
+import it.ltc.model.interfaces.ordine.MContrassegno;
+import it.ltc.model.interfaces.ordine.MInfoSpedizione;
+import it.ltc.model.interfaces.ordine.TipoContrassegno;
+import it.ltc.model.persistence.ordine.ControllerInfoSpedizioneSQLServer;
 import it.ltc.model.shared.dao.IOrdineDao;
-import it.ltc.model.shared.json.interno.OperatoreOrdine;
-import it.ltc.model.shared.json.interno.OrdineStato;
-import it.ltc.model.shared.json.interno.OrdineTestata;
-import it.ltc.model.shared.json.interno.ProblemaFinalizzazioneOrdine;
-import it.ltc.model.shared.json.interno.RisultatoAssegnazioneOrdine;
-import it.ltc.model.shared.json.interno.RisultatoAssegnazioneOrdine.StatoAssegnazione;
-import it.ltc.model.shared.json.interno.RisultatoAssegnazioneRigaOrdine;
-import it.ltc.model.shared.json.interno.RisultatoAssegnazioneRigaOrdine.StatoAssegnazioneRiga;
-import it.ltc.model.shared.json.interno.RisultatoFinalizzazioneOrdine;
+import it.ltc.model.shared.json.cliente.ImballoJSON;
+import it.ltc.model.shared.json.cliente.ProdottoImballatoJSON;
+import it.ltc.model.shared.json.interno.ordine.DatiSpedizione;
+import it.ltc.model.shared.json.interno.ordine.OperatoreOrdine;
+import it.ltc.model.shared.json.interno.ordine.OrdineStato;
+import it.ltc.model.shared.json.interno.ordine.OrdineTestata;
+import it.ltc.model.shared.json.interno.ordine.risultato.ProblemaFinalizzazioneOrdine;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoAssegnazioneOrdine;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoAssegnazioneOrdine.StatoAssegnazione;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoAssegnazioneRigaOrdine;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoAssegnazioneRigaOrdine.StatoAssegnazioneRiga;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoFinalizzazioneOrdine;
+import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoGenerazioneMovimenti;
 import it.ltc.services.custom.exception.CustomException;
 
 public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao {
@@ -58,6 +79,8 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	protected final DestinatariDao daoDestinatari;
 	protected final MittentiOrdineDao daoMittenti;
 	protected final TestataOrdiniLogStatoDao daoStati;
+	protected final ImballoDao daoFormatiImballo;
+	protected final ColliImballoDao daoColli;
 	protected final RighiImballoDao daoImballo;
 	protected final RighiPrelievoDao daoPrelievo;
 	protected final RighiOrdineDao daoRighe;
@@ -65,7 +88,14 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	protected final MagaSdDao daoSaldi;
 	protected final MagaMovDao daoMovimenti;
 	
+	protected final TempCorrDao daoDatiSpedizioni;
+	protected final TestaCorrDao daoSpedizioni;
+	
+	protected final ControllerInfoSpedizioneSQLServer managerSpedizioni;
+	
 	protected final ManagerAssegnazione managerAssegnazione;
+	protected final ManagerMovimentiUscita managerMovimentiUscita;
+	protected final ManagerResetOrdine managerResetOrdine;
 
 	public OrdineLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
@@ -73,6 +103,8 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		daoDestinatari = new DestinatariDao(persistenceUnit);
 		daoMittenti = new MittentiOrdineDao(persistenceUnit);
 		daoStati = new TestataOrdiniLogStatoDao(persistenceUnit);
+		daoFormatiImballo = new ImballoDao(persistenceUnit);
+		daoColli = new ColliImballoDao(persistenceUnit);
 		daoImballo = new RighiImballoDao(persistenceUnit);
 		daoPrelievo = new RighiPrelievoDao(persistenceUnit);
 		daoRighe = new RighiOrdineDao(persistenceUnit);
@@ -80,7 +112,17 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		daoSaldi = new MagaSdDao(persistenceUnit);
 		daoMovimenti = new MagaMovDao(persistenceUnit);
 		
+		daoDatiSpedizioni = new TempCorrDao(persistenceUnit);
+		daoSpedizioni = new TestaCorrDao(persistenceUnit);
+		
+		managerSpedizioni = new ControllerInfoSpedizioneSQLServer(persistenceUnit);
+		
 		managerAssegnazione = new ManagerAssegnazione(persistenceUnit);
+		managerAssegnazione.setUtente(utente);
+		managerMovimentiUscita = new ManagerMovimentiUscita(persistenceUnit);
+		managerMovimentiUscita.setUtente(utente);
+		managerResetOrdine = new ManagerResetOrdine(persistenceUnit);
+		managerResetOrdine.setUtente(utente);
 	}
 	
 	protected TestataOrdini checkInserimento(OrdineTestata json) {
@@ -132,11 +174,11 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		return serializza(entity);
 	}
 
-	@Override
-	public OrdineTestata modificaStato(OrdineTestata json) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public OrdineTestata modificaStato(OrdineTestata json) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public OrdineTestata trovaPerID(int id) {
@@ -499,6 +541,293 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			operatori.add(imballatore);
 		}
 		return operatori;
+	}
+
+	@Override
+	public RisultatoGenerazioneMovimenti generaMovimentiUscita(int id) {
+		TestataOrdini testata = trovaDaID(id);
+		OrdineTestata ordine = serializza(trovaDaID(id));
+		RisultatoGenerazioneMovimenti risultato = new RisultatoGenerazioneMovimenti();
+		logger.info("Avvio l'elaborazione dei movimenti d'uscita.");
+		RisultatoGenerazioneMovimentiUscita generazione = managerMovimentiUscita.elaboraMovimentiUscita(testata);
+		risultato.setEsito(generazione.getProblemi().isEmpty());
+		risultato.setMessaggi(generazione.getProblemi());
+		risultato.setOrdine(ordine);
+		logger.info("Elaborazione movimenti completata con successo.");
+		return risultato;
+	}
+
+	@Override
+	public DatiSpedizione trovaDatiSpedizione(int id) {
+		DatiSpedizione dati;
+		TestataOrdini testata = trovaDaID(id);
+		//Controllo se esiste un testacorr collegato attraverso l'ID o il numero di lista.
+		TestaCorr spedizione = testata.getIdTestaCorr() > 0 ? daoSpedizioni.trovaDaID(testata.getIdTestaCorr()) : daoSpedizioni.trovaDaNumeroLista(testata.getNrLista());
+		//Se non l'ho trovata allora controllo se esiste un tempcorr collegato attraverso il numero di lista.
+		if (spedizione == null) {
+			TempCorr datiSpedizione = daoDatiSpedizioni.trovaDaNumeroLista(testata.getNrLista());
+			dati = datiSpedizione != null ? serializza(datiSpedizione) : null;
+		} else {
+			dati = serializza(spedizione);
+			//Set<Integer> ids = trovaOrdiniRaggruppati(spedizione.getIdTestaCor());
+			//dati.setOrdini(ids);
+			List<TestataOrdini> ordini = trovaDaSpedizione(spedizione.getIdTestaCor());
+			List<OrdineTestata> ord = new LinkedList<>();
+			for (TestataOrdini ordine : ordini)
+				ord.add(serializza(ordine));
+			dati.setOrdini(ord);
+		}
+		return dati;
+	}
+
+	@Override
+	public DatiSpedizione generaDatiSpedizione(DatiSpedizione json) {
+		MInfoSpedizione model = serializza(json);
+		model = managerSpedizioni.inserisci(model);
+		DatiSpedizione risposta = deserializza(model);
+		return risposta;
+	}
+	
+	protected MInfoSpedizione serializza(DatiSpedizione json) {
+		MInfoSpedizione model = new MInfoSpedizione();
+		model.setAbilitaPartenza(json.isAbilitaPartenza());
+		model.setCodiceCorriere(json.getCodiceCorriere());
+		model.setCodiceTracking(json.getCodiceTracking());
+		//Contrassegno
+		Double valoreContrassegno = json.getValoreContrassegno();
+		if (valoreContrassegno != null && valoreContrassegno > 0 ) {
+			TipoContrassegno tipo;
+			try { tipo = TipoContrassegno.valueOf(json.getTipoContrassegno()); } catch (Exception e) { throw new CustomException("Il tipo di contrassegno non è valido."); }
+			MContrassegno contrassegno = new MContrassegno();
+			contrassegno.setTipo(tipo);
+			contrassegno.setValore(valoreContrassegno);
+			model.setContrassegno(contrassegno);
+		}	
+		model.setCorriere(json.getCorriere());
+		model.setDataConsegna(json.getDataConsegna());
+		model.setDataDocumento(json.getDataDocumento());
+		model.setForzaAccoppiamentoDestinatari(json.isForzaAccoppiamentoDestinatari());
+		model.setId(json.getId());
+		model.setNote(json.getNote());
+		model.setRiferimentoDocumento(json.getRiferimentoDocumento());
+		model.setServizioCorriere(json.getServizioCorriere());
+		model.setTipoDocumento(json.getTipoDocumento());
+		model.setValoreDoganale(json.getValoreDoganale());
+		//Riferimenti ordini
+		for (OrdineTestata ordine : json.getOrdini()) {
+//			TestataOrdini testata = trovaDaID(idOrdine);
+//			if (testata == null)
+//				throw new CustomException("L'ID indicato per l'ordine da spedire non esiste. (ID: " + idOrdine + ")");
+//			model.aggiungiRiferimentoOrdine(testata.getRifOrdineCli());
+			model.aggiungiRiferimentoOrdine(ordine.getRiferimento());
+		}
+		return model;
+	}
+	
+	protected DatiSpedizione deserializza(MInfoSpedizione model) {
+		DatiSpedizione json = new DatiSpedizione();
+		json.setAbilitaPartenza(model.isAbilitaPartenza());
+		json.setCodiceCorriere(model.getCodiceCorriere());
+		json.setCodiceTracking(model.getCodiceTracking());
+		json.setColli(model.getColli());
+		json.setCorriere(model.getCorriere());
+		json.setDataConsegna(model.getDataConsegna());
+		json.setDataDocumento(model.getDataDocumento());
+		json.setForzaAccoppiamentoDestinatari(model.isForzaAccoppiamentoDestinatari());
+		json.setId(model.getId());
+		json.setNote(model.getNote());
+		json.setPeso(model.getPeso());
+		json.setPezzi(model.getPezzi());
+		json.setRiferimentoDocumento(model.getRiferimentoDocumento());
+		json.setServizioCorriere(model.getServizioCorriere());
+		//contrassegno
+		MContrassegno contrassegno = model.getContrassegno(); 
+		if (contrassegno != null) {
+			json.setTipoContrassegno(contrassegno.getTipo().name());
+			json.setValoreContrassegno(contrassegno.getValore());
+		}
+		json.setTipoDocumento(model.getTipoDocumento());
+		json.setValoreDoganale(model.getValoreDoganale());
+		json.setVolume(model.getVolume());
+		//ordini collegati
+		//Set<Integer> ordini = new HashSet<>();
+		List<OrdineTestata> ordini = new LinkedList<>();
+		for (String riferimento : model.getRiferimentiOrdini()) {
+			TestataOrdini testata = trovaDaRiferimento(riferimento);
+//			if (testata == null)
+//				throw new CustomException("Il riferimento indicato per l'ordine da spedire non esiste. (Riferimento: " + riferimento + ")");
+//			ordini.add(testata.getIdTestaSped());
+			ordini.add(serializza(testata));
+		}
+		json.setOrdini(ordini);
+		return json;
+	}
+	
+	protected DatiSpedizione serializza(TestaCorr spedizione) {
+		DatiSpedizione dati = new DatiSpedizione();
+		dati.setAbilitaPartenza(spedizione.getTrasmesso() > 0);
+		dati.setCorriere(spedizione.getCorriere());
+		dati.setServizioCorriere(spedizione.getServizio());
+		dati.setCodiceCorriere(spedizione.getCodMittente());
+		dati.setCodiceTracking(spedizione.getTrackingNumber());
+		dati.setDataConsegna(spedizione.getDataConsegnaTassativa());
+		dati.setDataDocumento(spedizione.getDocumentoData());
+		dati.setId(spedizione.getIdTestaCor());
+		dati.setNote(spedizione.getNote1() + spedizione.getNote2());
+		dati.setRiferimentoDocumento(spedizione.getDocumentoRiferimento());
+		dati.setTipoContrassegno(spedizione.getTipoIncasso());
+		dati.setValoreContrassegno(spedizione.getContrassegno());
+		dati.setTipoDocumento(spedizione.getDocumentoTipo());
+		dati.setValoreDoganale(spedizione.getValoreMerce());
+		dati.setForzaAccoppiamentoDestinatari(false);
+		dati.setPezzi(spedizione.getPezzi());
+		dati.setColli(spedizione.getNrColli());
+		dati.setPeso(spedizione.getPeso());
+		dati.setVolume(spedizione.getVolume());
+		return dati;
+	}
+	
+	protected DatiSpedizione serializza(TempCorr spedizione) {
+		DatiSpedizione dati = new DatiSpedizione();
+		dati.setAbilitaPartenza(false);
+		dati.setCorriere(spedizione.getCodcorriere());
+		dati.setServizioCorriere(spedizione.getServizio());
+		dati.setCodiceCorriere(spedizione.getCodCliente());
+		dati.setCodiceTracking(null);
+		dati.setDataConsegna(spedizione.getDataConsegna());
+		dati.setDataDocumento(spedizione.getDataDocu());
+		//dati.setId(spedizione.getIdTempCor()); //Uso tempCorr solo al momento di recuperare i dati la prima volta quando sono solo li.
+		dati.setNote(spedizione.getNote());
+		dati.setRiferimentoDocumento(spedizione.getRiferimento());
+		dati.setTipoContrassegno(spedizione.getTipoIncasso());
+		dati.setValoreContrassegno(spedizione.getValContra());
+		dati.setTipoDocumento(spedizione.getTipoDocu());
+		dati.setValoreDoganale(spedizione.getValoreDoganale());
+		dati.setForzaAccoppiamentoDestinatari(false);
+		dati.setPezzi(spedizione.getPezzi());
+		dati.setColli(spedizione.getNrColli());
+		dati.setPeso(spedizione.getPesoKg());
+		dati.setVolume(spedizione.getVolume());
+		return dati;
+	}
+	
+	@Override
+	public List<ImballoJSON> ottieniDettagliImballo(int idOrdine) {
+		//Recupero l'ordine
+		TestataOrdini ordine = trovaDaID(idOrdine);
+		if (ordine == null)
+			throw new CustomException("Nessun ordine trovato con l'ID specificato (" + idOrdine + ")");
+		//Recupero e inserisco le informazioni sugli imballi.
+		List<ColliImballo> colliImballati = daoColli.trovaDaNumeroLista(ordine.getNrLista());
+		List<RighiImballo> righe = daoImballo.trovaDaNumeroLista(ordine.getNrLista());
+		List<ImballoJSON> imballi = new LinkedList<>();
+		for (ColliImballo collo : colliImballati) {
+			ImballoJSON imballo = new ImballoJSON();
+			//Info generali sul collo
+			imballo.setRiferimento(collo.getKeyColloSpe());
+			imballo.setBarcode(collo.getBarCodeImb());
+			imballo.setPeso(collo.getPesoKg() != null ? collo.getPesoKg() : 0.0);
+			double volume = ((double) collo.getVolume()) / 1000000.0;
+			imballo.setVolume(volume);
+			//formato dell'imballo, se presente.
+			Imballi formatoImballo = daoFormatiImballo.trovaDaCodice(collo.getCodFormato());
+			if (formatoImballo != null) {
+				imballo.setH(formatoImballo.getH());
+				imballo.setL(formatoImballo.getL());
+				imballo.setZ(formatoImballo.getZ());
+			}
+			//Prodotti e seriali
+			List<ProdottoImballatoJSON> prodotti = new LinkedList<>();
+			List<String> seriali = new LinkedList<>();
+			HashMap<String, Integer> mappaProdottiQuantita = new HashMap<>();
+			for (RighiImballo riga : righe) {
+				//Controllo se appartiene a quel collo
+				if (riga.getKeyColloSpe().equals(collo.getKeyColloSpe())) {
+					//Aggiorno la giusta quantita per lo SKU
+					String sku = riga.getCodiceArticolo();
+					int quantita = mappaProdottiQuantita.containsKey(sku) ? mappaProdottiQuantita.get(sku) : 0;
+					quantita += riga.getQtaImballata();
+					mappaProdottiQuantita.put(sku, quantita);
+					//Aggiungo il seriale alla lista
+					seriali.add(riga.getSeriale());
+				}
+			}
+			//Aggiungo ogni SKU trovato e la relativa quantita alla lista dei prodotti.
+			for (String sku : mappaProdottiQuantita.keySet()) {
+				ProdottoImballatoJSON prodottoImballato = new ProdottoImballatoJSON();
+				prodottoImballato.setProdotto(sku);
+				prodottoImballato.setQuantitaImballata(mappaProdottiQuantita.get(sku));
+				prodotti.add(prodottoImballato);
+			}
+			imballo.setProdotti(prodotti);
+			imballo.setSeriali(seriali);
+			imballi.add(imballo);
+		}
+		return imballi;
+	}
+
+	@Override
+	public OrdineTestata annullaImballo(int idOrdine) {
+		boolean reset;
+		try {
+			reset = managerResetOrdine.resetta(idOrdine, Reset.IMBALLO);
+		} catch (ResetOrdineException e) {
+			logger.error(e.getMessage());
+			throw new CustomException(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new CustomException(e.getMessage());
+		}
+		OrdineTestata result = reset ? serializza(trovaDaID(idOrdine)) : null;
+		return result;
+	}
+
+	@Override
+	public OrdineTestata annullaAssegnazioneConRiposizionamento(int idOrdine) {
+		boolean reset;
+		try {
+			reset = managerResetOrdine.resetta(idOrdine, Reset.ASSEGNAZIONE_RIPOSIZIONA);
+		} catch (ResetOrdineException e) {
+			logger.error(e.getMessage());
+			throw new CustomException(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new CustomException(e.getMessage());
+		}
+		OrdineTestata result = reset ? serializza(trovaDaID(idOrdine)) : null;
+		return result;
+	}
+
+	@Override
+	public OrdineTestata annullaAssegnazioneConNuovoCarico(int idOrdine) {
+		boolean reset;
+		try {
+			reset = managerResetOrdine.resetta(idOrdine, Reset.ASSEGNAZIONE_NUOVOCARICO);
+		} catch (ResetOrdineException e) {
+			logger.error(e.getMessage());
+			throw new CustomException(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new CustomException(e.getMessage());
+		}
+		OrdineTestata result = reset ? serializza(trovaDaID(idOrdine)) : null;
+		return result;
+	}
+
+	@Override
+	public OrdineTestata annullaImportazione(int idOrdine) {
+		boolean reset;
+		try {
+			reset = managerResetOrdine.resetta(idOrdine, Reset.IMPORTAZIONE);
+		} catch (ResetOrdineException e) {
+			logger.error(e.getMessage());
+			throw new CustomException(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new CustomException(e.getMessage());
+		}
+		OrdineTestata result = reset ? serializza(trovaDaID(idOrdine)) : null;
+		return result;
 	}
 
 }

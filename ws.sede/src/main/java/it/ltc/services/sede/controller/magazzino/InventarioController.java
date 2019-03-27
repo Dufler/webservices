@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.sede.data.magazzino.FactoryDaoInventario;
 import it.ltc.services.sede.data.magazzino.InventarioDao;
@@ -30,7 +30,7 @@ public class InventarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/seriali/nuovo")
 	public ResponseEntity<ColloInventarioConSeriali> nuovo(@RequestBody ColloInventarioConSeriali collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di creazione collo inventario dall'utente: " + user.getUsername());
 		InventarioDao dao = factory.getDao(user, commessa);
 		collo = dao.nuovoCollo(collo);
@@ -41,7 +41,7 @@ public class InventarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/seriali/scarico")
 	public ResponseEntity<ColloInventarioConSeriali> scarico(@RequestBody ColloInventarioConSeriali collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di creazione collo di scarico dall'utente: " + user.getUsername());
 		InventarioDao dao = factory.getDao(user, commessa);
 		collo = dao.nuovoColloDiScarico(collo);
@@ -52,7 +52,7 @@ public class InventarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/seriali/controlloimpegno")
 	public ResponseEntity<Void> controlloImpegno(@RequestBody ControlloSeriale seriale, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di creazione collo inventario dall'utente: " + user.getUsername());
 		InventarioDao dao = factory.getDao(user, commessa);
 		boolean check = dao.checkImpegnoSeriale(seriale);
@@ -63,7 +63,7 @@ public class InventarioController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/distruggicollo")
 	public ResponseEntity<Void> distruggiCollo(@RequestBody ColloInventarioConSeriali collo, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Nuova richiesta di distruzione collo dall'utente: " + user.getUsername());
 		InventarioDao dao = factory.getDao(user, commessa);
 		boolean distrutto = dao.distruggiCollo(collo);

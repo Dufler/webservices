@@ -1,10 +1,11 @@
 package it.ltc.services.custom.dao;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import it.ltc.database.dao.common.LoginController;
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
+import it.ltc.database.model.utente.CommessaUtenti;
+import it.ltc.services.custom.controller.LoginController;
 import it.ltc.services.custom.exception.CustomException;
 
 /**
@@ -21,21 +22,18 @@ public abstract class FactoryDao<T> {
 	
 	private static final Logger logger = Logger.getLogger("FactoryDao");
 	
-	private static final String NESSUNA_COMMESSA = "Nessuna commessa associata all'utenza. Ne va specificata una, se necessario.";
+	private static final String NESSUNA_COMMESSA = "Nessuna commessa associabile all'utenza. Ne va specificata una, se necessario.";
 
-	private final LoginController loginManager;
-	
-	public FactoryDao() {
-		loginManager = LoginController.getInstance();
-	}
+	@Autowired
+	protected LoginController loginManager;
 	
 	/**
 	 * Cerca tra le varie implementazioni una che vada bene per l'utente e la commessa.
 	 * @param commessa
 	 * @return
 	 */
-	public T getDao(Utente user, String risorsaCommessa) {
-		Commessa commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
+	public T getDao(UtenteUtenti user, String risorsaCommessa) {
+		CommessaUtenti commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
 		if (commessa != null)
 			return findDao(user, commessa);
 		else {
@@ -48,5 +46,5 @@ public abstract class FactoryDao<T> {
 	 * Metodo da implementare, qui viene istanziato e restituito il dao.
 	 * @return L'oggetto DAO capace di gestire i dati.
 	 */
-	protected abstract T findDao(Utente user, Commessa commessa);
+	protected abstract T findDao(UtenteUtenti user, CommessaUtenti commessa);
 }

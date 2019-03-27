@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.model.shared.dao.IMagazzinoDao;
 import it.ltc.model.shared.json.interno.MagazzinoJSON;
 import it.ltc.services.custom.controller.RestController;
@@ -23,7 +23,7 @@ public class MagazzinoController extends RestController {
 	
 	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	
-	private static final Logger logger = Logger.getLogger("MagazzinoController");
+	private static final Logger logger = Logger.getLogger(MagazzinoController.class);
 	
 	@Autowired
 	private MagazzinoDAOFactory factory;
@@ -31,7 +31,7 @@ public class MagazzinoController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<MagazzinoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String commessa) {
 		logger.info("Nuova richiesta di elenco magazzini");
-		Utente user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		logger.info("Utente: " + user.getUsername());
 		IMagazzinoDao dao = factory.getDao(user, commessa);
 		List<MagazzinoJSON> magazzini = dao.trovaliTutti();

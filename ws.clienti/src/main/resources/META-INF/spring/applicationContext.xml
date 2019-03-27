@@ -25,6 +25,10 @@
 	<!-- Aggiunto -->
 	<!-- <bean id="pabpp" class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/> -->
 <!-- 	<bean id="CategoriaMerceologicaLegacyDao" class="it.ltc.database.dao.common.legacy.CategoriaMerceologicaLegacyDao" /> -->
+	
+	<!-- Controller Utenti -->
+<!-- 	<bean id="UserController" class="it.ltc.services.custom.controller.UserController" scope="singleton" /> -->
+	<bean id="LoginController" class="it.ltc.services.custom.controller.LoginController" scope="singleton" />
 	<context:annotation-config />
 
 	<!-- fine -->

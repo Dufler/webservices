@@ -2,8 +2,8 @@ package it.ltc.model.shared.dao;
 
 import java.util.List;
 
-import it.ltc.model.shared.json.interno.CaricoStato;
-import it.ltc.model.shared.json.interno.CaricoTestata;
+import it.ltc.model.shared.json.interno.carico.CaricoStato;
+import it.ltc.model.shared.json.interno.carico.CaricoTestata;
 
 public interface ICaricoDao {
 	

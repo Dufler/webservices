@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import it.ltc.database.dao.common.NazioneDao;
-import it.ltc.database.model.centrale.Nazione;
+import it.ltc.database.dao.costanti.NazioneDao;
+import it.ltc.database.model.costanti.Nazione;
 import it.ltc.model.shared.json.cliente.IngressoDettaglioJSON;
 
 @Component

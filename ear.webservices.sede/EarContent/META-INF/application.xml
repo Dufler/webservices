@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/application_7.xsd" id="Application_ID" version="7">
+  <display-name>ear.webservices.sede</display-name>
+  <module>
+    <web>
+      <web-uri>ws.clienti.war</web-uri>
+      <context-root>clienti</context-root>
+    </web>
+  </module>
+  <module>
+    <web>
+      <web-uri>ws.sede.war</web-uri>
+      <context-root>sede</context-root>
+    </web>
+  </module>
+  <module>
+    <java>hibernate-core-5.2.10.Final.jar</java>
+  </module>
+  <module>
+    <java>javassist-3.20.0-GA.jar</java>
+  </module>
+  <module>
+    <java>hibernate-commons-annotations-5.0.1.Final.jar</java>
+  </module>
+  <module>
+    <java>jandex-2.0.3.Final.jar</java>
+  </module>
+</application>

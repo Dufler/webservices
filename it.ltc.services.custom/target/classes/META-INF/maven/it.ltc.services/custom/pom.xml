@@ -50,5 +50,10 @@
 			<version>4.1.4.RELEASE</version>
 		</dependency>
 
+		<dependency>
+			<groupId>it.ltc.database</groupId>
+			<artifactId>dao-utente</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 </project>

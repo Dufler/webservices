@@ -24,7 +24,7 @@ import it.ltc.services.logica.validation.fatturazione.AmbitoFatturazioneValidato
 @RequestMapping("/ambitifatturazione")
 public class AmbitiFatturazioneController {
 	
-	private static final Logger logger = Logger.getLogger("AmbitiFatturazioneController");
+	private static final Logger logger = Logger.getLogger(AmbitiFatturazioneController.class);
 	
 	@Autowired
 	private AmbitiFatturazioneDAO dao;

@@ -2,8 +2,8 @@ package it.ltc.services.clienti.data.ordine;
 
 import org.springframework.stereotype.Component;
 
-import it.ltc.database.model.centrale.Commessa;
-import it.ltc.database.model.utente.Utente;
+import it.ltc.database.model.utente.CommessaUtenti;
+import it.ltc.database.model.utente.UtenteUtenti;
 import it.ltc.services.custom.dao.FactoryDao;
 
 @Component
@@ -13,7 +13,7 @@ public class OrdineDAOFactory extends FactoryDao<OrdineDAO<?, ?>> {
 	public static final String PU_LEGACY_TEST = "legacy-test";
 
 	@Override
-	protected OrdineDAO<?, ?> findDao(Utente user, Commessa commessa) {
+	protected OrdineDAO<?, ?> findDao(UtenteUtenti user, CommessaUtenti commessa) {
 		OrdineDAO<?,?> dao;
 		String persistenceUnitName = commessa.getNomeRisorsa();
 		if (commessa.isLegacy()) {
