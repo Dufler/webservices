@@ -33,7 +33,6 @@ import it.ltc.database.model.legacy.MagaSd;
 import it.ltc.database.model.legacy.PakiArticolo;
 import it.ltc.database.model.legacy.PakiTesta;
 import it.ltc.database.model.legacy.PakiTestaLogStato;
-import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.database.model.legacy.model.PakiTestaTotali;
 import it.ltc.model.shared.dao.ICaricoDao;
 import it.ltc.model.shared.json.interno.carico.CaricoStato;
@@ -146,7 +145,7 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 			CondizioneWhere condizione = new CondizioneWhere("creazione", a, Operatore.LESSER_OR_EQUAL, Condizione.AND);
 			condizioni.add(condizione);
 		}		
-		List<PakiTesta> entities = findAll(condizioni, 100);
+		List<PakiTesta> entities = findAll(condizioni, 100, "idTestaPaki", false);
 		List<CaricoTestata> carichi = new LinkedList<>();
 		for (PakiTesta entity : entities) {
 			CaricoTestata json = serializza(entity);
@@ -575,7 +574,8 @@ public class CarichiLegacyDAOImpl extends PakiTestaDao implements ICaricoDao {
 				saldo.setTotIn(saldo.getTotIn() + quantità);
 				saldiDaAggiornare.add(saldo);
 			}
-			MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.CPK, entity.getNrPaki(), entity.getIdTestaPaki(), entity.getDataPaki(), saldo, dati[0], dati[1], quantità);
+			//MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.CPK, entity.getNrPaki(), entity.getIdTestaPaki(), entity.getDataPaki(), saldo, dati[0], dati[1], quantità);
+			MagaMov movimento = daoMovimenti.getNuovoMovimentoChiusuraCarico(entity, saldo, quantità);
 			movimentiDaInserire.add(movimento);
 		}
 		//Vado in scrittura

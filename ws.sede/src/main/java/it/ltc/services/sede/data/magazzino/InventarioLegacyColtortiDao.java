@@ -225,7 +225,7 @@ public class InventarioLegacyColtortiDao extends Dao implements InventarioDao {
 		for (ColliPack prodotto : prodotti) {
 			String key = prodotto.getCodiceArticolo() + prodotto.getMagazzino();
 			MagaSd saldo = saldi.get(key);
-			MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.SPE, carico.getNrPaki(), carico.getIdTestaPaki(), carico.getCreazione(), saldo, prodotto.getCodiceArticolo(), prodotto.getMagazzino(), 1);
+			MagaMov movimento = daoMovimenti.getNuovoMovimento("SPE", CausaliMovimento.ANNULLA_CARICO, carico.getNrPaki(), carico.getIdTestaPaki(), carico.getCreazione(), saldo, 1, "Inventario");
 			movimenti.add(movimento);
 		}
 		return movimenti;

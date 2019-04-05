@@ -3,7 +3,6 @@ package it.ltc.services.clienti.data.ordine;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,7 +44,6 @@ import it.ltc.database.model.legacy.RighiOrdine;
 import it.ltc.database.model.legacy.TestaCorr;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.TestataOrdiniTipo;
-import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.database.model.legacy.model.StatoOrdine;
 import it.ltc.model.shared.json.cliente.ContrassegnoJSON;
 import it.ltc.model.shared.json.cliente.DocumentoJSON;
@@ -562,9 +560,8 @@ public class OrdineLegacyDAOImpl extends Dao implements OrdineDAO<TestataOrdini,
 				int impegnato = saldo.getImpegnato() + prodotto.getQtaSpedizione();
 				saldo.setDisponibile(disponibile);
 				saldo.setImpegnato(impegnato);
-				//saldi.add(saldo);
-				//MagaMov movimento = getMovimento(saldo, prodotto);
-				MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
+				//MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
+				MagaMov movimento = daoMovimenti.getNuovoMovimentoImpegnoOrdine(ordine, saldo, prodotto.getQtaSpedizione());
 				movimenti.add(movimento);
 			}
 		}

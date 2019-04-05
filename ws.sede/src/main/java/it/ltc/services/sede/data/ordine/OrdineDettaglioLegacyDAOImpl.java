@@ -50,6 +50,9 @@ public class OrdineDettaglioLegacyDAOImpl extends RighiOrdineDao implements IOrd
 			ordine.setQtaTotaleSpedire(totali.getTotaleOrdinato());
 			ordine.setQtaimballata(totali.getTotaleImballato());
 			ordine.setQtaAssegnata(totali.getTotaleAssegnato());
+			ordine.setQtaprelevata(totali.getTotalePrelevato());
+			ordine.setPezzieffet(totali.getTotaleOrdinatoEffettivo());
+			ordine.setPezziEffettiviImballati(totali.getTotaleImballatoEffettivo());
 			daoOrdini.aggiorna(ordine);
 		}
 	}
@@ -142,6 +145,8 @@ public class OrdineDettaglioLegacyDAOImpl extends RighiOrdineDao implements IOrd
 			riga.setNumerata(prodotto.getNumerata());
 			riga.setQtaSpedizione(json.getQuantitaOrdinata());
 			riga.setTaglia(prodotto.getTaglia());
+			riga.setPezzieffet(prodotto.getPezziCassa() * json.getQuantitaOrdinata());
+			riga.setNumeroPezziUnita(prodotto.getPezziCassa());
 			//riga.setTipoord(tipoord); FIXME - Qui potrebbe andarci il tipo di riga (es. Coltorti lo usa)
 			//Campi ordine
 			riga.setDataOrdine(ordine.getDataOrdine());

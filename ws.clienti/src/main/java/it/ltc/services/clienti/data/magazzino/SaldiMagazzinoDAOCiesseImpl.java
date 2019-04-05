@@ -26,10 +26,11 @@ public class SaldiMagazzinoDAOCiesseImpl extends GiacenzeDao implements SaldiMag
 		int posizione = (int) arrayInfo[1];
 		String barcode = (String) arrayInfo[2];
 		String codiceArticolo = modello + "|" + posizione + "|" + barcode;
+		String magazzino = daoMagazzini.trovaDaCodiceLTC((String) arrayInfo[5]).getMagaCliente();
 		info.setCodiceArticolo(codiceArticolo);
 		info.setDisponibilità((int) arrayInfo[3]);
 		info.setGiacenza((int) arrayInfo[4]);
-		info.setMagazzino((String) arrayInfo[5]);
+		info.setMagazzino(magazzino);
 		return info;
 	}
 

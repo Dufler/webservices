@@ -1,6 +1,5 @@
 package it.ltc.services.sede.data.prodotto;
 
-import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +35,7 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		daoArticoli = new ArticoliDao(persistenceUnit);
 		daoSaldi = new MagaSdDao(persistenceUnit);
 		daoMovimenti = new MagaMovDao(persistenceUnit);
+		daoMovimenti.setUtente(utente);
 	}
 	
 	@Override
@@ -57,9 +57,12 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 				movimento.setDocumentoID(entity.getIDdocum());
 				movimento.setIdProdotto(idProdotto);
 				movimento.setSkuProdotto(articolo.getCodArtStr());
-				movimento.setCausale(entity.getCausale());
+//				movimento.setCausale(entity.getCausale());
+				movimento.setCausale(CausaliMovimento.getCausaleCorrispondente(entity.getSegnoEsi(), entity.getSegnoDis(), entity.getSegnoImp()).name());
+				movimento.setCausaleLegacy(entity.getCausale());
 				movimento.setMagazzino(entity.getCodMaga());
 				movimento.setQuantita(entity.getQuantita());
+				movimento.setNote(entity.getDocNote());
 				movimenti.add(movimento);
 			}
 		} else {
@@ -96,6 +99,8 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		CausaliMovimento causale = null;
 		try {
 			causale = CausaliMovimento.valueOf(movimento.getCausale());
+			if (causale == CausaliMovimento.ALTRO)
+				throw new RuntimeException();
 		} catch (Exception e) { throw new CustomException("La causale indicata per il movimento non è valida. (" + movimento.getCausale() + ")"); }
 		return causale;
 	}
@@ -107,30 +112,30 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		return articolo;
 	}
 	
-	protected MagaMov getMovimento(MagaSd saldo, MovimentoProdotto datiMovimento, Articoli articolo, CausaliMovimento causale) {
-		MagaMov movimento = new MagaMov();
-		movimento.setCausale(causale.name());
-		movimento.setDocNr(datiMovimento.getDocumentoRiferimento());
-		movimento.setDocData(new Timestamp(datiMovimento.getDataMovimento().getTime()));
-		movimento.setIDdocum(datiMovimento.getDocumentoID());
-		movimento.setDocCat("_");
-		movimento.setDocNote(causale.getDescrizione());
-		movimento.setDocTipo("___");
-		movimento.setCodMaga(datiMovimento.getMagazzino());
-		movimento.setDisponibilemov(saldo.getDisponibile());
-		movimento.setEsistenzamov(saldo.getEsistenza());
-		movimento.setImpegnatomov(saldo.getImpegnato());
-		movimento.setSegno(causale.getSegnoEsistenza());
-		movimento.setSegnoDis(causale.getSegnoDisponibile());
-		movimento.setSegnoEsi(causale.getSegnoEsistenza());
-		movimento.setSegnoImp(causale.getSegnoImpegnato());
-		movimento.setIdUniArticolo(articolo.getIdUniArticolo());
-		movimento.setIncTotali(causale.getIncrementoTotali());
-		movimento.setTipo("__");
-		movimento.setQuantita(datiMovimento.getQuantita());
-		movimento.setUtente(utente);
-		return movimento;
-	}
+//	protected MagaMov getMovimento(MagaSd saldo, MovimentoProdotto datiMovimento, Articoli articolo, CausaliMovimento causale) {
+//		MagaMov movimento = new MagaMov();
+//		movimento.setCausale(causale.name());
+//		movimento.setDocNr(datiMovimento.getDocumentoRiferimento());
+//		movimento.setDocData(new Timestamp(datiMovimento.getDataMovimento().getTime()));
+//		movimento.setIDdocum(datiMovimento.getDocumentoID());
+//		movimento.setDocCat("_");
+//		movimento.setDocNote(causale.getDescrizione());
+//		movimento.setDocTipo("___");
+//		movimento.setCodMaga(datiMovimento.getMagazzino());
+//		movimento.setDisponibilemov(saldo.getDisponibile());
+//		movimento.setEsistenzamov(saldo.getEsistenza());
+//		movimento.setImpegnatomov(saldo.getImpegnato());
+//		movimento.setSegno(causale.getSegnoEsistenza());
+//		movimento.setSegnoDis(causale.getSegnoDisponibile());
+//		movimento.setSegnoEsi(causale.getSegnoEsistenza());
+//		movimento.setSegnoImp(causale.getSegnoImpegnato());
+//		movimento.setIdUniArticolo(articolo.getIdUniArticolo());
+//		movimento.setIncTotali(causale.getIncrementoTotali());
+//		movimento.setTipo("__");
+//		movimento.setQuantita(datiMovimento.getQuantita());
+//		movimento.setUtente(utente);
+//		return movimento;
+//	}
 
 	@Override
 	public MovimentoProdotto inserisci(MovimentoProdotto movimento) {		
@@ -149,7 +154,8 @@ public class SaldiMovimentiLegacyDAOImpl extends Dao implements SaldiMovimentiDA
 		saldo.setTotIn(saldo.getTotIn() + movimento.getQuantita() * causale.getTotaleIn());
 		saldo.setTotOut(saldo.getTotOut() + movimento.getQuantita() * causale.getTotaleOut());
 		//Creo il movimento
-		MagaMov nuovoMovimento = getMovimento(saldo, movimento, articolo, causale);
+//		MagaMov nuovoMovimento = getMovimento(saldo, movimento, articolo, causale);
+		MagaMov nuovoMovimento = daoMovimenti.getNuovoMovimento(causale, movimento.getDocumentoRiferimento(), movimento.getDocumentoID(), movimento.getDataMovimento(), saldo, movimento.getQuantita(), movimento.getNote());
 		EntityManager em = getManager();
 		EntityTransaction t = em.getTransaction();
 		try {

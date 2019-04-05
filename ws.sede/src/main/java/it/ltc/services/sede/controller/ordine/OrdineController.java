@@ -30,6 +30,7 @@ import it.ltc.model.shared.json.interno.ordine.risultato.RisultatoGenerazioneMov
 import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.custom.permission.Permessi;
 import it.ltc.services.sede.data.ordine.FactoryDaoOrdini;
+import it.ltc.services.sede.validation.ordine.DatiSpedizioneValidator;
 import it.ltc.services.sede.validation.ordine.OrdineTestataValidator;
 
 @Controller
@@ -45,11 +46,19 @@ public class OrdineController extends RestController {
 	private FactoryDaoOrdini factory;
 	
 	@Autowired
-	private OrdineTestataValidator validator;
+	private OrdineTestataValidator validatorTestataOrdine;
 	
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-	    binder.setValidator(validator);
+	@Autowired
+	private DatiSpedizioneValidator validatorDatiSpedizione;
+	
+	@InitBinder("ordineTestata")
+	protected void initBinderTestataOrdine(WebDataBinder binder) {
+	    binder.setValidator(validatorTestataOrdine);
+	}
+	
+	@InitBinder("datiSpedizione")
+	protected void initBinderDatiSpedizione(WebDataBinder binder) {
+	    binder.setValidator(validatorDatiSpedizione);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")

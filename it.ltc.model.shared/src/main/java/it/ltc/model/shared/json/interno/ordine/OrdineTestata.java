@@ -25,6 +25,9 @@ public class OrdineTestata {
 	private String stato;
 	
 	private int colli;
+	private double peso;
+	private double volume;
+	
 	private int quantitaOrdinataTotale;
 	private int quantitaAssegnataTotale;
 	private int quantitaImballataTotale;
@@ -185,6 +188,22 @@ public class OrdineTestata {
 
 	public void setColli(int colli) {
 		this.colli = colli;
+	}
+
+	public double getPeso() {
+		return peso;
+	}
+
+	public void setPeso(double peso) {
+		this.peso = peso;
+	}
+
+	public double getVolume() {
+		return volume;
+	}
+
+	public void setVolume(double volume) {
+		this.volume = volume;
 	}
 
 	public int getQuantitaOrdinataTotale() {

@@ -16,6 +16,7 @@ public class ImballoJSON {
 	private Double h;
 	private Double l;
 	private Double z;
+	private String formato;
 	
 	@JsonInclude(value=Include.NON_EMPTY)
 	private List<ProdottoImballatoJSON> prodotti;
@@ -79,6 +80,14 @@ public class ImballoJSON {
 
 	public void setZ(Double z) {
 		this.z = z;
+	}
+
+	public String getFormato() {
+		return formato;
+	}
+
+	public void setFormato(String formato) {
+		this.formato = formato;
 	}
 
 	public List<ProdottoImballatoJSON> getProdotti() {

@@ -26,6 +26,7 @@ public class DatiSpedizione {
 	
 	private Double valoreContrassegno;
 	private String tipoContrassegno;
+	private String valutaContrassegno;
 	
 	private Double valoreDoganale;
 	private String codiceTracking;
@@ -136,6 +137,14 @@ public class DatiSpedizione {
 
 	public void setTipoContrassegno(String tipoContrassegno) {
 		this.tipoContrassegno = tipoContrassegno;
+	}
+
+	public String getValutaContrassegno() {
+		return valutaContrassegno;
+	}
+
+	public void setValutaContrassegno(String valutaContrassegno) {
+		this.valutaContrassegno = valutaContrassegno;
 	}
 
 	public Double getValoreDoganale() {

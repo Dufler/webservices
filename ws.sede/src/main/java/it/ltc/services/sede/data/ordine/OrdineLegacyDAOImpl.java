@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import it.ltc.database.dao.CondizioneWhere;
 import it.ltc.database.dao.CondizioneWhere.Condizione;
 import it.ltc.database.dao.CondizioneWhere.Operatore;
+import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.dao.legacy.ColliImballoDao;
 import it.ltc.database.dao.legacy.DestinatariDao;
 import it.ltc.database.dao.legacy.ImballoDao;
@@ -37,6 +38,7 @@ import it.ltc.database.dao.ordini.ManagerResetOrdine.Reset;
 import it.ltc.database.dao.ordini.ResetOrdineException;
 import it.ltc.database.dao.ordini.uscita.ManagerMovimentiUscita;
 import it.ltc.database.dao.ordini.uscita.RisultatoGenerazioneMovimentiUscita;
+import it.ltc.database.model.legacy.Articoli;
 import it.ltc.database.model.legacy.ColliImballo;
 import it.ltc.database.model.legacy.Destinatari;
 import it.ltc.database.model.legacy.Imballi;
@@ -51,7 +53,6 @@ import it.ltc.database.model.legacy.TempCorr;
 import it.ltc.database.model.legacy.TestaCorr;
 import it.ltc.database.model.legacy.TestataOrdini;
 import it.ltc.database.model.legacy.TestataOrdiniLogStato;
-import it.ltc.database.model.legacy.model.CausaliMovimento;
 import it.ltc.model.interfaces.ordine.MContrassegno;
 import it.ltc.model.interfaces.ordine.MInfoSpedizione;
 import it.ltc.model.interfaces.ordine.TipoContrassegno;
@@ -87,6 +88,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	protected final RighiUbicPreDao daoAssegnazioni;
 	protected final MagaSdDao daoSaldi;
 	protected final MagaMovDao daoMovimenti;
+	protected final ArticoliDao daoArticoli;
 	
 	protected final TempCorrDao daoDatiSpedizioni;
 	protected final TestaCorrDao daoSpedizioni;
@@ -111,6 +113,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		daoAssegnazioni = new RighiUbicPreDao(persistenceUnit);
 		daoSaldi = new MagaSdDao(persistenceUnit);
 		daoMovimenti = new MagaMovDao(persistenceUnit);
+		daoArticoli = new ArticoliDao(persistenceUnit);
 		
 		daoDatiSpedizioni = new TempCorrDao(persistenceUnit);
 		daoSpedizioni = new TestaCorrDao(persistenceUnit);
@@ -259,9 +262,8 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 				int impegnato = saldo.getImpegnato() + prodotto.getQtaSpedizione();
 				saldo.setDisponibile(disponibile);
 				saldo.setImpegnato(impegnato);
-				//saldi.add(saldo);
-				//MagaMov movimento = getMovimento(saldo, prodotto);
-				MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
+				//MagaMov movimento = daoMovimenti.getNuovoMovimento(CausaliMovimento.IOS, ordine.getNrLista(), ordine.getIdTestaSped(), new Date(), saldo, prodotto.getIdUnicoArt(), prodotto.getMagazzino(), prodotto.getQtaSpedizione());
+				MagaMov movimento = daoMovimenti.getNuovoMovimentoImpegnoOrdine(ordine, saldo, prodotto.getQtaSpedizione());
 				movimenti.add(movimento);
 			}
 		}
@@ -362,7 +364,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			CondizioneWhere condizione = new CondizioneWhere("dataOrdine", a, Operatore.LESSER_OR_EQUAL, Condizione.AND);
 			condizioni.add(condizione);
 		}		
-		List<TestataOrdini> entities = findAll(condizioni, 100);
+		List<TestataOrdini> entities = findAll(condizioni, 100, "idTestaSped", false);
 		List<OrdineTestata> ordini = new LinkedList<>();
 		for (TestataOrdini entity : entities) {
 			OrdineTestata json = serializza(entity);
@@ -444,6 +446,8 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			json.setNote(testata.getNote());
 			json.setPriorita(testata.getPriorita());
 			json.setColli(testata.getTotaleColli());
+			json.setPeso(testata.getPesoTotale());
+			json.setVolume(testata.getVolumetot());
 			json.setQuantitaImballataTotale(testata.getQtaimballata());
 			json.setQuantitaOrdinataTotale(testata.getQtaTotaleSpedire());
 			json.setQuantitaAssegnataTotale(testata.getQtaAssegnata());
@@ -566,7 +570,36 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		//Se non l'ho trovata allora controllo se esiste un tempcorr collegato attraverso il numero di lista.
 		if (spedizione == null) {
 			TempCorr datiSpedizione = daoDatiSpedizioni.trovaDaNumeroLista(testata.getNrLista());
-			dati = datiSpedizione != null ? serializza(datiSpedizione) : null;
+			if (datiSpedizione != null) {
+				dati = serializza(datiSpedizione);
+				List<OrdineTestata> ord = new LinkedList<>();
+				ord.add(serializza(testata));
+				dati.setOrdini(ord);
+			} else {
+				//Recupero il destinatario
+				//Destinatari destinatario = daoDestinatari.trovaDaID(testata.getIdDestina());
+				//Li prendo dall'ordine e dal destinatario collegato.				
+				List<OrdineTestata> ordini = new LinkedList<>();
+				ordini.add(serializza(testata));
+				dati = new DatiSpedizione();
+				dati.setCodiceCorriere(testata.getCodiceClienteCorriere());
+				dati.setColli(testata.getTotaleColli());
+				dati.setCorriere(testata.getCorriere());
+				dati.setDataConsegna(testata.getDataConsegna());
+				dati.setDataDocumento(testata.getDataDoc());
+				dati.setNote(testata.getNote());
+				dati.setPeso(testata.getPesoTotale());
+				dati.setPezzi(testata.getQtaimballata());
+				dati.setRiferimentoDocumento(testata.getRifOrdineCli());
+				dati.setServizioCorriere(testata.getTipoTrasporto());
+				dati.setTipoContrassegno(testata.getTipoIncasso());
+				dati.setValoreContrassegno(testata.getValContrassegno());
+				dati.setValutaContrassegno("EUR");
+				dati.setTipoDocumento(testata.getTipoDoc());
+				dati.setValoreDoganale(testata.getValoreDoganale());
+				dati.setVolume(testata.getVolumetot());
+				dati.setOrdini(ordini);
+			}
 		} else {
 			dati = serializza(spedizione);
 			//Set<Integer> ids = trovaOrdiniRaggruppati(spedizione.getIdTestaCor());
@@ -601,6 +634,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			MContrassegno contrassegno = new MContrassegno();
 			contrassegno.setTipo(tipo);
 			contrassegno.setValore(valoreContrassegno);
+			contrassegno.setValuta(json.getValutaContrassegno());
 			model.setContrassegno(contrassegno);
 		}	
 		model.setCorriere(json.getCorriere());
@@ -645,6 +679,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		if (contrassegno != null) {
 			json.setTipoContrassegno(contrassegno.getTipo().name());
 			json.setValoreContrassegno(contrassegno.getValore());
+			json.setValutaContrassegno(contrassegno.getValuta());
 		}
 		json.setTipoDocumento(model.getTipoDocumento());
 		json.setValoreDoganale(model.getValoreDoganale());
@@ -677,6 +712,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		dati.setRiferimentoDocumento(spedizione.getDocumentoRiferimento());
 		dati.setTipoContrassegno(spedizione.getTipoIncasso());
 		dati.setValoreContrassegno(spedizione.getContrassegno());
+		dati.setValutaContrassegno(spedizione.getValutaIncasso());
 		dati.setTipoDocumento(spedizione.getDocumentoTipo());
 		dati.setValoreDoganale(spedizione.getValoreMerce());
 		dati.setForzaAccoppiamentoDestinatari(false);
@@ -701,6 +737,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		dati.setRiferimentoDocumento(spedizione.getRiferimento());
 		dati.setTipoContrassegno(spedizione.getTipoIncasso());
 		dati.setValoreContrassegno(spedizione.getValContra());
+		dati.setValutaContrassegno("EUR");
 		dati.setTipoDocumento(spedizione.getTipoDocu());
 		dati.setValoreDoganale(spedizione.getValoreDoganale());
 		dati.setForzaAccoppiamentoDestinatari(false);
@@ -735,6 +772,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 				imballo.setH(formatoImballo.getH());
 				imballo.setL(formatoImballo.getL());
 				imballo.setZ(formatoImballo.getZ());
+				imballo.setFormato(collo.getCodFormato());
 			}
 			//Prodotti e seriali
 			List<ProdottoImballatoJSON> prodotti = new LinkedList<>();
@@ -743,20 +781,25 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 			for (RighiImballo riga : righe) {
 				//Controllo se appartiene a quel collo
 				if (riga.getKeyColloSpe().equals(collo.getKeyColloSpe())) {
-					//Aggiorno la giusta quantita per lo SKU
-					String sku = riga.getCodiceArticolo();
-					int quantita = mappaProdottiQuantita.containsKey(sku) ? mappaProdottiQuantita.get(sku) : 0;
+					//Aggiorno la giusta quantita per il codiceUnivoco
+					String idUnivocoArticolo = riga.getIdUniArticolo();
+					int quantita = mappaProdottiQuantita.containsKey(idUnivocoArticolo) ? mappaProdottiQuantita.get(idUnivocoArticolo) : 0;
 					quantita += riga.getQtaImballata();
-					mappaProdottiQuantita.put(sku, quantita);
+					mappaProdottiQuantita.put(idUnivocoArticolo, quantita);
 					//Aggiungo il seriale alla lista
 					seriali.add(riga.getSeriale());
 				}
 			}
 			//Aggiungo ogni SKU trovato e la relativa quantita alla lista dei prodotti.
-			for (String sku : mappaProdottiQuantita.keySet()) {
+			for (String idUnivocoArticolo : mappaProdottiQuantita.keySet()) {
+				//Recupero l'anagrafica articolo necessaria
+				Articoli articolo = daoArticoli.trovaDaIDUnivoco(idUnivocoArticolo);
+				if (articolo == null) throw new CustomException("Nessun articolo trovato con ID univoco: " + idUnivocoArticolo);
 				ProdottoImballatoJSON prodottoImballato = new ProdottoImballatoJSON();
-				prodottoImballato.setProdotto(sku);
-				prodottoImballato.setQuantitaImballata(mappaProdottiQuantita.get(sku));
+				prodottoImballato.setProdotto(articolo.getCodArtStr());
+				prodottoImballato.setDescrizione(articolo.getDescrizione());
+				prodottoImballato.setTaglia(articolo.getTaglia());
+				prodottoImballato.setQuantitaImballata(mappaProdottiQuantita.get(idUnivocoArticolo));
 				prodotti.add(prodottoImballato);
 			}
 			imballo.setProdotti(prodotti);

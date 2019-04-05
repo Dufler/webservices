@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ProdottoImballatoJSON {
 	
 	private String prodotto;
+	private String descrizione;
+	private String taglia;
 	private int quantitaImballata;
 	
 	public ProdottoImballatoJSON() {}
@@ -16,6 +18,22 @@ public class ProdottoImballatoJSON {
 
 	public void setProdotto(String prodotto) {
 		this.prodotto = prodotto;
+	}
+
+	public String getDescrizione() {
+		return descrizione;
+	}
+
+	public void setDescrizione(String descrizione) {
+		this.descrizione = descrizione;
+	}
+
+	public String getTaglia() {
+		return taglia;
+	}
+
+	public void setTaglia(String taglia) {
+		this.taglia = taglia;
 	}
 
 	public int getQuantitaImballata() {

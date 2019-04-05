@@ -19,8 +19,12 @@ public class MovimentoProdotto {
 	private Date dataMovimento;
 	
 	private String causale;
+	private String causaleLegacy;
+	
 	private String magazzino;
 	private int quantita;
+	
+	private String note;
 	
 	public MovimentoProdotto() {}
 
@@ -80,6 +84,14 @@ public class MovimentoProdotto {
 		this.causale = causale;
 	}
 
+	public String getCausaleLegacy() {
+		return causaleLegacy;
+	}
+
+	public void setCausaleLegacy(String causaleLegacy) {
+		this.causaleLegacy = causaleLegacy;
+	}
+
 	public String getMagazzino() {
 		return magazzino;
 	}
@@ -94,6 +106,14 @@ public class MovimentoProdotto {
 
 	public void setQuantita(int quantita) {
 		this.quantita = quantita;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 }
