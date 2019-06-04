@@ -21,7 +21,6 @@
 		<project>it.ltc.model.shared</project>
 		<project>it.ltc.database.dao.shared</project>
 		<project>it.ltc.model.validation</project>
-		<project>ws.clara</project>
 		<project>it.ltc.utility.zpl</project>
 		<project>it.ltc.database.dao.costanti</project>
 		<project>it.ltc.database.dao.utente</project>

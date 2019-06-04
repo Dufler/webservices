@@ -44,6 +44,7 @@ public class MagazzinoLegacyDaoImpl extends MagazzinoDao implements IMagazzinoDa
 			json.setCodiceLTC(entity.getCodiceMag());
 			json.setCodiceCliente(entity.getMagaCliente());
 			json.setDescrizione(entity.getDesMag());
+			json.setMagazzinoDefault("SI".equals(entity.getMagazzinoDefault()));
 		} else {
 			json = null;
 		}

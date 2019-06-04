@@ -19,10 +19,4 @@
       <context-root>sede</context-root>
     </web>
   </module>
-  <module>
-    <web>
-      <web-uri>ws.clara.war</web-uri>
-      <context-root>clara</context-root>
-    </web>
-  </module>
 </application>

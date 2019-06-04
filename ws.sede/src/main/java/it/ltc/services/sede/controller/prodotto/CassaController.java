@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,8 @@ import it.ltc.services.custom.controller.RestController;
 import it.ltc.services.sede.data.prodotto.CassaDAOFactory;
 import it.ltc.services.sede.validation.prodotto.CassaValidator;
 
+@Controller
+@RequestMapping("/cassa")
 public class CassaController extends RestController {
 	
 	private static final Logger logger = Logger.getLogger(CassaController.class);

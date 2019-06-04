@@ -30,8 +30,6 @@ import it.ltc.services.sede.validation.prodotto.ProdottoValidator;
 @RequestMapping("/prodotto")
 public class ProdottoController extends RestController {
 	
-	public static final int ID_PERMESSO_WEB_SERVICE = 2;
-	
 	private static final Logger logger = Logger.getLogger(ProdottoController.class);
 	
 	@Autowired
@@ -55,9 +53,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> inserisci(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		logger.info("Nuova richiesta di inserimento prodotto: " + prodotto);
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di inserimento prodotto: " + prodotto + " dall'utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.inserisci(prodotto);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
@@ -68,9 +65,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/cerca")
 	public ResponseEntity<List<ProdottoJSON>> cerca(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		logger.info("Nuova richiesta di ricerca");
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di ricerca dall'utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> entities = dao.trova(prodotto);
 		HttpStatus status = entities != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
@@ -80,8 +76,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> modifica(@Valid @RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		logger.info("Nuova richiesta di modifica prodotto: " + prodotto);
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Nuova richiesta di modifica prodotto: " + prodotto + " dall'utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.aggiorna(prodotto);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -92,9 +88,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<ProdottoJSON> dismetti(@RequestBody ProdottoJSON prodotto, @RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		logger.info("Nuova richiesta di dismissione prodotto: " + prodotto);
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
-		logger.info("Utente: " + user.getUsername());
+		logger.info("Nuova richiesta di dismissione prodotto: " + prodotto + "dall'utente: " + user.getUsername());
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON entity = dao.dismetti(prodotto);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
@@ -105,8 +100,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<ProdottoJSON>> lista(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa) {
-		logger.info("Nuova richiesta di elenco prodotti");
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Nuova richiesta di elenco prodotti dall'utente: " + user.getUsername());		
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		List<ProdottoJSON> prodotti = dao.trovaTutti();
 		HttpStatus status = prodotti.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
@@ -117,8 +112,8 @@ public class ProdottoController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json", value="/{id}")
 	public ResponseEntity<ProdottoJSON> trovaDaID(@RequestHeader("authorization") String authenticationString, @RequestHeader(value="commessa", required=false) String risorsaCommessa, @PathVariable(value="id") Integer idProdotto) {
-		logger.info("Nuova richiesta di dettaglio prodotto");
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
+		logger.info("Nuova richiesta di dettaglio prodotto dall'utente: " + user.getUsername());		
 		IProdottoDao dao = factory.getDao(user, risorsaCommessa);
 		ProdottoJSON prodotto = dao.trovaPerID(idProdotto);
 		HttpStatus status = prodotto == null ? HttpStatus.BAD_REQUEST : HttpStatus.OK;

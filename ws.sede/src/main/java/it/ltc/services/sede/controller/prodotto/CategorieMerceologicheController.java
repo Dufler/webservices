@@ -31,7 +31,7 @@ public class CategorieMerceologicheController extends RestController {
 		logger.info("Trovo tutti i tipi di carico per la commessa.");
 		UtenteUtenti user = checkCredentialsAndPermission(authenticationString, ID_PERMESSO_WEB_SERVICE);
 		ICategoriaMerceologicaDao dao = getDao(user, commessa);
-		List<CategoriaMerceologicaJSON> entities = dao.trovaTutte();
+		List<CategoriaMerceologicaJSON> entities = dao.trovaTutti();
 		HttpStatus status = entities.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 		ResponseEntity<List<CategoriaMerceologicaJSON>> response = new ResponseEntity<List<CategoriaMerceologicaJSON>>(entities, status);
 		return response;

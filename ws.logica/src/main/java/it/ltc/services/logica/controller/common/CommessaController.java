@@ -26,7 +26,7 @@ import it.ltc.services.logica.validation.common.CommessaValidator;
 @RequestMapping("/commessa")
 public class CommessaController {
 	
-	private static final Logger logger = Logger.getLogger("CommessaController");
+	private static final Logger logger = Logger.getLogger(CommessaController.class);
 	
     private final CommessaDao dao;
     
@@ -56,27 +56,27 @@ public class CommessaController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<Commessa> inserisci(@Valid @RequestBody Commessa contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<Commessa> inserisci(@Valid @RequestBody Commessa commessa, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Inserimento di una nuova entity.");
-		Commessa entity = dao.inserisci(contrassegno);
+		Commessa entity = dao.inserisci(commessa);
 		HttpStatus status = entity != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
 		ResponseEntity<Commessa> response = new ResponseEntity<Commessa>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-	public ResponseEntity<Commessa> modifica(@Valid @RequestBody Commessa contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<Commessa> modifica(@Valid @RequestBody Commessa commessa, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Modifica di una entity.");
-		Commessa entity = dao.aggiorna(contrassegno);
+		Commessa entity = dao.aggiorna(commessa);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
 		ResponseEntity<Commessa> response = new ResponseEntity<Commessa>(entity, status);
 		return response;
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<Commessa> elimina(@Valid @RequestBody Commessa contrassegno, @RequestHeader("authorization") String authenticationString) {
+	public ResponseEntity<Commessa> elimina(@Valid @RequestBody Commessa commessa, @RequestHeader("authorization") String authenticationString) {
 		logger.info("Eliminazione di una entity.");
-		Commessa entity = dao.elimina(contrassegno);
+		Commessa entity = dao.elimina(commessa);
 		HttpStatus status = entity != null ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
 		ResponseEntity<Commessa> response = new ResponseEntity<Commessa>(entity, status);
 		return response;

@@ -39,7 +39,6 @@ public class OrdineController extends RestController {
 	
 	private static final Logger logger = Logger.getLogger("OrdineController");
 
-	public static final int ID_PERMESSO_WEB_SERVICE = 2;
 	public static final int ID_CRUD_ORDINI = Permessi.UFFICIO_USCITE.getID();
 	
 	@Autowired

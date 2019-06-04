@@ -2,9 +2,9 @@ package it.ltc.services.logica.data.utente;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -126,7 +126,7 @@ public class UserController extends UtenteDao {
 		corpo += "puoi reimpostare la tua password.\n\r\n\r";
 		corpo += "Cordiali saluti,\n\r";
 		corpo += "L&TC";
-		List<String> destinatari = new ArrayList<String>();
+		Set<String> destinatari = new HashSet<String>();
 		destinatari.add(indirizzoMailDestinario);
 		destinatari.add(account.getEmail());
 		MailConfiguration config = MailConfiguration.getArubaPopConfiguration(indirizzoMail, passwordMail);

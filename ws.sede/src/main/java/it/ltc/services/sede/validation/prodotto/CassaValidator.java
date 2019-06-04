@@ -8,6 +8,7 @@ import org.springframework.validation.Validator;
 
 import it.ltc.model.shared.json.cliente.CassaJSON;
 import it.ltc.model.shared.json.cliente.ElementoCassaJSON;
+import it.ltc.model.shared.json.cliente.TipoCassa;
 
 @Component
 public class CassaValidator implements Validator {
@@ -22,13 +23,14 @@ public class CassaValidator implements Validator {
 	public void validate(Object arg0, Errors errors) {
 		CassaJSON cassa = (CassaJSON) arg0;
 		
-		String tipo = cassa.getTipo(); 
-		if (tipo == null || tipo.isEmpty()) {
+		TipoCassa tipo = cassa.getTipo(); 
+		if (tipo == null) {
 			errors.reject("tipocassa.necessario", "Il tipo della cassa è obbligatorio.");
-		} else switch (tipo) {
-			case "NO" : case "STANDARD" : case "BUNDLE" : break; //DO NOTHING!
-			default : errors.reject("tipocassa.nonvalido", "Il tipo della cassa può assumere solo i valori NO, STANDARD e BUNDLE.");
-		}
+		} 
+//		else switch (tipo) {
+//			case "NO" : case "STANDARD" : case "BUNDLE" : break; //DO NOTHING!
+//			default : errors.reject("tipocassa.nonvalido", "Il tipo della cassa può assumere solo i valori NO, STANDARD e BUNDLE.");
+//		}
 		
 		String modello = cassa.getModello();
 		if (modello != null && modello.length() > 50)

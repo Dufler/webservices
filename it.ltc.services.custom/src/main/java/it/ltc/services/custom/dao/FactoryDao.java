@@ -29,11 +29,18 @@ public abstract class FactoryDao<T> {
 	
 	/**
 	 * Cerca tra le varie implementazioni una che vada bene per l'utente e la commessa.
-	 * @param commessa
-	 * @return
+	 * E' necessario che l'utente disponga dei permessi per poterla usare.
 	 */
 	public T getDao(UtenteUtenti user, String risorsaCommessa) {
-		CommessaUtenti commessa = loginManager.getCommessaByUserAndResource(user, risorsaCommessa);
+		return getDao(user, risorsaCommessa, true);
+	}
+	
+	/**
+	 * Cerca tra le varie implementazioni una che vada bene per l'utente e la commessa.
+	 * E' possibile specificare se devono essere controllati i permessi dell'utente per la commessa specificata.
+	 */
+	public T getDao(UtenteUtenti user, String risorsaCommessa, boolean checkPermessoCommessa) {
+		CommessaUtenti commessa = checkPermessoCommessa ? loginManager.getCommessaByUserAndResource(user, risorsaCommessa) : loginManager.getCommessaByResource(risorsaCommessa);
 		if (commessa != null)
 			return findDao(user, commessa);
 		else {

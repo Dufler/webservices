@@ -5,7 +5,7 @@ import java.util.List;
 public class CassaJSON {
 	
 	private int idCassa;
-	private String tipo;
+	private TipoCassa tipo;
 	private String modello;
 	private String codiceCassa;
 	private List<ElementoCassaJSON> prodotti;
@@ -20,11 +20,11 @@ public class CassaJSON {
 		this.idCassa = idCassa;
 	}
 
-	public String getTipo() {
+	public TipoCassa getTipo() {
 		return tipo;
 	}
 
-	public void setTipo(String tipo) {
+	public void setTipo(TipoCassa tipo) {
 		this.tipo = tipo;
 	}
 

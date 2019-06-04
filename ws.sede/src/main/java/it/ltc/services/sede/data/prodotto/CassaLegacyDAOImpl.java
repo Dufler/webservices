@@ -4,31 +4,51 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import it.ltc.database.dao.legacy.ArticoliDao;
 import it.ltc.database.dao.legacy.bundle.CasseDao;
+import it.ltc.database.model.legacy.Articoli;
 import it.ltc.database.model.legacy.bundle.Casse;
 import it.ltc.model.shared.dao.ICassaDao;
 import it.ltc.model.shared.json.cliente.CassaJSON;
 import it.ltc.model.shared.json.cliente.ElementoCassaJSON;
+import it.ltc.model.shared.json.cliente.TipoCassa;
 import it.ltc.services.custom.exception.CustomException;
 
 public class CassaLegacyDAOImpl extends CasseDao implements ICassaDao {
+	
+	protected final ArticoliDao daoArticoli;
 
 	public CassaLegacyDAOImpl(String persistenceUnit) {
 		super(persistenceUnit);
+		daoArticoli = new ArticoliDao(persistenceUnit);
 	}
 
 	@Override
 	public CassaJSON salva(CassaJSON json) {
 		//elimino la composizione esistente e salvo la nuova
 		List<Casse> ListaProdottiCassa = new LinkedList<>();
-		for (ElementoCassaJSON prodotto : json.getProdotti()) {
+		for (ElementoCassaJSON elemento : json.getProdotti()) {
+			//verifico che la cassa e il prodotto singolo esistano
+			Articoli prodotto = daoArticoli.trovaDaID(elemento.getIdProdotto());
+			if (prodotto == null) {
+				throw new CustomException("Il prodotto contenuto nella cassa non esiste. (ID: " + elemento.getIdProdotto() + ")");
+			}
+			Articoli cassa = daoArticoli.trovaDaID(json.getIdCassa());
+			if (cassa == null) {
+				throw new CustomException("La cassa indicata non esiste. (ID: " + json.getIdCassa() + ")");
+			} else if (cassa.getCassa().equals("NO")) {
+				throw new CustomException("Il prodotto indicato come cassa non è una cassa. (ID: " + json.getIdCassa() + ")");
+			}
+			//Compongo le info sull'elemento della cassa
 			Casse elementoCassa = new Casse();
 			elementoCassa.setCodiceCassa(json.getCodiceCassa());
 			elementoCassa.setModello(json.getModello());
-			elementoCassa.setTipo(json.getTipo());
+			elementoCassa.setTipo(json.getTipo().name());
 			elementoCassa.setIdCassa(json.getIdCassa());
-			elementoCassa.setIdProdotto(prodotto.getIdProdotto());
-			elementoCassa.setQuantitaProdotto(prodotto.getQuantita());
+			elementoCassa.setIdProdotto(elemento.getIdProdotto());
+			elementoCassa.setQuantitaProdotto(elemento.getQuantita());
+			elementoCassa.setIdUnivocoCassa(cassa.getIdUniArticolo());
+			elementoCassa.setIdUnivocoProdotto(prodotto.getIdUniArticolo());
 			ListaProdottiCassa.add(elementoCassa);
 		}
 		try {
@@ -89,7 +109,7 @@ public class CassaLegacyDAOImpl extends CasseDao implements ICassaDao {
 			Casse cassa = composizione.get(0);
 			json.setCodiceCassa(cassa.getCodiceCassa());
 			json.setModello(cassa.getModello());
-			json.setTipo(cassa.getTipo());
+			json.setTipo(TipoCassa.getTipo(cassa.getTipo()));
 			json.setIdCassa(cassa.getIdCassa());
 			//Imposto la composizione
 			List<ElementoCassaJSON> prodotti = new LinkedList<>();

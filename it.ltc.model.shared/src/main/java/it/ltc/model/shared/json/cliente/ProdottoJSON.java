@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class ProdottoJSON {
 	
 	private int id;
-	private String cassa;
+	private TipoCassa cassa;
 	private String chiaveCliente;
 	private String codiceModello;
 	private String barcode;
@@ -61,11 +61,11 @@ public class ProdottoJSON {
 		this.barcode = barcode;
 	}
 
-	public String getCassa() {
+	public TipoCassa getCassa() {
 		return this.cassa;
 	}
 
-	public void setCassa(String cassa) {
+	public void setCassa(TipoCassa cassa) {
 		this.cassa = cassa;
 	}
 

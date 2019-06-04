@@ -12,6 +12,7 @@ public class MagazzinoJSON {
 	private String codiceLTC;
 	private String codiceCliente;
 	private String descrizione;
+	private boolean magazzinoDefault;
 	
 	public MagazzinoJSON() {}
 
@@ -37,6 +38,14 @@ public class MagazzinoJSON {
 
 	public void setDescrizione(String descrizione) {
 		this.descrizione = descrizione;
+	}
+
+	public boolean isMagazzinoDefault() {
+		return magazzinoDefault;
+	}
+
+	public void setMagazzinoDefault(boolean magazzinoDefault) {
+		this.magazzinoDefault = magazzinoDefault;
 	}
 
 	@Override

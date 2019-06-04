@@ -177,12 +177,6 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		return serializza(entity);
 	}
 
-//	@Override
-//	public OrdineTestata modificaStato(OrdineTestata json) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 	@Override
 	public OrdineTestata trovaPerID(int id) {
 		TestataOrdini entity = findByID(id);
@@ -196,6 +190,13 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		String stato = esistente.getStato();
 		if (!("IMPO".equals(stato) || "ASSE".equals(stato)))
 			throw new CustomException("L'ordine non può essere assegnato. (ID: " + idOrdine + ", stato: " + esistente.getStato() + ")");
+		return esistente;
+	}
+	
+	protected TestataOrdini checkRecuperoAssegnazione(int idOrdine) {
+		TestataOrdini esistente = trovaDaID(idOrdine);
+		if (esistente == null)
+			throw new CustomException("L'ID indicato per l'ordine non esiste. (" + idOrdine + ")");
 		return esistente;
 	}
 	
@@ -322,7 +323,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	
 	@Override
 	public RisultatoAssegnazioneOrdine recuperaAssegnazione(int idOrdine) {
-		checkAssegnazione(idOrdine);
+		checkRecuperoAssegnazione(idOrdine);
 		RisultatoAssegnazioneOrdine json = serializzaAssegnazione(idOrdine);
 		return json;
 	}
@@ -623,7 +624,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	
 	protected MInfoSpedizione serializza(DatiSpedizione json) {
 		MInfoSpedizione model = new MInfoSpedizione();
-		model.setAbilitaPartenza(json.isAbilitaPartenza());
+//		model.setAbilitaPartenza(json.isAbilitaPartenza());
 		model.setCodiceCorriere(json.getCodiceCorriere());
 		model.setCodiceTracking(json.getCodiceTracking());
 		//Contrassegno
@@ -660,7 +661,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	
 	protected DatiSpedizione deserializza(MInfoSpedizione model) {
 		DatiSpedizione json = new DatiSpedizione();
-		json.setAbilitaPartenza(model.isAbilitaPartenza());
+//		json.setAbilitaPartenza(model.isAbilitaPartenza());
 		json.setCodiceCorriere(model.getCodiceCorriere());
 		json.setCodiceTracking(model.getCodiceTracking());
 		json.setColli(model.getColli());
@@ -700,7 +701,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 	
 	protected DatiSpedizione serializza(TestaCorr spedizione) {
 		DatiSpedizione dati = new DatiSpedizione();
-		dati.setAbilitaPartenza(spedizione.getTrasmesso() > 0);
+//		dati.setAbilitaPartenza(spedizione.getTrasmesso() > 0);
 		dati.setCorriere(spedizione.getCorriere());
 		dati.setServizioCorriere(spedizione.getServizio());
 		dati.setCodiceCorriere(spedizione.getCodMittente());
@@ -720,12 +721,21 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		dati.setColli(spedizione.getNrColli());
 		dati.setPeso(spedizione.getPeso());
 		dati.setVolume(spedizione.getVolume());
+		dati.setStato(spedizione.getStato());
+		//campi indirizzo
+		dati.setRiferimento(spedizione.getMittenteAlfa());
+		dati.setRagioneSociale(spedizione.getRagSocDest());
+		dati.setIndirizzo(spedizione.getIndirizzo());
+		dati.setLocalita(spedizione.getLocalita());
+		dati.setProvincia(spedizione.getProvincia());
+		dati.setCap(spedizione.getCap());
+		dati.setNazione(spedizione.getNazione());
 		return dati;
 	}
 	
 	protected DatiSpedizione serializza(TempCorr spedizione) {
 		DatiSpedizione dati = new DatiSpedizione();
-		dati.setAbilitaPartenza(false);
+//		dati.setAbilitaPartenza(false);
 		dati.setCorriere(spedizione.getCodcorriere());
 		dati.setServizioCorriere(spedizione.getServizio());
 		dati.setCodiceCorriere(spedizione.getCodCliente());
@@ -735,6 +745,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		//dati.setId(spedizione.getIdTempCor()); //Uso tempCorr solo al momento di recuperare i dati la prima volta quando sono solo li.
 		dati.setNote(spedizione.getNote());
 		dati.setRiferimentoDocumento(spedizione.getRiferimento());
+		dati.setRiferimento(spedizione.getRiferimento());
 		dati.setTipoContrassegno(spedizione.getTipoIncasso());
 		dati.setValoreContrassegno(spedizione.getValContra());
 		dati.setValutaContrassegno("EUR");
@@ -745,6 +756,7 @@ public class OrdineLegacyDAOImpl extends TestataOrdiniDao implements IOrdineDao 
 		dati.setColli(spedizione.getNrColli());
 		dati.setPeso(spedizione.getPesoKg());
 		dati.setVolume(spedizione.getVolume());
+		dati.setStato("NONE");
 		return dati;
 	}
 	

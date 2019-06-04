@@ -134,6 +134,14 @@ public class LoginController {
 		}
 		return commessa;
 	}
+	
+	/**
+	 * Restituisce la commessa da utilizzare in base alla risorsa specificata senza eseguire controlli.
+	 */
+	public CommessaUtenti getCommessaByResource(String risorsaCommessa) {
+		CommessaUtenti commessa = commesseDao.trovaDaRisorsa(risorsaCommessa);
+		return commessa;
+	}
 
 	/**
 	 * Ottiene l'hash della stringa tramite l'algoritmo SHA-256.
